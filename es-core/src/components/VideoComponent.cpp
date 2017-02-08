@@ -16,6 +16,8 @@ VideoComponent::VideoComponent(Window* window) :
 	mStartDelayed(false),
 	mIsPlaying(false),
 	mShowing(false),
+	mScreensaverActive(false),
+	mDisable(false),
 	mTargetIsMax(false),
 	mOrigin(0, 0),
 	mTargetSize(0, 0)
@@ -333,8 +335,9 @@ void VideoComponent::update(int deltaTime)
 
 void VideoComponent::manageState()
 {
-	// We will only show if the component is on display
-	bool show = mShowing;
+	// We will only show if the component is on display and the screensaver
+	// is not active
+	bool show = mShowing && !mScreensaverActive && !mDisable;
 
 	// See if we're already playing
 	if (mIsPlaying)
@@ -377,4 +380,20 @@ void VideoComponent::onHide()
 	manageState();
 }
 
+void VideoComponent::onScreenSaverActivate()
+{
+	mScreensaverActive = true;
+	manageState();
+}
 
+void VideoComponent::onScreenSaverDeactivate()
+{
+	mScreensaverActive = false;
+	manageState();
+}
+
+void VideoComponent::topWindow(bool isTop)
+{
+	mDisable = !isTop;
+	manageState();
+}
