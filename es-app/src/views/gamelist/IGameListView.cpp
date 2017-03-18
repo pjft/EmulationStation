@@ -8,6 +8,7 @@
 #include "Log.h"
 #include "Sound.h"
 
+// pjft - This is where I'll change the filtering as well
 bool IGameListView::input(InputConfig* config, Input input)
 {
 	// select to open GuiGamelistOptions

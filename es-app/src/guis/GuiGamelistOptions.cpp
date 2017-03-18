@@ -57,8 +57,11 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 	mMenu.setPosition((mSize.x() - mMenu.getSize().x()) / 2, (mSize.y() - mMenu.getSize().y()) / 2);
 }
 
+// pjft - this is where I'll filter!
 GuiGamelistOptions::~GuiGamelistOptions()
 {
+	// pjft - we should check if we changed the sorting order, otherwise we shouldn't need to do this
+	
 	// apply sort
 	FileData* root = getGamelist()->getCursor()->getSystem()->getRootFolder();
 	root->sort(*mListSort->getSelected()); // will also recursively sort children

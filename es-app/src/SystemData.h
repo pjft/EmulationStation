@@ -15,7 +15,7 @@ public:
 		const std::string& command, const std::vector<PlatformIds::PlatformId>& platformIds, const std::string& themeFolder);
 	~SystemData();
 
-	inline FileData* getRootFolder() const { return mRootFolder; };
+	inline FileData* getRootFolder() const { return mRootFolder; }; // pjft - need to change this to account for filtering
 	inline const std::string& getName() const { return mName; }
 	inline const std::string& getFullName() const { return mFullName; }
 	inline const std::string& getStartPath() const { return mStartPath; }

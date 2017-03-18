@@ -42,6 +42,7 @@ void ISimpleGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& theme
 	}
 }
 
+// pjft - it's here we'll handle the filtering!
 void ISimpleGameListView::onFileChanged(FileData* file, FileChangeType change)
 {
 	// we could be tricky here to be efficient;
@@ -51,6 +52,7 @@ void ISimpleGameListView::onFileChanged(FileData* file, FileChangeType change)
 	setCursor(cursor);
 }
 
+// pjft - this is also where I'll see code for populating the lists
 bool ISimpleGameListView::input(InputConfig* config, Input input)
 {
 	if(input.value != 0)

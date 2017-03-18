@@ -23,6 +23,7 @@ void BasicGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& theme)
 	mList.applyTheme(theme, getName(), "gamelist", ALL);
 }
 
+// pjft - this is where we'll change the UI!
 void BasicGameListView::onFileChanged(FileData* file, FileChangeType change)
 {
 	if(change == FILE_METADATA_CHANGED)
