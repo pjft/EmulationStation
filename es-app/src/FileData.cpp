@@ -44,7 +44,7 @@ std::string removeParenthesis(const std::string& str)
 
 
 FileData::FileData(FileType type, const fs::path& path, SystemData* system)
-	: mType(type), mPath(path), mSystem(system), mParent(NULL), metadata(type == GAME ? GAME_METADATA : FOLDER_METADATA) // metadata is REALLY set in the constructor!
+	: mType(type), mPath(path), mSystem(system), mPlaceHolder(false), mParent(NULL), metadata(type == GAME ? GAME_METADATA : FOLDER_METADATA) // metadata is REALLY set in the constructor!
 {
 	// metadata needs at least a name field (since that's what getName() will return)
 	if(metadata.get("name").empty())
@@ -79,6 +79,37 @@ const std::string& FileData::getThumbnailPath() const
 		return metadata.get("thumbnail");
 	else
 		return metadata.get("image");
+}
+
+const std::vector<FileData*>& FileData::getChildrenListToDisplay() {
+	
+	FileFilterIndex* idx = mSystem->getIndex();
+	if (idx->isFiltered()) {
+		mFilteredChildren.clear();
+		for(auto it = mChildren.begin(); it != mChildren.end(); it++)
+		{
+			if (idx->showFile((*it))) {
+				mFilteredChildren.push_back(*it);
+			}
+		}
+
+		// need to check if list is empty, and if so add a placeholder node
+		if (mFilteredChildren.size() == 0) 
+		{
+			// add a placeholder
+			// for now, just create a new FileData of type Folder, with no children
+			// maybe in the future makes sense to create a third type of FileData?
+			FileData* placeholder = new FileData(FOLDER, "<No Results Found for Current Filter Criteria>", mSystem);
+			placeholder->setPlaceHolder(true);
+			mFilteredChildren.push_back(placeholder);
+		} 
+
+		return mFilteredChildren;
+	}
+	else 
+	{
+		return mChildren;
+	}
 }
 
 const std::string& FileData::getVideoPath() const

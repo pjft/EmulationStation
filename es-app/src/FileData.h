@@ -48,10 +48,14 @@ public:
 	virtual const std::string& getVideoPath() const;
 	virtual const std::string& getMarqueePath() const;
 
+	const std::vector<FileData*>& getChildrenListToDisplay();
 	std::vector<FileData*> getFilesRecursive(unsigned int typeMask) const;
 
 	void addChild(FileData* file); // Error if mType != FOLDER
 	void removeChild(FileData* file); //Error if mType != FOLDER
+
+	inline void setPlaceHolder(bool value) { mPlaceHolder = value; };
+	inline bool isPlaceHolder() { return mPlaceHolder; };
 
 	// Returns our best guess at the "real" name for this file (will attempt to perform MAME name translation)
 	std::string getDisplayName() const;
@@ -82,4 +86,6 @@ private:
 	FileData* mParent;
 	std::unordered_map<std::string,FileData*> mChildrenByFilename;
 	std::vector<FileData*> mChildren;
+	std::vector<FileData*> mFilteredChildren;
+	bool mPlaceHolder;
 };
