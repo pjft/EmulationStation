@@ -164,6 +164,64 @@ void onExit()
 	Log::close();
 }
 
+#ifdef _RPI_
+int getfreememory()
+{
+  int returnValue;
+  const int BUFFER_SIZE = 1000;
+  char buffer[BUFFER_SIZE];
+  FILE *fInput;
+  int loop;
+  int len;
+  char ch;
+  returnValue = -1;
+  fInput = fopen("/proc/meminfo","r");
+  if (fInput != NULL)
+  {
+    while (!feof(fInput))
+    {
+      fgets(buffer,BUFFER_SIZE-1,fInput);
+      if (feof(fInput))
+      {
+        break;
+      }
+      buffer[BUFFER_SIZE-1] = 0;
+      // Look for serial number
+      if (strncmp(buffer,"MemFree:",8)==0)
+      {
+        // Extract mem free from the line.
+        for(loop=0;loop<BUFFER_SIZE;loop++)
+        {
+          ch = buffer[loop];
+          if (ch == ':')
+          {
+             returnValue = 0;
+             continue;
+          }
+          if (ch == 0)
+          {
+              break;
+          }
+          if (returnValue >=0)
+          {
+             if (ch >='A')
+             {
+                break;
+             }
+             if ((ch >='0') && (ch <='9'))
+             {
+                returnValue = returnValue * 10 + (ch-'0');
+             }
+          }
+        }
+        break;
+      }
+    } 
+    fclose(fInput);
+  }
+  return returnValue;
+}
+
 int main(int argc, char* argv[])
 {
 	unsigned int width = 0;
@@ -239,6 +297,14 @@ int main(int argc, char* argv[])
 	}
 
 	const char* errorMsg = NULL;
+
+// logging memory usage
+#ifdef _RPI_
+	float startTime = SDL_GetTicks();
+	float startMemory = getfreememory();
+
+	LOG(LogInfo) << "Memory at start: " << getfreememory() << "Kb";
+#endif
 	if(!loadSystemConfigFile(&errorMsg))
 	{
 		// something went terribly wrong
@@ -260,6 +326,12 @@ int main(int argc, char* argv[])
 			}));
 	}
 
+// logging memory usage
+#ifdef _RPI_
+	LOG(LogInfo) << "Loading Configs took: " << (SDL_GetTicks()-startTime)/1000 << "secs";
+	LOG(LogInfo) << "Memory at end: " << getfreememory() << "Kb";
+#endif
+
 	//run the command line scraper then quit
 	if(scrape_cmdline)
 	{
@@ -271,7 +343,21 @@ int main(int argc, char* argv[])
 
 	// preload what we can right away instead of waiting for the user to select it
 	// this makes for no delays when accessing content, but a longer startup time
+
+// logging memory usage
+#ifdef _RPI_
+	float preTime = SDL_GetTicks();
+#endif
+
 	ViewController::get()->preload();
+
+// logging memory usage
+#ifdef _RPI_
+	LOG(LogInfo) << "Preloading Views took: " << (SDL_GetTicks()-preTime)/1000 << "secs";
+	LOG(LogInfo) << "Memory at end of views: " << getfreememory() << "Kb";
+
+	preTime = SDL_GetTicks();	
+#endif
 
 	//choose which GUI to open depending on if an input configuration already exists
 	if(errorMsg == NULL)
@@ -284,11 +370,22 @@ int main(int argc, char* argv[])
 		}
 	}
 
+// logging memory usage
+#ifdef _RPI_
+	LOG(LogInfo) << "Navigating to start took: " << (SDL_GetTicks()-preTime)/1000 << "secs";
+#endif
+
 	//generate joystick events since we're done loading
 	SDL_JoystickEventState(SDL_ENABLE);
 
 	int lastTime = SDL_GetTicks();
 	bool running = true;
+
+// logging memory usage
+#ifdef _RPI_
+	LOG(LogInfo) << "Loading ES took: " << (SDL_GetTicks()-startTime)/1000 << "secs";
+	LOG(LogInfo) << "Memory at end of loading: " << getfreememory() << "Kb";
+#endif
 
 	while(running)
 	{
@@ -347,3 +444,4 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
+#endif
