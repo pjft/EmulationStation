@@ -7,6 +7,7 @@
 #include "MetaData.h"
 #include "PlatformId.h"
 #include "ThemeData.h"
+#include "FileFilterIndex.h"
 
 class SystemData
 {
