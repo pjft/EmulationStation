@@ -26,6 +26,12 @@ bool IGameListView::input(InputConfig* config, Input input)
 		ViewController::get()->reloadGameListView(this, true);
 		return true;
 	}
+	// pjft test filter
+	if(config->isMappedTo("y", input) && input.value) {
+		FileFilterIndex* idx = this->mRoot->getSystem()->getIndex();
+		std::vector<std::string> filters ("ACTION", "ADVENTURE", "BREAKOUT", "CLIMBING");
+		idx->setFilter(GENRE_FILTER, filters);
+	}
 
 	return GuiComponent::input(config, input);
 }

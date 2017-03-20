@@ -44,6 +44,8 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 
 	for(auto it = files.begin(); it != files.end(); it++)
 	{
+		// pjft - we can try to filter on render, rather than creating and managing fake FileData
+		// use showFile from index
 		mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
 	}
 }
