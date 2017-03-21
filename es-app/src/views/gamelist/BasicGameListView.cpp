@@ -5,6 +5,7 @@
 #include "ThemeData.h"
 #include "SystemData.h"
 #include "Settings.h"
+#include "FileFilterIndex.h"
 
 BasicGameListView::BasicGameListView(Window* window, FileData* root)
 	: ISimpleGameListView(window, root), mList(window)
@@ -39,20 +40,46 @@ void BasicGameListView::onFileChanged(FileData* file, FileChangeType change)
 void BasicGameListView::populateList(const std::vector<FileData*>& files)
 {
 	mList.clear();
-
 	mHeaderText.setText(files.at(0)->getSystem()->getFullName());
+	float startTime = SDL_GetTicks();
 
-	for(auto it = files.begin(); it != files.end(); it++)
-	{
-		// pjft - we can try to filter on render, rather than creating and managing fake FileData
-		// use showFile from index
-		mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
+	LOG(LogInfo) << "Populating List for " << files.at(0)->getSystem()->getFullName();
+	// this looks ugly, but I believe may be more performant
+	FileFilterIndex* idx = this->mRoot->getSystem()->getIndex();
+	if (idx->isFiltered()) {
+		for(auto it = files.begin(); it != files.end(); it++)
+		{
+			// pjft - we can try to filter on render, rather than creating and managing fake FileData
+			if (idx->showFile((*it))) {
+				mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
+			}
+		}
 	}
+	else 
+	{
+		for(auto it = files.begin(); it != files.end(); it++)
+		{
+			mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
+		}
+	}
+	LOG(LogInfo) << "Populating List took " << (SDL_GetTicks()-startTime)/1000 << "secs.";
+	// pjft - need to check if list is empty, and if so add a placeholder node
+	if (mList.size() == 0) 
+	{
+		// add a placeholder
+		// for now, just create a new FileData
+		FileData* placeholder = new FileData(FOLDER, "", files.at(0)->getSystem());
+		mList.add("<No Results Found for Current Filter Criteria>", placeholder, true);
+	} 
 }
 
 FileData* BasicGameListView::getCursor()
 {
 	return mList.getSelected();
+}
+
+void BasicGameListView::resetCursor() {
+	mList.resetCursor();
 }
 
 void BasicGameListView::setCursor(FileData* cursor)

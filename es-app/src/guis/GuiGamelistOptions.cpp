@@ -5,9 +5,11 @@
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
 	mSystem(system), 
-	mMenu(window, "OPTIONS")
+	mMenu(window, "OPTIONS"), fromPlaceholder(false)
 {
 	addChild(&mMenu);
+
+	// check it's not a placeholder folder - if it is, only show "Filter Options"
 
 	// jump to letter
 	char curChar = toupper(getGamelist()->getCursor()->getName()[0]);
@@ -45,7 +47,6 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 	mMenu.addWithLabel("SORT GAMES BY", mListSort);
 
-	// edit game metadata
 	row.elements.clear();
 	row.addElement(std::make_shared<TextComponent>(mWindow, "EDIT THIS GAME'S METADATA", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	row.addElement(makeArrow(mWindow), false);
@@ -57,17 +58,21 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 	mMenu.setPosition((mSize.x() - mMenu.getSize().x()) / 2, (mSize.y() - mMenu.getSize().y()) / 2);
 }
 
-// pjft - this is where I'll filter!
 GuiGamelistOptions::~GuiGamelistOptions()
 {
 	// pjft - we should check if we changed the sorting order, otherwise we shouldn't need to do this
 	
 	// apply sort
-	FileData* root = getGamelist()->getCursor()->getSystem()->getRootFolder();
-	root->sort(*mListSort->getSelected()); // will also recursively sort children
+	if (!fromPlaceholder) {
+		FileData* root = getGamelist()->getCursor()->getSystem()->getRootFolder();
+		root->sort(*mListSort->getSelected()); // will also recursively sort children
 
-	// notify that the root folder was sorted
-	getGamelist()->onFileChanged(root, FILE_SORTED);
+		// notify that the root folder was sorted
+		getGamelist()->onFileChanged(root, FILE_SORTED);
+	} 
+	
+	// do filtering, if applicable
+	
 }
 
 void GuiGamelistOptions::openMetaDataEd()

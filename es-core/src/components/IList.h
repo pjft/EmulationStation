@@ -149,6 +149,13 @@ public:
 		return false;
 	}
 	
+	// resets cursor to first in the list
+	void resetCursor()
+	{
+		mCursor = 0;
+		onCursorChanged(CURSOR_STOPPED);
+	}
+
 	// entry management
 	void add(const Entry& e)
 	{

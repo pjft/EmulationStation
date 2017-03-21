@@ -29,8 +29,20 @@ bool IGameListView::input(InputConfig* config, Input input)
 	// pjft test filter
 	if(config->isMappedTo("y", input) && input.value) {
 		FileFilterIndex* idx = this->mRoot->getSystem()->getIndex();
-		std::vector<std::string> filters ("ACTION", "ADVENTURE", "BREAKOUT", "CLIMBING");
-		idx->setFilter(GENRE_FILTER, filters);
+		if (idx->isFiltered()) {
+			idx->clearAllFilters();
+		}
+		else 
+		{
+			std::vector<std::string> filters;
+			filters.push_back("ACTION");
+			filters.push_back("ADVENTURE");
+			filters.push_back("BREAKOUT");
+			filters.push_back("CLIMBING");
+			filters.push_back("TABLETOP");
+			idx->setFilter(GENRE_FILTER, &filters);
+		}
+		ViewController::get()->reloadGameListView(this);
 	}
 
 	return GuiComponent::input(config, input);

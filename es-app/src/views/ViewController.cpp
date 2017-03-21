@@ -357,6 +357,9 @@ void ViewController::preload()
 
 void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 {
+	// pjft - debug logs
+	float startTime = SDL_GetTicks();
+	LOG(LogInfo) << "Reloading Gamelist View";
 	for(auto it = mGameListViews.begin(); it != mGameListViews.end(); it++)
 	{
 		if(it->second.get() == view)
@@ -364,13 +367,26 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 			bool isCurrent = (mCurrentView == it->second);
 			SystemData* system = it->first;
 			FileData* cursor = view->getCursor();
+
+			LOG(LogInfo) << "Cursor is Null? " << (cursor == NULL ? "True" : "False");
+			LOG(LogInfo) << "Cursor Name: " << cursor->getName();
+			LOG(LogInfo) << "Cursor Parent is Null? " << (cursor->getParent() == NULL ? "True" : "False");
+					
 			mGameListViews.erase(it);
 
 			if(reloadTheme)
 				system->loadTheme();
 
 			std::shared_ptr<IGameListView> newView = getGameListView(system);
-			newView->setCursor(cursor);
+
+			// to counter having come from a placeholder
+			if (cursor->getName() == "" && cursor->getParent() == NULL) {
+				// we came from a placeholder. Need to force select first element in the list.
+			} 
+			else 
+			{
+				newView->setCursor(cursor);
+			}
 
 			if(isCurrent)
 				mCurrentView = newView;
@@ -378,9 +394,11 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 			break;
 		}
 	}
+	LOG(LogInfo) << "Reloading Gamelist View took " << (SDL_GetTicks()-startTime)/1000 << "secs.";
 	// Redisplay the current view
 	if (mCurrentView)
 		mCurrentView->onShow();
+	LOG(LogInfo) << "Finished showing after " << (SDL_GetTicks()-startTime)/1000 << "secs.";
 
 }
 

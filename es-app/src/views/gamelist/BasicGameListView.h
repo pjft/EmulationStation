@@ -15,6 +15,7 @@ public:
 
 	virtual FileData* getCursor() override;
 	virtual void setCursor(FileData* file) override;
+	virtual void resetCursor() override;
 
 	virtual const char* getName() const override { return "basic"; }
 

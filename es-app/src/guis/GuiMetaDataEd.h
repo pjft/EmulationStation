@@ -40,4 +40,5 @@ private:
 	MetaDataList* mMetaData;
 	std::function<void()> mSavedCallback;
 	std::function<void()> mDeleteFunc;
+
 };

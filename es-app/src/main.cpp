@@ -165,6 +165,7 @@ void onExit()
 }
 
 #ifdef _RPI_
+// pjft - TO DELETE
 int getfreememory()
 {
   int returnValue;
@@ -221,6 +222,7 @@ int getfreememory()
   }
   return returnValue;
 }
+#endif
 
 int main(int argc, char* argv[])
 {
@@ -444,4 +446,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-#endif

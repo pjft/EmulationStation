@@ -14,43 +14,91 @@ FileFilterIndex::~FileFilterIndex()
 	clearIndex(ratingsIndex);
 }
 
-void FileFilterIndex::addToIndex(FileData* game)
+std::string FileFilterIndex::getIndexableKey(FileData* game, FilterIndexType type, bool getSecondary)
 {
-	// add to indexes, fully capitalized
-	std::string genre = strToUpper(game->metadata.get("genre"));
-
-	std::string developer = strToUpper(game->metadata.get("developer"));
-	std::string publisher = strToUpper(game->metadata.get("publisher"));
-
-	int players = 0;
-	if (game->metadata.get("players") != "") {
-		try {
-			players = std::stoi(game->metadata.get("players"));
-		} 
-		catch (int e) 
+	std::string key;
+	switch(type) 
+	{
+		case GENRE_FILTER:
 		{
-			LOG(LogError) << "Error parsing Players (invalid value, expected integer): " << game->metadata.get("players");
+			key = strToUpper(game->metadata.get("genre"));
+			
+			if (getSecondary && !key.empty()) {
+				std::istringstream f(key);
+			    std::string newKey;    
+			    getline(f, newKey, '/');
+		    	if (!newKey.empty() && newKey != key) 
+		    	{
+		    		key = newKey;
+		    	}
+		    	else
+		    	{
+		    		key = std::string();
+		    	}
+		    }
+			break;
+		}
+		case PLAYER_FILTER:
+		{
+			if (getSecondary)
+				break;
+			
+			key = game->metadata.get("players");
+			break;
+			// this is likely deprecated - let's test first
+			/*int players = 0;
+			if (!playersString.empty()) {
+				try {
+					players = std::stoi(playersString);
+				} 
+				catch (int e) 
+				{
+					LOG(LogError) << "Error parsing Players (invalid value, expected integer): " << playersString;
+				}
+			}
+			return std::string("" + players);*/
+		}
+		case PUBDEV_FILTER:
+		{
+			if (getSecondary)
+				key = strToUpper(game->metadata.get("developer"));
+			else
+				key = strToUpper(game->metadata.get("publisher"));
+		}
+		case RATINGS_FILTER:
+		{
+			if (getSecondary)
+				return std::string();
+			int rating = 0;
+			std::string ratingString = game->metadata.get("rating");
+			if (!ratingString.empty()) {
+				try {
+					rating = boost::math::iround(std::stod(ratingString));
+				} 
+				catch (int e) 
+				{
+					LOG(LogError) << "Error parsing Rating (invalid value, expected decimal): " << ratingString;
+				}	
+			}
+			return std::string("" + rating);
 		}
 	}
-
-	int rating = 0;
-	if (game->metadata.get("rating") != "") {
-		try {
-			boost::math::iround(std::stod(game->metadata.get("rating")));
-		} 
-		catch (int e) 
-		{
-			LOG(LogError) << "Error parsing Rating (invalid value, expected decimal): " << game->metadata.get("rating");
-		}	
+	boost::trim(key);
+	if (key.empty()) {
+		key = "UNKNOWN";
 	}
-
-	addGenreEntryToIndex(game, genre);
-	addPlayerEntryToIndex(game, players);
-	addPubDevEntryToIndex(game, publisher, developer);
-	addRatingsEntryToIndex(game, rating);
+	return key;
 }
 
-bool FileFilterIndex::setFilter(FilterIndexType type, const std::vector<std::string> values) 
+void FileFilterIndex::addToIndex(FileData* game)
+{
+	addGenreEntryToIndex(game);
+	addPlayerEntryToIndex(game);
+	addPubDevEntryToIndex(game);
+	addRatingsEntryToIndex(game);
+}
+
+bool FileFilterIndex::setFilter(FilterIndexType type, std::vector<std::string>* values) 
 {
 	// test if it exists before setting
 	switch(type) 
@@ -61,10 +109,10 @@ bool FileFilterIndex::setFilter(FilterIndexType type, const std::vector<std::str
 		case GENRE_FILTER:
 			filterByGenre = true;
 			filterByGenreKeys.clear();
-			for (std::vector<std::string>::iterator it = values.begin(); it != values.end(); ++it ) {
+			for (std::vector<std::string>::iterator it = values->begin(); it != values->end(); ++it ) {
 		        // check if exists
-		        if (genreIndex.find(it) != genreIndex.end()) {
-		        	filterByGenreKeys.push_back(std::string(it));
+		        if (genreIndex.find(*it) != genreIndex.end()) {
+		        	filterByGenreKeys.push_back(std::string(*it));
 		        }
 		    }	
 		    // debug
@@ -104,8 +152,14 @@ FileData* FileFilterIndex::getFilteredFolder()
 
 void FileFilterIndex::clearAllFilters() 
 {
-	curFilterType = NONE;
-	curFilterValue = "";
+	filterByGenre = false;
+	filterByGenreKeys.clear();
+	filterByPlayers = false;
+	filterByPlayerKeys.clear();
+	filterByPubDev = false;
+	filterByPubDevKeys.clear();
+	filterByRatings = false;
+	filterByRatingsKeys.clear();
 }
 
 void FileFilterIndex::rebuildIndex()
@@ -133,36 +187,79 @@ bool resetFilter(FilterIndexType type) {
 
 bool FileFilterIndex::showFile(FileData* game)
 {
-	// check if file matches filter
+	// this shouldn't happen, but just in case let's get it out of the way
+	if (!isFiltered())
+		return true;
 
 	// if folder, needs further inspection - i.e. see if folder contains at least one element
 	// that should be shown
+	if (game->getType() == FOLDER) {
+		bool found = false;
+		// iterate through all of the children, until there's a match
+		return false;
+	}
 
-	// wonder about starts with performance, for MAME
-	/*
-		if (s.compare(0, t.length(), t) == 0)
-		{
-			// ok
+	// sort these by expense of processing - handle 
+	const bool secondaryTagList[4] = { false, false, true, true };
+	const bool filteredByList[4] = { filterByPlayers, filterByRatings, filterByGenre, filterByPubDev };
+	const FilterIndexType filterTypes[4] = { PLAYER_FILTER, RATINGS_FILTER, GENRE_FILTER, PUBDEV_FILTER };
+	std::vector<std::string> filterKeysList[4] = { filterByPlayerKeys, filterByRatingsKeys, filterByGenreKeys, filterByPubDevKeys };
+	
+	bool keepGoing = false;
+
+	for(int i = 0; i < 4; i++) {
+		if (filteredByList[i]) {
+			// try to find a match
+			std::string key = getIndexableKey(game, filterTypes[i], false);
+			for (std::vector<std::string>::iterator it = filterKeysList[i].begin(); it != filterKeysList[i].end(); ++it ) {
+		    	if (key == (*it))
+				{
+					// ok
+					keepGoing = true;
+					break;
+				}   
+		    }
+		    // if we didn't find a match, try for secondary keys - i.e. publisher and dev, or first genre
+		    if (!keepGoing) {
+		    	if (!secondaryTagList[i]) 
+		    	{
+		    		return false;
+		    	}
+		    	key = getIndexableKey(game, filterTypes[i], true);
+				for (std::vector<std::string>::iterator it = filterKeysList[i].begin(); it != filterKeysList[i].end(); ++it ) {
+			    	if (key == (*it))
+					{
+						// ok
+						keepGoing = true;
+						break;
+					}   
+			    }
+		    }
+		    // if still nothing, then it's not a match
+		    if (!keepGoing)
+				return false;
 		}
-	*/
-
+	}
+	
+	return keepGoing;
 }
 
-void FileFilterIndex::addGenreEntryToIndex(FileData* game, std::string key)
+void FileFilterIndex::addGenreEntryToIndex(FileData* game)
 {
+
+	std::string key = getIndexableKey(game, GENRE_FILTER, false);
+
 	// flag for including unknowns
 	bool includeUnknown = false;
 	
-	boost::trim(key);
-
-	if (key == "") {
+	if (key.empty()) {
 		key = "UNKNOWN";
 	}
 
 	// only add unknown in pubdev IF both dev and pub are empty
 	if (!includeUnknown && (key == "UNKNOWN" || key == "BIOS")) {
 		// no valid player info found
-			return;
+		return;
 	} 
 
 	if (genreIndex.find(key) == genreIndex.end())
@@ -177,10 +274,10 @@ void FileFilterIndex::addGenreEntryToIndex(FileData* game, std::string key)
 	// separate add for MAME categories with "/"
 	
     std::istringstream f(key);
-    std::string newKey = "";    
+    std::string newKey;    
     getline(f, newKey, '/');
 	boost::trim(newKey);
-    if (newKey != "" && newKey != key) {
+    if (!newKey.empty() && newKey != key) {
 		if (genreIndex.find(newKey) == genreIndex.end())
 		{
 			genreIndex[newKey] = new FileIndexEntry();
@@ -192,8 +289,9 @@ void FileFilterIndex::addGenreEntryToIndex(FileData* game, std::string key)
     }
 }
 
-void FileFilterIndex::addPlayerEntryToIndex(FileData* game, int players)
+void FileFilterIndex::addPlayerEntryToIndex(FileData* game)
 {
+	int players = 0;
 	// flag for including unknowns
 	bool includeUnknown = false;
 	
@@ -203,7 +301,7 @@ void FileFilterIndex::addPlayerEntryToIndex(FileData* game, int players)
 			return;
 	} 
 
-	std::string key = "";
+	std::string key;
 	if (players == 0) {
 		key = "UNKNOWN";
 	}
@@ -222,8 +320,10 @@ void FileFilterIndex::addPlayerEntryToIndex(FileData* game, int players)
 	}	
 }
 
-void FileFilterIndex::addPubDevEntryToIndex(FileData* game, std::string pubKey, std::string devKey)
+void FileFilterIndex::addPubDevEntryToIndex(FileData* game)
 {
+	std::string pubKey = getIndexableKey(game, PUBDEV_FILTER, true);
+	std::string devKey = getIndexableKey(game, PUBDEV_FILTER, false);
 	// flag for including unknowns
 	bool includeUnknown = false;
 	
@@ -233,7 +333,7 @@ void FileFilterIndex::addPubDevEntryToIndex(FileData* game, std::string pubKey, 
 	}
 }
 
-void FileFilterIndex::addRatingsEntryToIndex(FileData* game, int rating)
+void FileFilterIndex::addRatingsEntryToIndex(FileData* game)
 {
 	// flag for including unknowns
 	bool includeUnknown = false;
