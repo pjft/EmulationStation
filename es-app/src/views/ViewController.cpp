@@ -368,10 +368,6 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 			SystemData* system = it->first;
 			FileData* cursor = view->getCursor();
 
-			LOG(LogInfo) << "Cursor is Null? " << (cursor == NULL ? "True" : "False");
-			LOG(LogInfo) << "Cursor Name: " << cursor->getName();
-			LOG(LogInfo) << "Cursor Parent is Null? " << (cursor->getParent() == NULL ? "True" : "False");
-					
 			mGameListViews.erase(it);
 
 			if(reloadTheme)
@@ -380,8 +376,12 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 			std::shared_ptr<IGameListView> newView = getGameListView(system);
 
 			// to counter having come from a placeholder
-			if (cursor->getName() == "" && cursor->getParent() == NULL) {
+			if ((cursor->getName() == "" && cursor->getParent() == NULL) || system->getIndex()->isFiltered()) {
 				// we came from a placeholder. Need to force select first element in the list.
+				// this is an ugly hack to force image and video to actually render
+				goToSystemView(system);
+				goToGameList(system);
+
 			} 
 			else 
 			{

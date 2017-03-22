@@ -154,6 +154,10 @@ public:
 	{
 		mCursor = 0;
 		onCursorChanged(CURSOR_STOPPED);
+		mCursor = 1;
+		onCursorChanged(CURSOR_STOPPED);
+		mCursor = 0;
+		onCursorChanged(CURSOR_STOPPED);
 	}
 
 	// entry management
