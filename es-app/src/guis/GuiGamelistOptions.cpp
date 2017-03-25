@@ -11,36 +11,38 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 	// check it's not a placeholder folder - if it is, only show "Filter Options"
 	FileData* file = getGamelist()->getCursor();
-	LOG(LogInfo) << "File: " << file->getName();
-	LOG(LogInfo) << "Path: " << file->getPath();
 	fromPlaceholder = (file->getName().empty() && file->getPath().empty());
+	bool isFiltered = system->getIndex()->isFiltered();
+	ComponentListRow row;
 
 	if (!fromPlaceholder) {
-		// jump to letter
-		char curChar = toupper(getGamelist()->getCursor()->getName()[0]);
-		if(curChar < 'A' || curChar > 'Z')
-			curChar = 'A';
 
-		mJumpToLetterList = std::make_shared<LetterList>(mWindow, "JUMP TO LETTER", false);
-		for(char c = 'A'; c <= 'Z'; c++)
-			mJumpToLetterList->add(std::string(1, c), c, c == curChar);
+		if (!isFiltered) {
+			// jump to letter
+			char curChar = toupper(getGamelist()->getCursor()->getName()[0]);
+			if(curChar < 'A' || curChar > 'Z')
+				curChar = 'A';
 
-		ComponentListRow row;
-		row.addElement(std::make_shared<TextComponent>(mWindow, "JUMP TO LETTER", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-		row.addElement(mJumpToLetterList, false);
-		row.input_handler = [&](InputConfig* config, Input input) {
-			if(config->isMappedTo("a", input) && input.value)
-			{
-				jumpToLetter();
-				return true;
-			}
-			else if(mJumpToLetterList->input(config, input))
-			{
-				return true;
-			}
-			return false;
-		};
-		mMenu.addRow(row);
+			mJumpToLetterList = std::make_shared<LetterList>(mWindow, "JUMP TO LETTER", false);
+			for(char c = 'A'; c <= 'Z'; c++)
+				mJumpToLetterList->add(std::string(1, c), c, c == curChar);
+
+			row.addElement(std::make_shared<TextComponent>(mWindow, "JUMP TO LETTER", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+			row.addElement(mJumpToLetterList, false);
+			row.input_handler = [&](InputConfig* config, Input input) {
+				if(config->isMappedTo("a", input) && input.value)
+				{
+					jumpToLetter();
+					return true;
+				}
+				else if(mJumpToLetterList->input(config, input))
+				{
+					return true;
+				}
+				return false;
+			};
+			mMenu.addRow(row);
+		}
 
 		// sort list by
 		mListSort = std::make_shared<SortList>(mWindow, "SORT GAMES BY", false);

@@ -18,6 +18,17 @@ enum FilterIndexType
 	RATINGS_FILTER
 };
 
+struct FilterDataDecl
+{
+	FilterIndexType type; // type of filter
+	std::map<std::string, FileIndexEntry*> indexKeys; // all possible filters for this type
+	bool filteredBy; // is it filtered by this type
+	std::vector<std::string> currentFilterKeys; // current keys being filtered for
+	std::string primaryKey; // primary key in metadata
+	bool hasSecondaryKey; // has secondary key for comparison
+	std::string secondaryKey; // what's the secondary key
+};
+
 class FileFilterIndex
 {
 public:

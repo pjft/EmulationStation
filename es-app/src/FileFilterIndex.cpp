@@ -196,12 +196,13 @@ bool FileFilterIndex::showFile(FileData* game)
 	if (game->getType() == FOLDER) {
 		bool found = false;
 		// iterate through all of the children, until there's a match
+		// TO DO
 		return false;
 	}
 
 	// sort these by expense of processing - handle 
-	const bool secondaryTagList[4] = { false, false, true, true };
 	const bool filteredByList[4] = { filterByPlayers, filterByRatings, filterByGenre, filterByPubDev };
+	const bool secondaryTagList[4] = { false, false, true, true };
 	const FilterIndexType filterTypes[4] = { PLAYER_FILTER, RATINGS_FILTER, GENRE_FILTER, PUBDEV_FILTER };
 	std::vector<std::string> filterKeysList[4] = { filterByPlayerKeys, filterByRatingsKeys, filterByGenreKeys, filterByPubDevKeys };
 	
