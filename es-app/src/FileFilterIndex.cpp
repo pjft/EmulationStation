@@ -3,15 +3,7 @@
 FileFilterIndex::FileFilterIndex() 
 	: filterByGenre(false), filterByPlayers(false), filterByPubDev(false), filterByRatings(false)
 {
-	genreIndexAllKeys = new std::map<std::string, FileIndexEntry*>();
-	playersIndexAllKeys = new std::map<std::string, FileIndexEntry*>();
-	pubDevIndexAllKeys = new std::map<std::string, FileIndexEntry*>();
-	ratingsIndexAllKeys = new std::map<std::string, FileIndexEntry*>();
 
-	genreIndexFilteredKeys = new std::vector<std::string>();
-	playersIndexFilteredKeys = new std::vector<std::string>();
-	pubDevIndexFilteredKeys = new std::vector<std::string>();
-	ratingsIndexFilteredKeys = new std::vector<std::string>();
 }
 
 FileFilterIndex::~FileFilterIndex()
@@ -21,14 +13,6 @@ FileFilterIndex::~FileFilterIndex()
 	clearIndex(pubDevIndexAllKeys);
 	clearIndex(ratingsIndexAllKeys);
 
-	delete genreIndexAllKeys;
-	delete playersIndexAllKeys;
-	delete pubDevIndexAllKeys;
-	delete ratingsIndexAllKeys;
-	delete genreIndexFilteredKeys;
-	delete playersIndexFilteredKeys;
-	delete pubDevIndexFilteredKeys; 
-	delete ratingsIndexFilteredKeys;
 }
 
 std::string FileFilterIndex::getIndexableKey(FileData* game, FilterIndexType type, bool getSecondary)
@@ -125,29 +109,29 @@ bool FileFilterIndex::setFilter(FilterIndexType type, std::vector<std::string>* 
 			break;
 		case GENRE_FILTER:
 			filterByGenre = true;
-			genreIndexFilteredKeys->clear();
+			genreIndexFilteredKeys.clear();
 			for (std::vector<std::string>::iterator it = values->begin(); it != values->end(); ++it ) {
 		        // check if exists
-		        if (genreIndexAllKeys->find(*it) != genreIndexAllKeys->end()) {
-		        	genreIndexFilteredKeys->push_back(std::string(*it));
+		        if (genreIndexAllKeys.find(*it) != genreIndexAllKeys.end()) {
+		        	genreIndexFilteredKeys.push_back(std::string(*it));
 		        }
 		    }	
 		    // debug
-		    for (auto x: *genreIndexFilteredKeys) {
+		    for (auto x: genreIndexFilteredKeys) {
 			    LOG(LogInfo) << "Genre Index Keys: " << x;
 			}
 			break;
 		case PLAYER_FILTER:
 			filterByPlayers = true;
-			playersIndexFilteredKeys->clear();
+			playersIndexFilteredKeys.clear();
 			break;
 		case PUBDEV_FILTER:
 			filterByPubDev = true;
-			pubDevIndexFilteredKeys->clear();
+			pubDevIndexFilteredKeys.clear();
 			break;
 		case RATINGS_FILTER:
 			filterByRatings = true;
-			ratingsIndexFilteredKeys->clear();
+			ratingsIndexFilteredKeys.clear();
 			break;
 	}
 
@@ -170,13 +154,13 @@ FileData* FileFilterIndex::getFilteredFolder()
 void FileFilterIndex::clearAllFilters() 
 {
 	filterByGenre = false;
-	genreIndexFilteredKeys->clear();
+	genreIndexFilteredKeys.clear();
 	filterByPlayers = false;
-	playersIndexFilteredKeys->clear();
+	playersIndexFilteredKeys.clear();
 	filterByPubDev = false;
-	pubDevIndexFilteredKeys->clear();
+	pubDevIndexFilteredKeys.clear();
 	filterByRatings = false;
-	ratingsIndexFilteredKeys->clear();
+	ratingsIndexFilteredKeys.clear();
 }
 
 void FileFilterIndex::rebuildIndex()
@@ -190,10 +174,10 @@ void FileFilterIndex::rebuildIndex()
 void FileFilterIndex::debugPrintIndexes() 
 {
 	LOG(LogInfo) << "Printing Indexes...";
-	for (auto x: *playersIndexAllKeys) {
+	for (auto x: playersIndexAllKeys) {
 	    LOG(LogInfo) << "Multiplayer Index: " << x.first << ": " << x.second->getCount();
 	}
-	for (auto x: *genreIndexAllKeys) {
+	for (auto x: genreIndexAllKeys) {
 	    LOG(LogInfo) << "Genre Index: " << x.first << ": " << x.second->getCount();
 	}
 }
@@ -221,7 +205,7 @@ bool FileFilterIndex::showFile(FileData* game)
 	const bool filteredByList[4] = { filterByPlayers, filterByRatings, filterByGenre, filterByPubDev };
 	const bool secondaryTagList[4] = { false, false, true, true };
 	const FilterIndexType filterTypes[4] = { PLAYER_FILTER, RATINGS_FILTER, GENRE_FILTER, PUBDEV_FILTER };
-	std::vector<std::string>* filterKeysList[4] = { playersIndexFilteredKeys, ratingsIndexFilteredKeys, genreIndexFilteredKeys, pubDevIndexFilteredKeys };
+	std::vector<std::string> filterKeysList[4] = { playersIndexFilteredKeys, ratingsIndexFilteredKeys, genreIndexFilteredKeys, pubDevIndexFilteredKeys };
 	
 	bool keepGoing = false;
 
@@ -229,7 +213,7 @@ bool FileFilterIndex::showFile(FileData* game)
 		if (filteredByList[i]) {
 			// try to find a match
 			std::string key = getIndexableKey(game, filterTypes[i], false);
-			for (std::vector<std::string>::iterator it = filterKeysList[i]->begin(); it != filterKeysList[i]->end(); ++it ) {
+			for (std::vector<std::string>::iterator it = filterKeysList[i].begin(); it != filterKeysList[i].end(); ++it ) {
 		    	if (key == (*it))
 				{
 					// ok
@@ -244,7 +228,7 @@ bool FileFilterIndex::showFile(FileData* game)
 		    		return false;
 		    	}
 		    	key = getIndexableKey(game, filterTypes[i], true);
-				for (std::vector<std::string>::iterator it = filterKeysList[i]->begin(); it != filterKeysList[i]->end(); ++it ) {
+				for (std::vector<std::string>::iterator it = filterKeysList[i].begin(); it != filterKeysList[i].end(); ++it ) {
 			    	if (key == (*it))
 					{
 						// ok
@@ -264,11 +248,11 @@ bool FileFilterIndex::showFile(FileData* game)
 
 bool FileFilterIndex::isKeyBeingFilteredBy(std::string key, FilterIndexType type) {
 	const FilterIndexType filterTypes[4] = { PLAYER_FILTER, RATINGS_FILTER, GENRE_FILTER, PUBDEV_FILTER };
-	std::vector<std::string>* filterKeysList[4] = { playersIndexFilteredKeys, ratingsIndexFilteredKeys, genreIndexFilteredKeys, pubDevIndexFilteredKeys };
+	std::vector<std::string> filterKeysList[4] = { playersIndexFilteredKeys, ratingsIndexFilteredKeys, genreIndexFilteredKeys, pubDevIndexFilteredKeys };
 
 	for (int i = 0; i < 4; i++) {
 		if (filterTypes[i] == type) {
-			for (std::vector<std::string>::iterator it = filterKeysList[i]->begin(); it != filterKeysList[i]->end(); ++it ) {
+			for (std::vector<std::string>::iterator it = filterKeysList[i].begin(); it != filterKeysList[i].end(); ++it ) {
 		    	if (key == (*it))
 				{
 					// ok
@@ -302,13 +286,13 @@ void FileFilterIndex::addGenreEntryToIndex(FileData* game)
 		return;
 	} 
 
-	if (genreIndexAllKeys->find(key) == genreIndexAllKeys->end())
+	if (genreIndexAllKeys.find(key) == genreIndexAllKeys.end())
 	{
-		(*genreIndexAllKeys)[key] = new FileIndexEntry();
+		genreIndexAllKeys[key] = new FileIndexEntry();
 	} 
 	else
 	{
-		genreIndexAllKeys->at(key)->addEntry(NULL);
+		genreIndexAllKeys.at(key)->addEntry(NULL);
 	}
 
 	// separate add for MAME categories with "/"
@@ -318,13 +302,13 @@ void FileFilterIndex::addGenreEntryToIndex(FileData* game)
     getline(f, newKey, '/');
 	boost::trim(newKey);
     if (!newKey.empty() && newKey != key) {
-		if (genreIndexAllKeys->find(newKey) == genreIndexAllKeys->end())
+		if (genreIndexAllKeys.find(newKey) == genreIndexAllKeys.end())
 		{
-			(*genreIndexAllKeys)[newKey] = new FileIndexEntry();
+			genreIndexAllKeys[newKey] = new FileIndexEntry();
 		} 
 		else
 		{
-			genreIndexAllKeys->at(newKey)->addEntry(NULL);
+			genreIndexAllKeys.at(newKey)->addEntry(NULL);
 		}
     }
 }
@@ -350,13 +334,13 @@ void FileFilterIndex::addPlayerEntryToIndex(FileData* game)
 		key = (players == 1 ? "SINGLE PLAYER" : "MULTIPLAYER");
 	}
 
-	if (playersIndexAllKeys->find(key) == playersIndexAllKeys->end())
+	if (playersIndexAllKeys.find(key) == playersIndexAllKeys.end())
 	{
-		(*playersIndexAllKeys)[key] = new FileIndexEntry();
+		playersIndexAllKeys[key] = new FileIndexEntry();
 	} 
 	else
 	{
-		playersIndexAllKeys->at(key)->addEntry(NULL);
+		playersIndexAllKeys.at(key)->addEntry(NULL);
 	}	
 }
 
@@ -389,10 +373,10 @@ void FileFilterIndex::removeEntryFromIndex(FileData* game, FilterIndexType type)
 
 }
 
-void FileFilterIndex::clearIndex(std::map<std::string, FileIndexEntry*>* indexMap)
+void FileFilterIndex::clearIndex(std::map<std::string, FileIndexEntry*> indexMap)
 {
-	for (std::map<std::string, FileIndexEntry*>::iterator it = indexMap->begin(); it != indexMap->end(); ++it ) {
+	for (std::map<std::string, FileIndexEntry*>::iterator it = indexMap.begin(); it != indexMap.end(); ++it ) {
         delete it->second;
     }
-    indexMap->clear();
+    indexMap.clear();
 }

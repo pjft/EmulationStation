@@ -48,8 +48,8 @@ public:
 	bool showFile(FileData* game);
 	bool isFiltered() { return (filterByGenre || filterByPlayers || filterByPubDev || filterByRatings); };
 	bool isKeyBeingFilteredBy(std::string key, FilterIndexType type);
-	std::map<std::string, FileIndexEntry*>* getGenreAllIndexedKeys() { return genreIndexAllKeys; };
-	std::vector<std::string>* getGenreFilteredKeys() { return genreIndexFilteredKeys; };
+	std::map<std::string, FileIndexEntry*>* getGenreAllIndexedKeys() { return &genreIndexAllKeys; };
+	std::vector<std::string>* getGenreFilteredKeys() { return &genreIndexFilteredKeys; };
 
 private:
 	std::string getIndexableKey(FileData* game, FilterIndexType type, bool getSecondary);
@@ -58,22 +58,22 @@ private:
 	void addPubDevEntryToIndex(FileData* game);
 	void addRatingsEntryToIndex(FileData* game);
 	void removeEntryFromIndex(FileData* game, FilterIndexType type);
-	void clearIndex(std::map<std::string, FileIndexEntry*>* indexMap);
+	void clearIndex(std::map<std::string, FileIndexEntry*> indexMap);
 
 	bool filterByGenre;
 	bool filterByPlayers;
 	bool filterByPubDev;
 	bool filterByRatings;
 
-	std::map<std::string, FileIndexEntry*>* genreIndexAllKeys;
-	std::map<std::string, FileIndexEntry*>* playersIndexAllKeys;
-	std::map<std::string, FileIndexEntry*>* pubDevIndexAllKeys;
-	std::map<std::string, FileIndexEntry*>* ratingsIndexAllKeys;
+	std::map<std::string, FileIndexEntry*> genreIndexAllKeys;
+	std::map<std::string, FileIndexEntry*> playersIndexAllKeys;
+	std::map<std::string, FileIndexEntry*> pubDevIndexAllKeys;
+	std::map<std::string, FileIndexEntry*> ratingsIndexAllKeys;
 
-	std::vector<std::string>* genreIndexFilteredKeys;
-	std::vector<std::string>* playersIndexFilteredKeys;
-	std::vector<std::string>* pubDevIndexFilteredKeys;
-	std::vector<std::string>* ratingsIndexFilteredKeys;
+	std::vector<std::string> genreIndexFilteredKeys;
+	std::vector<std::string> playersIndexFilteredKeys;
+	std::vector<std::string> pubDevIndexFilteredKeys;
+	std::vector<std::string> ratingsIndexFilteredKeys;
 
 	FileData* mRootFolder;
 
