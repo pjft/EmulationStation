@@ -6,31 +6,29 @@
 #include "components/OptionListComponent.h"
 #include "components/SwitchComponent.h"
 
-GuiGamelistFilter::GuiGamelistFilter(Window* window) : GuiComponent(window),
-	mMenu(window, "SCRAPE NOW")
+GuiGamelistFilter::GuiGamelistFilter(Window* window, SystemData* system) : GuiComponent(window),
+	mMenu(window, "SCRAPE NOW"), mSystem(system)
 {
 	addChild(&mMenu);
 
-	// add filters (with first one selected)
-	mFilters = std::make_shared< OptionListComponent<GameFilterFunc> >(mWindow, "SCRAPE THESE GAMES", false);
-	mFilters->add("All Games", 
-		[](SystemData*, FileData*) -> bool { return true; }, false);
-	mFilters->add("Only missing image", 
-		[](SystemData*, FileData* g) -> bool { return g->metadata.get("image").empty(); }, true);
-	mMenu.addWithLabel("Filter", mFilters);
+	// get filters from system
+	FileFilterIndex* filterIndex = system->getIndex();
+	genreIndexAllKeys = filterIndex->getGenreAllIndexedKeys();
+	genreIndexFilteredKeys = filterIndex->getGenreFilteredKeys();
 
-	//add systems (all with a platformid specified selected)
-	mSystems = std::make_shared< OptionListComponent<SystemData*> >(mWindow, "SCRAPE THESE SYSTEMS", true);
-	for(auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
+	// add filters (with first one selected
+
+	// add genres
+	mGenres = std::make_shared< OptionListComponent<std::string> >(mWindow, "FILTER BY GENRES", true);
+	for(auto it: *genreIndexAllKeys)
 	{
-		if(!(*it)->hasPlatformId(PlatformIds::PLATFORM_IGNORE))
-			mSystems->add((*it)->getFullName(), *it, !(*it)->getPlatformIds().empty());
+		mGenres->add(it.first, it.first, filterIndex->isKeyBeingFilteredBy(it.first, GENRE_FILTER));
 	}
-	mMenu.addWithLabel("Systems", mSystems);
+	mMenu.addWithLabel("GENRES", mGenres);
 
-	mApproveResults = std::make_shared<SwitchComponent>(mWindow);
+	/*mApproveResults = std::make_shared<SwitchComponent>(mWindow);
 	mApproveResults->setState(true);
-	mMenu.addWithLabel("User decides on conflicts", mApproveResults);
+	mMenu.addWithLabel("INCLUDE UNKNOWN ENTRIES", mApproveResults);*/
 
 	mMenu.addButton("START", "start", std::bind(&GuiGamelistFilter::pressedStart, this));
 	mMenu.addButton("BACK", "back", [&] { delete this; });
@@ -40,7 +38,7 @@ GuiGamelistFilter::GuiGamelistFilter(Window* window) : GuiComponent(window),
 
 void GuiGamelistFilter::pressedStart()
 {
-	std::vector<SystemData*> sys = mSystems->getSelectedObjects();
+	/*std::vector<SystemData*> sys = mGenres->getSelectedObjects();
 	for(auto it = sys.begin(); it != sys.end(); it++)
 	{
 		if((*it)->getPlatformIds().empty())
@@ -53,12 +51,12 @@ void GuiGamelistFilter::pressedStart()
 		}
 	}
 
-	start();
+	start();*/
 }
 
 void GuiGamelistFilter::start()
 {
-	std::queue<ScraperSearchParams> searches = getSearches(mSystems->getSelectedObjects(), mFilters->getSelected());
+	/*std::queue<ScraperSearchParams> searches = getSearches(mSystems->getSelectedObjects(), mFilters->getSelected());
 
 	if(searches.empty())
 	{
@@ -67,7 +65,7 @@ void GuiGamelistFilter::start()
 	}else{
 		// do filtering
 		delete this;
-	}
+	}*/
 }
 
 bool GuiGamelistFilter::input(InputConfig* config, Input input)

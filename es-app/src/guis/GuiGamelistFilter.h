@@ -3,6 +3,7 @@
 #include "GuiComponent.h"
 #include "SystemData.h"
 #include "components/MenuComponent.h"
+#include "FileFilterIndex.h"
 
 
 template<typename T>
@@ -16,7 +17,7 @@ class SwitchComponent;
 class GuiGamelistFilter : public GuiComponent
 {
 public:
-	GuiGamelistFilter(Window* window);
+	GuiGamelistFilter(Window* window, SystemData* system);
 
 	bool input(InputConfig* config, Input input) override;
 
@@ -26,9 +27,19 @@ private:
 	void pressedStart();
 	void start();
 
-	std::shared_ptr< OptionListComponent<GameFilterFunc> > mFilters;
-	std::shared_ptr< OptionListComponent<SystemData*> > mSystems;
-	std::shared_ptr<SwitchComponent> mApproveResults;
+	// define the 4 filter types
+	std::shared_ptr< OptionListComponent<std::string> > mGenres;
+
+	std::map<std::string, FileIndexEntry*>* genreIndexAllKeys;
+	std::map<std::string, FileIndexEntry*>* multiplayerIndexAllKeys;
+	std::map<std::string, FileIndexEntry*>* pubDevIndexAllKeys;
+	std::map<std::string, FileIndexEntry*>* ratingsIndexAllKeys;
+
+	std::vector<std::string>* genreIndexFilteredKeys;
+	std::vector<std::string>* playerIndexFilteredKeys;
+	std::vector<std::string>* pubDevIndexFilteredKeys;
+	std::vector<std::string>* ratingsIndexFilteredKeys;
 
 	MenuComponent mMenu;
+	SystemData* mSystem;
 };

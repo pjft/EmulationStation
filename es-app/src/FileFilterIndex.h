@@ -47,6 +47,10 @@ public:
 	FilterIndexType getCurrentFilterType() { return NONE; }; // TO DO
 	bool showFile(FileData* game);
 	bool isFiltered() { return (filterByGenre || filterByPlayers || filterByPubDev || filterByRatings); };
+	bool isKeyBeingFilteredBy(std::string key, FilterIndexType type);
+	std::map<std::string, FileIndexEntry*>* getGenreAllIndexedKeys() { return genreIndexAllKeys; };
+	std::vector<std::string>* getGenreFilteredKeys() { return genreIndexFilteredKeys; };
+
 private:
 	std::string getIndexableKey(FileData* game, FilterIndexType type, bool getSecondary);
 	void addGenreEntryToIndex(FileData* game);
@@ -54,22 +58,22 @@ private:
 	void addPubDevEntryToIndex(FileData* game);
 	void addRatingsEntryToIndex(FileData* game);
 	void removeEntryFromIndex(FileData* game, FilterIndexType type);
-	void clearIndex(std::map<std::string, FileIndexEntry*> indexMap);
-
-	std::map<std::string, FileIndexEntry*> genreIndex;
-	std::map<std::string, FileIndexEntry*> multiplayerIndex;
-	std::map<std::string, FileIndexEntry*> pubDevIndex;
-	std::map<std::string, FileIndexEntry*> ratingsIndex;
+	void clearIndex(std::map<std::string, FileIndexEntry*>* indexMap);
 
 	bool filterByGenre;
 	bool filterByPlayers;
 	bool filterByPubDev;
 	bool filterByRatings;
 
-	std::vector<std::string> filterByGenreKeys;
-	std::vector<std::string> filterByPlayerKeys;
-	std::vector<std::string> filterByPubDevKeys;
-	std::vector<std::string> filterByRatingsKeys;
+	std::map<std::string, FileIndexEntry*>* genreIndexAllKeys;
+	std::map<std::string, FileIndexEntry*>* playersIndexAllKeys;
+	std::map<std::string, FileIndexEntry*>* pubDevIndexAllKeys;
+	std::map<std::string, FileIndexEntry*>* ratingsIndexAllKeys;
+
+	std::vector<std::string>* genreIndexFilteredKeys;
+	std::vector<std::string>* playersIndexFilteredKeys;
+	std::vector<std::string>* pubDevIndexFilteredKeys;
+	std::vector<std::string>* ratingsIndexFilteredKeys;
 
 	FileData* mRootFolder;
 
