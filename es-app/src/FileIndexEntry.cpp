@@ -23,5 +23,5 @@ void FileIndexEntry::addEntry(FileData* game)
 
 void FileIndexEntry::removeEntry(FileData* game)
 {
-
+	counter--;
 }

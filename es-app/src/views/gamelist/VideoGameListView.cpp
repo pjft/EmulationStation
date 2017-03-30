@@ -1,7 +1,6 @@
 #include "views/gamelist/VideoGameListView.h"
 #include "views/ViewController.h"
 #include "Window.h"
-#include "Log.h"
 #include "animations/LambdaAnimation.h"
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -214,13 +213,11 @@ void VideoGameListView::initMDValues()
 
 void VideoGameListView::updateInfoPanel()
 {
-	LOG(LogInfo) << "Updating Info Panel";
 	FileData* file = (mList.size() == 0 || mList.isScrolling()) ? NULL : mList.getSelected();
 
 	bool fadingOut;
 	if(file == NULL)
 	{
-		LOG(LogInfo) << "File is NULL";
 		mVideo.setVideo("");
 		mVideo.setImage("");
 		mVideoPlaying = false;
@@ -229,7 +226,6 @@ void VideoGameListView::updateInfoPanel()
 		fadingOut = true;
 
 	}else{
-		LOG(LogInfo) << "File isn't NULL";
 		std::string				video_path;
 		std::string				marquee_path;
 		std::string				thumbnail_path;
@@ -252,10 +248,8 @@ void VideoGameListView::updateInfoPanel()
 			thumbnail_path.erase(0, 1);
 			thumbnail_path.insert(0, getHomePath());
 		}
-		LOG(LogInfo) << "Setting Video";
 		if (!mVideo.setVideo(video_path))
 		{
-			LOG(LogInfo) << "Setting Default Video";
 			mVideo.setDefaultVideo();
 		}
 		mVideoPlaying = true;

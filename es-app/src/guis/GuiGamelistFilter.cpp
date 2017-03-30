@@ -7,24 +7,26 @@
 #include "components/SwitchComponent.h"
 
 GuiGamelistFilter::GuiGamelistFilter(Window* window, SystemData* system) : GuiComponent(window),
-	mMenu(window, "SCRAPE NOW"), mSystem(system)
+	mMenu(window, "FILTER GAMELIST BY"), mSystem(system)
 {
 	addChild(&mMenu);
 
-	// get filters from system
-	FileFilterIndex* filterIndex = system->getIndex();
-	genreIndexAllKeys = filterIndex->getGenreAllIndexedKeys();
-	genreIndexFilteredKeys = filterIndex->getGenreFilteredKeys();
+	// get filters from system	
 
-	// add filters (with first one selected
+	mFilterIndex = system->getIndex();
 
-	// add genres
-	mGenres = std::make_shared< OptionListComponent<std::string> >(mWindow, "FILTER BY GENRES", true);
-	for(auto it: *genreIndexAllKeys)
-	{
-		mGenres->add(it.first, it.first, filterIndex->isKeyBeingFilteredBy(it.first, GENRE_FILTER));
-	}
-	mMenu.addWithLabel("GENRES", mGenres);
+	ComponentListRow row;
+
+	// show filtered menu
+	row.elements.clear();
+	row.addElement(std::make_shared<TextComponent>(mWindow, "RESET ALL FILTERS", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.makeAcceptInputHandler(std::bind(&GuiGamelistFilter::resetAllFilters, this));
+	mMenu.addRow(row);
+	row.elements.clear();
+	
+	debugPrint();
+
+	addFiltersToMenu();
 
 	/*mApproveResults = std::make_shared<SwitchComponent>(mWindow);
 	mApproveResults->setState(true);
@@ -34,6 +36,56 @@ GuiGamelistFilter::GuiGamelistFilter(Window* window, SystemData* system) : GuiCo
 	mMenu.addButton("BACK", "back", [&] { delete this; });
 
 	mMenu.setPosition((Renderer::getScreenWidth() - mMenu.getSize().x()) / 2, Renderer::getScreenHeight() * 0.15f);
+}
+
+void GuiGamelistFilter::debugPrint()
+{
+	// get decls
+	std::vector<FilterDataDecl> decls = mFilterIndex->getFilterDataDecls();
+	for (std::vector<FilterDataDecl>::iterator it = decls.begin(); it != decls.end(); ++it ) {
+    	if ((*it).type == GENRE_FILTER)
+		{
+			LOG(LogInfo) << "Menu Label: " << (*it).menuLabel;
+			LOG(LogInfo) << "Filtered by? " << ((*((*it).filteredByRef)) ? "TRUE" : "FALSE");			
+			LOG(LogInfo) << "All Index Key size: " << (*it).allIndexKeys->size(); // all possible filters for this type
+			LOG(LogInfo) << "Current Filtered Key Size: " << (*it).currentFilteredKeys->size(); // current keys being filtered for
+			LOG(LogInfo) << "Primary Key: " << (*it).primaryKey; // primary key in metadata
+			LOG(LogInfo) << "Has Secondary Key? " << ((*it).hasSecondaryKey ? "TRUE" : "FALSE"); // has secondary key for comparison
+			LOG(LogInfo) << "Secondary Key: " << (*it).secondaryKey; // what's the secondary key
+			// ok
+			return;
+		}
+    }
+
+	LOG(LogInfo) << "Couldn't find GENRE filter";
+}
+
+GuiGamelistFilter::~GuiGamelistFilter()
+{
+    mFilterOptions.clear();
+}
+
+void GuiGamelistFilter::addFiltersToMenu() 
+{
+	//const std::vector<FilterDataDecl>*
+	std::shared_ptr< OptionListComponent<std::string> > optionList;
+	std::map<std::string, FileIndexEntry*>* allKeys = mFilterIndex->getGenreAllIndexedKeys();
+	std::vector<std::string>* allFilteredKeys = mFilterIndex->getGenreFilteredKeys();
+	FilterIndexType type = GENRE_FILTER;
+	// add filters (with first one selected)
+	ComponentListRow row;	
+
+	// add genres
+	// Should have a "select all/remove all" option, somehow	
+	optionList = std::make_shared< OptionListComponent<std::string> >(mWindow, "FILTER BY GENRES", true);
+	for(auto it: *allKeys)
+	{
+		optionList->add(it.first, it.first, mFilterIndex->isKeyBeingFilteredBy(it.first, type));
+	}
+	if (allFilteredKeys->size() > 0)
+		mMenu.addWithLabel("GENRES", optionList);
+
+	mFilterOptions[type] = optionList;	
 }
 
 void GuiGamelistFilter::pressedStart()

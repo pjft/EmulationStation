@@ -21,12 +21,13 @@ enum FilterIndexType
 struct FilterDataDecl
 {
 	FilterIndexType type; // type of filter
-	std::map<std::string, FileIndexEntry*> indexKeys; // all possible filters for this type
-	bool filteredBy; // is it filtered by this type
-	std::vector<std::string> currentFilterKeys; // current keys being filtered for
+	std::map<std::string, FileIndexEntry*>* allIndexKeys; // all possible filters for this type
+	bool* filteredByRef; // is it filtered by this type
+	std::vector<std::string>* currentFilteredKeys; // current keys being filtered for
 	std::string primaryKey; // primary key in metadata
 	bool hasSecondaryKey; // has secondary key for comparison
 	std::string secondaryKey; // what's the secondary key
+	std::string menuLabel; // text to show in menu
 };
 
 class FileFilterIndex
@@ -35,6 +36,7 @@ public:
 	FileFilterIndex();
 	~FileFilterIndex();
 	void addToIndex(FileData* game);
+	void removeFromIndex(FileData* game);
 	bool setFilter(FilterIndexType type, std::vector<std::string>* values);
 	bool resetFilter(FilterIndexType type);
 	void clearAllFilters();
@@ -43,21 +45,23 @@ public:
 	FileData* getFilteredFolder();
 	void rebuildIndex();
 	void debugPrintIndexes();
-	std::string getCurrentFilterValue() { return ""; }; // TO DO
-	FilterIndexType getCurrentFilterType() { return NONE; }; // TO DO
 	bool showFile(FileData* game);
 	bool isFiltered() { return (filterByGenre || filterByPlayers || filterByPubDev || filterByRatings); };
 	bool isKeyBeingFilteredBy(std::string key, FilterIndexType type);
 	std::map<std::string, FileIndexEntry*>* getGenreAllIndexedKeys() { return &genreIndexAllKeys; };
 	std::vector<std::string>* getGenreFilteredKeys() { return &genreIndexFilteredKeys; };
-
+	std::vector<FilterDataDecl>& getFilterDataDecls();
 private:
+	std::vector<FilterDataDecl> filterDataDecl;
 	std::string getIndexableKey(FileData* game, FilterIndexType type, bool getSecondary);
-	void addGenreEntryToIndex(FileData* game);
-	void addPlayerEntryToIndex(FileData* game);
-	void addPubDevEntryToIndex(FileData* game);
-	void addRatingsEntryToIndex(FileData* game);
-	void removeEntryFromIndex(FileData* game, FilterIndexType type);
+	
+	void manageGenreEntryInIndex(FileData* game, bool remove = false);
+	void managePlayerEntryInIndex(FileData* game, bool remove = false);
+	void managePubDevEntryInIndex(FileData* game, bool remove = false);
+	void manageRatingsEntryInIndex(FileData* game, bool remove = false);
+
+	void manageIndexEntry(std::map<std::string, FileIndexEntry*>* index, std::string key, bool remove);
+
 	void clearIndex(std::map<std::string, FileIndexEntry*> indexMap);
 
 	bool filterByGenre;

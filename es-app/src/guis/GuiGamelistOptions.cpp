@@ -15,6 +15,14 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 	bool isFiltered = system->getIndex()->isFiltered();
 	ComponentListRow row;
 
+	// show filtered menu
+	row.elements.clear();
+	row.addElement(std::make_shared<TextComponent>(mWindow, "FILTER GAMELIST", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.addElement(makeArrow(mWindow), false);
+	row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::openGamelistFilter, this));
+	mMenu.addRow(row);
+	row.elements.clear();
+
 	if (!fromPlaceholder) {
 
 		if (!isFiltered) {
@@ -83,6 +91,12 @@ GuiGamelistOptions::~GuiGamelistOptions()
 	
 }
 
+void GuiGamelistOptions::openGamelistFilter()
+{
+	GuiGamelistFilter* ggf = new GuiGamelistFilter(mWindow, mSystem);
+	mWindow->pushGui(ggf);
+}	
+
 void GuiGamelistOptions::openMetaDataEd()
 {
 	// open metadata editor
@@ -90,10 +104,15 @@ void GuiGamelistOptions::openMetaDataEd()
 	ScraperSearchParams p;
 	p.game = file;
 	p.system = file->getSystem();
+
+	// remove game form index
+
 	mWindow->pushGui(new GuiMetaDataEd(mWindow, &file->metadata, file->metadata.getMDD(), p, file->getPath().filename().string(), 
 		std::bind(&IGameListView::onFileChanged, getGamelist(), file, FILE_METADATA_CHANGED), [this, file] { 
 			getGamelist()->remove(file);
 	}));
+
+	// enter game in index, in file changed
 }
 
 void GuiGamelistOptions::jumpToLetter()
