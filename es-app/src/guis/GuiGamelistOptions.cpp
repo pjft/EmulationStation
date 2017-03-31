@@ -5,7 +5,7 @@
 #include "Log.h"
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
-	mSystem(system), mMenu(window, "OPTIONS"), fromPlaceholder(false)
+	mSystem(system), mMenu(window, "OPTIONS"), fromPlaceholder(false), mFiltersChanged(false)
 {
 	addChild(&mMenu);
 
@@ -86,6 +86,10 @@ GuiGamelistOptions::~GuiGamelistOptions()
 		// notify that the root folder was sorted
 		getGamelist()->onFileChanged(root, FILE_SORTED);
 	} 
+	if (mFiltersChanged) 
+	{
+		ViewController::get()->reloadGameListView(mSystem);
+	}
 	
 	// do filtering, if applicable
 	
@@ -93,6 +97,7 @@ GuiGamelistOptions::~GuiGamelistOptions()
 
 void GuiGamelistOptions::openGamelistFilter()
 {
+	mFiltersChanged = true;
 	GuiGamelistFilter* ggf = new GuiGamelistFilter(mWindow, mSystem);
 	mWindow->pushGui(ggf);
 }	

@@ -31,4 +31,5 @@ private:
 	SystemData* mSystem;
 	IGameListView* getGamelist();
 	bool fromPlaceholder;
+	bool mFiltersChanged;
 };
