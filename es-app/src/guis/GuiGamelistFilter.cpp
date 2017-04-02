@@ -6,14 +6,18 @@
 #include "components/OptionListComponent.h"
 #include "components/SwitchComponent.h"
 
-GuiGamelistFilter::GuiGamelistFilter(Window* window, SystemData* system) : GuiComponent(window),
-	mMenu(window, "FILTER GAMELIST BY"), mSystem(system)
+GuiGamelistFilter::GuiGamelistFilter(Window* window, SystemData* system) : GuiComponent(window), mMenu(window, "FILTER GAMELIST BY"), mSystem(system)
+{
+	initializeMenu();
+}
+
+void GuiGamelistFilter::initializeMenu() 
 {
 	addChild(&mMenu);
 
 	// get filters from system	
 
-	mFilterIndex = system->getIndex();
+	mFilterIndex = mSystem->getIndex();
 
 	ComponentListRow row;
 
@@ -30,14 +34,23 @@ GuiGamelistFilter::GuiGamelistFilter(Window* window, SystemData* system) : GuiCo
 	mApproveResults->setState(true);
 	mMenu.addWithLabel("INCLUDE UNKNOWN ENTRIES", mApproveResults);*/
 
-	mMenu.addButton("APPLY", "start", std::bind(&GuiGamelistFilter::pressedStart, this));
-	mMenu.addButton("BACK", "back", [&] { delete this; });
+	mMenu.addButton("BACK", "back", std::bind(&GuiGamelistFilter::applyFilters, this));
+	//mMenu.addButton("BACK", "back", [&] { close(); delete this; });
 
 	// resize + center
-	mMenu.setSize(Renderer::getScreenWidth() * 0.5f, Renderer::getScreenHeight() * 0.82f);
-	mMenu.setPosition((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2);
+	//mMenu.setSize(Renderer::getScreenWidth() * 0.5f, Renderer::getScreenHeight() * 0.82f);
+	//mMenu.setPosition((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2);
 
-	//mMenu.setPosition((Renderer::getScreenWidth() - mMenu.getSize().x()) / 2, Renderer::getScreenHeight() * 0.15f);
+	mMenu.setPosition((Renderer::getScreenWidth() - mMenu.getSize().x()) / 2, Renderer::getScreenHeight() * 0.15f);
+}
+
+void GuiGamelistFilter::resetAllFilters()
+{
+	mFilterIndex->clearAllFilters();
+	for (std::map<FilterIndexType, std::shared_ptr< OptionListComponent<std::string> >>::iterator it = mFilterOptions.begin(); it != mFilterOptions.end(); ++it ) {
+		std::shared_ptr< OptionListComponent<std::string> > optionList = it->second;
+		optionList->selectNone();
+	}
 }
 
 void GuiGamelistFilter::debugPrint()
@@ -84,7 +97,7 @@ void GuiGamelistFilter::addFiltersToMenu()
 
 		// add genres
 		// Should have a "select all/remove all" option, somehow	
-		optionList = std::make_shared< OptionListComponent<std::string> >(mWindow, "FILTER BY " + menuLabel, true);
+		optionList = std::make_shared< OptionListComponent<std::string> >(mWindow, menuLabel, true);
 		for(auto it: *allKeys)
 		{
 			optionList->add(it.first, it.first, mFilterIndex->isKeyBeingFilteredBy(it.first, type));
@@ -96,7 +109,7 @@ void GuiGamelistFilter::addFiltersToMenu()
 	}
 }
 
-void GuiGamelistFilter::pressedStart()
+void GuiGamelistFilter::applyFilters()
 {
 	LOG(LogInfo) << "Filter Options Size: " << mFilterOptions.size();
 	std::vector<FilterDataDecl> decls = mFilterIndex->getFilterDataDecls();
@@ -142,19 +155,14 @@ bool GuiGamelistFilter::input(InputConfig* config, Input input)
 	bool consumed = GuiComponent::input(config, input);
 	if(consumed)
 		return true;
-	
-	if(input.value != 0 && config->isMappedTo("b", input))
-	{
-		delete this;
-		return true;
-	}
 
-	if(config->isMappedTo("start", input) && input.value != 0)
+	if(config->isMappedTo("b", input) && input.value != 0)
 	{
+		applyFilters();
 		// close everything
-		Window* window = mWindow;
+		/*Window* window = mWindow;
 		while(window->peekGui() && window->peekGui() != ViewController::get())
-			delete window->peekGui();
+			delete window->peekGui();*/
 	}
 
 
@@ -165,6 +173,6 @@ std::vector<HelpPrompt> GuiGamelistFilter::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts = mMenu.getHelpPrompts();
 	prompts.push_back(HelpPrompt("b", "back"));
-	prompts.push_back(HelpPrompt("start", "close"));
+	//prompts.push_back(HelpPrompt("start", "close"));
 	return prompts;
 }

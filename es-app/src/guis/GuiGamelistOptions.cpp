@@ -110,8 +110,6 @@ void GuiGamelistOptions::openMetaDataEd()
 	p.game = file;
 	p.system = file->getSystem();
 
-	// remove game form index
-
 	mWindow->pushGui(new GuiMetaDataEd(mWindow, &file->metadata, file->metadata.getMDD(), p, file->getPath().filename().string(), 
 		std::bind(&IGameListView::onFileChanged, getGamelist(), file, FILE_METADATA_CHANGED), [this, file] { 
 			getGamelist()->remove(file);

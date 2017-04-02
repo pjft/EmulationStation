@@ -25,9 +25,10 @@ public:
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 
 private:
-	void pressedStart();
+	void initializeMenu();
+	void applyFilters();
 	void start();
-	void resetAllFilters() { mFilterIndex->clearAllFilters(); };
+	void resetAllFilters();
 	void addFiltersToMenu();
 	void debugPrint();
 
