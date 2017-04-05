@@ -7,6 +7,7 @@
 #include "MetaData.h"
 #include "PlatformId.h"
 #include "ThemeData.h"
+#include "FileFilterIndex.h"
 
 class SystemData
 {
@@ -63,6 +64,7 @@ public:
 
 	// Load or re-load theme.
 	void loadTheme();
+	FileFilterIndex* getIndex() { return mFilterIndex; };
 
 private:
 	std::string mName;
@@ -76,5 +78,6 @@ private:
 
 	void populateFolder(FileData* folder);
 
+	FileFilterIndex* mFilterIndex;
 	FileData* mRootFolder;
 };

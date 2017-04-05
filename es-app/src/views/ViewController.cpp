@@ -371,6 +371,19 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 
 			std::shared_ptr<IGameListView> newView = getGameListView(system);
 			newView->setCursor(cursor);
+			
+			// to counter having come from a placeholder
+			if ((cursor->getName() == "" && cursor->getParent() == NULL) || system->getIndex()->isFiltered()) {
+				// we came from a placeholder. Need to force select first element in the list.
+				// this is an ugly hack to force image and video to actually render
+				goToSystemView(system);
+				goToGameList(system);
+
+			} 
+			else 
+			{
+				newView->setCursor(cursor);
+			}
 
 			if(isCurrent)
 				mCurrentView = newView;
@@ -378,6 +391,7 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 			break;
 		}
 	}
+	
 	// Redisplay the current view
 	if (mCurrentView)
 		mCurrentView->onShow();
