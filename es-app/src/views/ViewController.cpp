@@ -12,7 +12,7 @@
 #include "animations/LaunchAnimation.h"
 #include "animations/MoveCameraAnimation.h"
 #include "animations/LambdaAnimation.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 ViewController* ViewController::sInstance = NULL;
 
@@ -371,7 +371,8 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 				system->loadTheme();
 
 			std::shared_ptr<IGameListView> newView = getGameListView(system);
-
+			newView->setCursor(cursor);
+			
 			// to counter having come from a placeholder
 			if ((cursor->getName() == "" && cursor->getParent() == NULL) || system->getIndex()->isFiltered()) {
 				// we came from a placeholder. Need to force select first element in the list.

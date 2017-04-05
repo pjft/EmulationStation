@@ -64,6 +64,7 @@ public:
 
 	// Load or re-load theme.
 	void loadTheme();
+	FileFilterIndex* getIndex() { return mFilterIndex; };
 
 	FileFilterIndex* getIndex() { return mFilterIndex; };
 
@@ -80,6 +81,5 @@ private:
 	void populateFolder(FileData* folder);
 
 	FileFilterIndex* mFilterIndex;
-
 	FileData* mRootFolder;
 };
