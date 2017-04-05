@@ -37,7 +37,6 @@ SystemData::SystemData(const std::string& name, const std::string& fullName, con
 	mThemeFolder = themeFolder;
 
 	mFilterIndex = new FileFilterIndex();
-
 	mRootFolder = new FileData(FOLDER, mStartPath, this);
 	mRootFolder->metadata.set("name", mFullName);
 
@@ -46,6 +45,7 @@ SystemData::SystemData(const std::string& name, const std::string& fullName, con
 
 	if(!Settings::getInstance()->getBool("IgnoreGamelist"))
 		parseGamelist(this);
+	
 	mRootFolder->sort(FileSorts::SortTypes.at(0));
 
 	loadTheme();

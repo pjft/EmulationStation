@@ -102,7 +102,6 @@ private:
 						checkboxes.at(i)->setImage(CHECKED_PATH);
 					}
 					mParent->onSelectedChanged();
-					
 				});
 
 				mMenu.addButton("SELECT NONE", "select none", [this, checkboxes] {
@@ -112,7 +111,6 @@ private:
 						checkboxes.at(i)->setImage(UNCHECKED_PATH);
 					}
 					mParent->onSelectedChanged();
-					
 				});
 			}
 

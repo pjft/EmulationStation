@@ -239,7 +239,6 @@ int main(int argc, char* argv[])
 	}
 
 	const char* errorMsg = NULL;
-
 	if(!loadSystemConfigFile(&errorMsg))
 	{
 		// something went terribly wrong
@@ -272,7 +271,6 @@ int main(int argc, char* argv[])
 
 	// preload what we can right away instead of waiting for the user to select it
 	// this makes for no delays when accessing content, but a longer startup time
-
 	ViewController::get()->preload();
 
 	//choose which GUI to open depending on if an input configuration already exists
