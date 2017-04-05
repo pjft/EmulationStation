@@ -92,6 +92,18 @@ const std::vector<FileData*>& FileData::getChildrenListToDisplay() {
 				mFilteredChildren.push_back(*it);
 			}
 		}
+
+		// need to check if list is empty, and if so add a placeholder node
+		if (mFilteredChildren.size() == 0) 
+		{
+			// add a placeholder
+			// for now, just create a new FileData of type Folder, with no children
+			// maybe in the future makes sense to create a third type of FileData?
+			FileData* placeholder = new FileData(FOLDER, "<No Results Found for Current Filter Criteria>", mSystem);
+			placeholder->setPlaceHolder(true);
+			mFilteredChildren.push_back(placeholder);
+		} 
+
 		return mFilteredChildren;
 	}
 	else 

@@ -11,7 +11,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 	// check it's not a placeholder folder - if it is, only show "Filter Options"
 	FileData* file = getGamelist()->getCursor();
-	fromPlaceholder = (file->getName().empty() && file->getPath().empty());
+	fromPlaceholder = file->isPlaceHolder();
 	bool isFiltered = system->getIndex()->isFiltered();
 	ComponentListRow row;
 
