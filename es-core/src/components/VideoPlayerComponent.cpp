@@ -56,7 +56,7 @@ void VideoPlayerComponent::startVideo()
 			}
 			else
 			{
-				
+
 				// Find out the pixel position of the video view and build a command line for
 				// omxplayer to position it in the right place
 				char buf[32];
@@ -65,7 +65,23 @@ void VideoPlayerComponent::startVideo()
 				sprintf(buf, "%d,%d,%d,%d", (int)x, (int)y, (int)(x + mSize.x()), (int)(y + mSize.y()));
 				// We need to specify the layer of 10000 or above to ensure the video is displayed on top
 				// of our SDL display
-				const char* argv[] = { "", "--win", buf, "--layer", "10000", "--loop", "--no-osd", "", NULL };
+
+				const char* argv[] = { "", "--layer", "10010", "--loop", "--no-osd", "--aspect-mode", "letterbox", "-n", "0", "--win", buf, "-b", "", "", "", "", NULL };
+
+				// check if we want to mute the audio
+				if (!Settings::getInstance()->getBool("VideoAudio"))
+				{
+					argv[8] = "1";
+				}
+
+				// if we are rendering a video gamelist
+				if (Settings::getInstance()->getBool("StretchVideoOnTheme"))
+				{
+					argv[6] = "stretch";
+				}
+
+				argv[11] = mPlayingVideoPath.c_str();
+
 				const char* env[] = { "LD_LIBRARY_PATH=/opt/vc/libs:/usr/lib/omxplayer", NULL };
 				// Fill in the empty argument with the video path
 				argv[7] = mPlayingVideoPath.c_str();
@@ -94,7 +110,7 @@ void VideoPlayerComponent::stopVideo()
 {
 	mIsPlaying = false;
 	mStartDelayed = false;
-	
+
 	// Stop the player process
 	if (mPlayerPid != -1)
 	{

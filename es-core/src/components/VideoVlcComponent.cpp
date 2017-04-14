@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "ThemeData.h"
 #include "Util.h"
+#include "Settings.h"
 #ifdef WIN32
 #include <codecvt>
 #endif
@@ -55,7 +56,7 @@ void VideoVlcComponent::render(const Eigen::Affine3f& parentTrans)
 	GuiComponent::renderChildren(trans);
 
 	Renderer::setMatrix(trans);
-	
+
 	if (mIsPlaying && mContext.valid)
 	{
 		float tex_offs_x = 0.0f;
@@ -153,7 +154,13 @@ void VideoVlcComponent::setupVLC()
 	// If VLC hasn't been initialised yet then do it now
 	if (!mVLC)
 	{
-		const char* args[] = { "--quiet" };
+		const char* args[] = { "--quiet", "--audio", "", "" };
+		// check if we want to mute the audio
+		if (!Settings::getInstance()->getBool("VideoAudio"))
+		{
+			args[1] = "--no-audio";
+		}
+
 		mVLC = libvlc_new(sizeof(args) / sizeof(args[0]), args);
 	}
 }
