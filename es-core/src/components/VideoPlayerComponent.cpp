@@ -69,7 +69,13 @@ void VideoPlayerComponent::startVideo()
 				sprintf(buf, "%d,%d,%d,%d", (int)x, (int)y, (int)(x + mSize.x()), (int)(y + mSize.y()));
 				// We need to specify the layer of 10000 or above to ensure the video is displayed on top
 				// of our SDL display
-				const char* argv[] = { "", "--layer", "10010", "--loop", "--no-osd", "--aspect-mode", "letterbox", "--win", buf, "-b", "", "", "", "", NULL };
+				const char* argv[] = { "", "--layer", "10010", "--loop", "--no-osd", "--aspect-mode", "letterbox", "-n", "0", "--win", buf, "-b", "", "", "", "", NULL };
+
+				// check if we want to mute the audio
+				if (!Settings::getInstance()->getBool("VideoAudio"))
+				{
+					argv[8] = "1";
+				}
 
 				// test if there's a path for possible subtitles, meaning we're a screensaver video
 				if (!subtitlePath.empty())
@@ -82,18 +88,17 @@ void VideoPlayerComponent::startVideo()
 						argv[6] = "stretch";
 					}
 
-
 					if (Settings::getInstance()->getBool("ScreenSaverGameName"))
 					{
 						// if we have chosen to render subtitles
-						argv[9] = "--subtitles";
-						argv[10] = subtitlePath.c_str();
-						argv[11] = mPlayingVideoPath.c_str();	
+						argv[11] = "--subtitles";
+						argv[12] = subtitlePath.c_str();
+						argv[13] = mPlayingVideoPath.c_str();	
 					}
 					else
 					{
 						// if we have chosen NOT to render subtitles in the screensaver
-						argv[9] = mPlayingVideoPath.c_str();
+						argv[11] = mPlayingVideoPath.c_str();
 					}
 				} 				
 				else
@@ -104,7 +109,7 @@ void VideoPlayerComponent::startVideo()
 						argv[6] = "stretch";
 					}
 
-					argv[9] = mPlayingVideoPath.c_str();
+					argv[11] = mPlayingVideoPath.c_str();
 				}
 
 				//const char* argv[] = args;
