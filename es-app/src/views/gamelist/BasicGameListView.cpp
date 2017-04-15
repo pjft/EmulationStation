@@ -45,16 +45,6 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 	{
 		mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
 	}
-	
-	// need to check if list is empty, and if so add a placeholder node
-	if (mList.size() == 0) 
-	{
-		// add a placeholder
-		// for now, just create a new FileData of type Folder, with no children
-		// maybe in the future makes sense to create a third type of FileData?
-		FileData* placeholder = new FileData(FOLDER, "", files.at(0)->getSystem());
-		mList.add("<No Results Found for Current Filter Criteria>", placeholder, true);
-	} 
 }
 
 FileData* BasicGameListView::getCursor()

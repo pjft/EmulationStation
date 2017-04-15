@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "ThemeData.h"
 #include "Util.h"
+#include "Settings.h"
 #ifdef WIN32
 #include <codecvt>
 #endif
@@ -154,7 +155,9 @@ void VideoVlcComponent::setupVLC(std::string subtitles)
 	// If VLC hasn't been initialised yet then do it now
 	if (!mVLC)
 	{
-		const char* args[] = { "--quiet", "", "" };		
+		const char* args[] = { "--quiet", "", "", "" };
+		// check if we want to mute the audio
+			
 		if (!subtitles.empty()) 
 		{			
 			args[1] = "--sub-file";
@@ -227,7 +230,11 @@ void VideoVlcComponent::startVideo()
 					setupContext();
 
 					// Setup the media player
-					mMediaPlayer = libvlc_media_player_new_from_media(mMedia);					
+					mMediaPlayer = libvlc_media_player_new_from_media(mMedia);	
+					if (!Settings::getInstance()->getBool("VideoAudio"))
+					{
+						libvlc_audio_set_mute(mMediaPlayer, 1);
+					}
 
 					libvlc_media_player_play(mMediaPlayer);
 					libvlc_video_set_callbacks(mMediaPlayer, lock, unlock, display, (void*)&mContext);

@@ -14,7 +14,7 @@
 #include <stdio.h>
 
 #define FADE_TIME 			3000
-#define SWAP_VIDEO_TIMEOUT	35000
+#define SWAP_VIDEO_TIMEOUT	30000
 
 SystemScreenSaver::SystemScreenSaver(Window* window) :
 	mVideoScreensaver(NULL),
