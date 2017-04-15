@@ -24,7 +24,7 @@ void writeSubtitle(const char* gameName, const char* systemName)
 	fprintf(file, "1\n00:00:01,000 --> 00:00:08,000\n");
 	fprintf(file, "%s\n", gameName);
 	fprintf(file, "<i>%s</i>\n\n", systemName);
-	fprintf(file, "2\n00:00:29,000 --> 00:00:35,000\n");
+	fprintf(file, "2\n00:00:26,000 --> 00:00:30,000\n");
 	fprintf(file, "%s\n", gameName);
 	fprintf(file, "<i>%s</i>\n", systemName);
 	fflush(file);
