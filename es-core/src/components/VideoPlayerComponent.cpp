@@ -66,12 +66,12 @@ void VideoPlayerComponent::startVideo()
 				// We need to specify the layer of 10000 or above to ensure the video is displayed on top
 				// of our SDL display
 
-				const char* argv[] = { "", "--layer", "10010", "--loop", "--no-osd", "--aspect-mode", "letterbox", "-n", "0", "--win", buf, "-b", "", "", "", "", NULL };
+				const char* argv[] = { "", "--layer", "10010", "--loop", "--no-osd", "--aspect-mode", "letterbox", "--vol", "0", "--win", buf, "-b", "", "", "", "", NULL };
 
 				// check if we want to mute the audio
 				if (!Settings::getInstance()->getBool("VideoAudio"))
 				{
-					argv[8] = "1";
+					argv[8] = "-1000000";
 				}
 
 				// if we are rendering a video gamelist
@@ -83,8 +83,7 @@ void VideoPlayerComponent::startVideo()
 				argv[11] = mPlayingVideoPath.c_str();
 
 				const char* env[] = { "LD_LIBRARY_PATH=/opt/vc/libs:/usr/lib/omxplayer", NULL };
-				// Fill in the empty argument with the video path
-				argv[7] = mPlayingVideoPath.c_str();
+
 				// Redirect stdout
 				int fdin = open("/dev/null", O_RDONLY);
 				int fdout = open("/dev/null", O_WRONLY);

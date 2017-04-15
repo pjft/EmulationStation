@@ -154,12 +154,8 @@ void VideoVlcComponent::setupVLC()
 	// If VLC hasn't been initialised yet then do it now
 	if (!mVLC)
 	{
-		const char* args[] = { "--quiet", "--audio", "", "" };
+		const char* args[] = { "--quiet", "", "", "" };
 		// check if we want to mute the audio
-		if (!Settings::getInstance()->getBool("VideoAudio"))
-		{
-			args[1] = "--no-audio";
-		}
 
 		mVLC = libvlc_new(sizeof(args) / sizeof(args[0]), args);
 	}
@@ -224,6 +220,11 @@ void VideoVlcComponent::startVideo()
 
 					// Setup the media player
 					mMediaPlayer = libvlc_media_player_new_from_media(mMedia);
+					if (!Settings::getInstance()->getBool("VideoAudio"))
+					{
+						libvlc_audio_set_mute(mMediaPlayer, 1);
+					}
+
 					libvlc_media_player_play(mMediaPlayer);
 					libvlc_video_set_callbacks(mMediaPlayer, lock, unlock, display, (void*)&mContext);
 					libvlc_video_set_format(mMediaPlayer, "RGBA", (int)mVideoWidth, (int)mVideoHeight, (int)mVideoWidth * 4);
