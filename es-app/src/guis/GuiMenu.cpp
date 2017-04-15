@@ -78,7 +78,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			// disable sounds
 			auto sounds_enabled = std::make_shared<SwitchComponent>(mWindow);
 			sounds_enabled->setState(Settings::getInstance()->getBool("EnableSounds"));
-			s->addWithLabel("ENABLE SOUNDS", sounds_enabled);
+			s->addWithLabel("ENABLE NAVIGATION SOUNDS", sounds_enabled);
 			s->addSaveFunc([sounds_enabled] { Settings::getInstance()->setBool("EnableSounds", sounds_enabled->getState()); });
 
 			mWindow->pushGui(s);
@@ -183,6 +183,45 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			mWindow->pushGui(s);
 	});
 
+	addEntry("VIDEO PLAYER SETTINGS", 0x777777FF, true, 
+		[this] {
+			auto s = new GuiSettings(mWindow, "VIDEO PLAYER SETTINGS");
+
+			// Video Player - VideoOmxPlayer
+			auto omx_player = std::make_shared<SwitchComponent>(mWindow);
+			omx_player->setState(Settings::getInstance()->getBool("VideoOmxPlayer"));
+			s->addWithLabel("USE EXPERIMENTAL OMX VIDEO PLAYER", omx_player);
+			s->addSaveFunc([omx_player] 
+			{ 	
+				// need to reload all views to re-create the right video components
+				bool needReload = false;
+				if(Settings::getInstance()->getBool("VideoOmxPlayer") != omx_player->getState())
+					needReload = true;
+
+				Settings::getInstance()->setBool("VideoOmxPlayer", omx_player->getState());
+
+				if(needReload)
+					ViewController::get()->reloadAll();
+			});
+
+			auto video_audio = std::make_shared<SwitchComponent>(mWindow);
+			video_audio->setState(Settings::getInstance()->getBool("VideoAudio"));
+			s->addWithLabel("ENABLE VIDEO AUDIO", video_audio);
+			s->addSaveFunc([video_audio] { Settings::getInstance()->setBool("VideoAudio", video_audio->getState()); });
+
+			auto stretch_theme = std::make_shared<SwitchComponent>(mWindow);
+			stretch_theme->setState(Settings::getInstance()->getBool("StretchVideoOnTheme"));
+			s->addWithLabel("STRETCH VIDEO ON THEME VIEW (EXPERIMENTAL PLAYER ONLY)", stretch_theme);
+			s->addSaveFunc([stretch_theme] { Settings::getInstance()->setBool("StretchVideoOnTheme", stretch_theme->getState()); });
+
+			auto stretch_screensaver = std::make_shared<SwitchComponent>(mWindow);
+			stretch_screensaver->setState(Settings::getInstance()->getBool("StretchVideoOnScreenSaver"));
+			s->addWithLabel("STRETCH VIDEO ON SCREENSAVER", stretch_screensaver);
+			s->addSaveFunc([stretch_screensaver] { Settings::getInstance()->setBool("StretchVideoOnScreenSaver", stretch_screensaver->getState()); });
+
+			mWindow->pushGui(s);
+	});
+
 	addEntry("OTHER SETTINGS", 0x777777FF, true,
 		[this] {
 			auto s = new GuiSettings(mWindow, "OTHER SETTINGS");
@@ -203,34 +242,6 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			max_vram->setValue((float)(Settings::getInstance()->getInt("MaxVRAM")));
 			s->addWithLabel("VRAM LIMIT", max_vram);
 			s->addSaveFunc([max_vram] { Settings::getInstance()->setInt("MaxVRAM", (int)round(max_vram->getValue())); });
-
-
-			// Video Player - VideoOmxPlayer
-			auto omx_player = std::make_shared<SwitchComponent>(mWindow);
-			omx_player->setState(Settings::getInstance()->getBool("VideoOmxPlayer"));
-			s->addWithLabel("USE EXPERIMENTAL OMX VIDEO PLAYER", omx_player);
-			s->addSaveFunc([omx_player] 
-			{ 	
-				// need to reload all views to re-create the right video components
-				bool needReload = false;
-				if(Settings::getInstance()->getBool("VideoOmxPlayer") != omx_player->getState())
-					needReload = true;
-
-				Settings::getInstance()->setBool("VideoOmxPlayer", omx_player->getState());
-
-				if(needReload)
-					ViewController::get()->reloadAll();
-			});
-
-			auto stretch_theme = std::make_shared<SwitchComponent>(mWindow);
-			stretch_theme->setState(Settings::getInstance()->getBool("StretchVideoOnTheme"));
-			s->addWithLabel("STRETCH VIDEO ON THEME VIEW (EXPERIMENTAL PLAYER ONLY)", stretch_theme);
-			s->addSaveFunc([stretch_theme] { Settings::getInstance()->setBool("StretchVideoOnTheme", stretch_theme->getState()); });
-
-			auto stretch_screensaver = std::make_shared<SwitchComponent>(mWindow);
-			stretch_screensaver->setState(Settings::getInstance()->getBool("StretchVideoOnScreenSaver"));
-			s->addWithLabel("STRETCH VIDEO ON SCREENSAVER", stretch_screensaver);
-			s->addSaveFunc([stretch_screensaver] { Settings::getInstance()->setBool("StretchVideoOnScreenSaver", stretch_screensaver->getState()); });
 
 			mWindow->pushGui(s);
 	});
