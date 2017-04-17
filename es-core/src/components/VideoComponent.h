@@ -79,11 +79,11 @@ public:
 
 	virtual void update(int deltaTime);
 
-private:
+protected:
 	// Calculates the correct mSize from our resizing information (set by setResize/setMaxSize).
 	// Used internally whenever the resizing parameters or texture change.
 	void resize();
-
+private:
 	// Start the video Immediately
 	virtual void startVideo() = 0;
 	// Stop the video

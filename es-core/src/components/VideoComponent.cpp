@@ -57,6 +57,8 @@ VideoComponent::VideoComponent(Window* window) :
 	mConfig.showSnapshotNoVideo		= false;
 	mConfig.startDelay				= 0;
 
+	mTexture = TextureResource::get("");
+
 	std::string path = getTitleFolder();
 	if(!boost::filesystem::exists(path))
 		boost::filesystem::create_directory(path);

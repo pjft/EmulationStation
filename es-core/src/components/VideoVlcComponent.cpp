@@ -137,6 +137,7 @@ void VideoVlcComponent::setupContext()
 		mContext.surface = SDL_CreateRGBSurface(SDL_SWSURFACE, (int)mVideoWidth, (int)mVideoHeight, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
 		mContext.mutex = SDL_CreateMutex();
 		mContext.valid = true;
+		resize();
 	}
 }
 
