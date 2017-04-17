@@ -3,7 +3,6 @@
 #include "Renderer.h"
 #include "ThemeData.h"
 #include "Util.h"
-#include "Log.h"
 #include <signal.h>
 #include <wait.h>
 #include <sys/types.h>
@@ -23,6 +22,24 @@ VideoPlayerComponent::~VideoPlayerComponent()
 void VideoPlayerComponent::render(const Eigen::Affine3f& parentTrans)
 {
 	VideoComponent::render(parentTrans);
+}
+
+void VideoPlayerComponent::setResize(float width, float height)
+{
+	setSize(width, height);
+	mTargetSize << width, height;
+	mTargetIsMax = false;
+	mStaticImage.setSize(width, height);
+	onSizeChanged();
+}
+
+void VideoPlayerComponent::setMaxSize(float width, float height)
+{
+	setSize(width, height);
+	mTargetSize << width, height;
+	mTargetIsMax = true;
+	mStaticImage.setMaxSize(width, height);
+	onSizeChanged();
 }
 
 void VideoPlayerComponent::startVideo()
@@ -59,12 +76,6 @@ void VideoPlayerComponent::startVideo()
 
 				// Find out the pixel position of the video view and build a command line for
 				// omxplayer to position it in the right place
-				setSize(mStaticImage.getSize());
-				LOG(LogInfo) << "Position Dimensions: x: " << mPosition.x() << " ; y: " << mPosition.y();
-				LOG(LogInfo) << "Origin Dimensions: x: " << mOrigin.x() << " ; y: " << mOrigin.y();
-				LOG(LogInfo) << "Size Dimensions: x: " << mSize.x() << " ; y: " << mSize.y();
-				LOG(LogInfo) << "Static Image Dimensions: x: " << mStaticImage.getSize().x() << " ; y: " << mStaticImage.getSize().y();
-
 				char buf[32];
 				float x = mPosition.x() - (mOrigin.x() * mSize.x());
 				float y = mPosition.y() - (mOrigin.y() * mSize.y());
