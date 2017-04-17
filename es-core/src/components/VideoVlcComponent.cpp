@@ -48,6 +48,82 @@ VideoVlcComponent::~VideoVlcComponent()
 	stopVideo();
 }
 
+void VideoVlcComponent::setResize(float width, float height)
+{
+	mTargetSize << width, height;
+	mTargetIsMax = false;
+	mStaticImage.setResize(width, height);
+	resize();
+}
+
+void VideoVlcComponent::setMaxSize(float width, float height)
+{
+	mTargetSize << width, height;
+	mTargetIsMax = true;
+	mStaticImage.setMaxSize(width, height);
+	resize();
+}
+
+void VideoVlcComponent::resize()
+{
+	if(!mTexture)
+		return;
+
+	const Eigen::Vector2f textureSize(mVideoWidth, mVideoHeight);
+
+	if(textureSize.isZero())
+		return;
+
+		// SVG rasterization is determined by height (see SVGResource.cpp), and rasterization is done in terms of pixels
+		// if rounding is off enough in the rasterization step (for images with extreme aspect ratios), it can cause cutoff when the aspect ratio breaks
+		// so, we always make sure the resultant height is an integer to make sure cutoff doesn't happen, and scale width from that
+		// (you'll see this scattered throughout the function)
+		// this is probably not the best way, so if you're familiar with this problem and have a better solution, please make a pull request!
+
+		if(mTargetIsMax)
+		{
+
+			mSize = textureSize;
+
+			Eigen::Vector2f resizeScale((mTargetSize.x() / mSize.x()), (mTargetSize.y() / mSize.y()));
+
+			if(resizeScale.x() < resizeScale.y())
+			{
+				mSize[0] *= resizeScale.x();
+				mSize[1] *= resizeScale.x();
+			}else{
+				mSize[0] *= resizeScale.y();
+				mSize[1] *= resizeScale.y();
+			}
+
+			// for SVG rasterization, always calculate width from rounded height (see comment above)
+			mSize[1] = round(mSize[1]);
+			mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
+
+		}else{
+			// if both components are set, we just stretch
+			// if no components are set, we don't resize at all
+			mSize = mTargetSize.isZero() ? textureSize : mTargetSize;
+
+			// if only one component is set, we resize in a way that maintains aspect ratio
+			// for SVG rasterization, we always calculate width from rounded height (see comment above)
+			if(!mTargetSize.x() && mTargetSize.y())
+			{
+				mSize[1] = round(mTargetSize.y());
+				mSize[0] = (mSize.y() / textureSize.y()) * textureSize.x();
+			}else if(mTargetSize.x() && !mTargetSize.y())
+			{
+				mSize[1] = round((mTargetSize.x() / textureSize.x()) * textureSize.y());
+				mSize[0] = (mSize.y() / textureSize.y()) * textureSize.x();
+			}
+		}
+
+	// mSize.y() should already be rounded
+	mTexture->rasterizeAt((int)round(mSize.x()), (int)round(mSize.y()));
+
+	onSizeChanged();
+}
+
 void VideoVlcComponent::render(const Eigen::Affine3f& parentTrans)
 {
 	VideoComponent::render(parentTrans);
