@@ -39,12 +39,20 @@ void BasicGameListView::onFileChanged(FileData* file, FileChangeType change)
 void BasicGameListView::populateList(const std::vector<FileData*>& files)
 {
 	mList.clear();
-
-	mHeaderText.setText(files.at(0)->getSystem()->getFullName());
-
-	for(auto it = files.begin(); it != files.end(); it++)
+	if (files.size() > 0)
 	{
-		mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
+		mHeaderText.setText(files.at(0)->getSystem()->getFullName());
+
+		for(auto it = files.begin(); it != files.end(); it++)
+		{
+			mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
+		}
+	}
+	else
+	{
+		// empty list - add a placeholder
+		FileData* placeholder = new FileData(PLACEHOLDER, "<No Results Found for Current Filter Criteria>", this->mRoot->getSystem());
+		mList.add(placeholder->getName(), placeholder, (placeholder->getType() == PLACEHOLDER));
 	}
 }
 
