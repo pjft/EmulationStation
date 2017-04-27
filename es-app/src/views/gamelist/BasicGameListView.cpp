@@ -63,6 +63,8 @@ FileData* BasicGameListView::getCursor()
 
 void BasicGameListView::setCursor(FileData* cursor)
 {
+	if (cursor->isPlaceHolder())
+		return;
 	if(!mList.setCursor(cursor))
 	{
 		populateList(cursor->getParent()->getChildrenListToDisplay());

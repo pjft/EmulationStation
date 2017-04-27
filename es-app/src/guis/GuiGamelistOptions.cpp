@@ -2,7 +2,6 @@
 #include "GuiMetaDataEd.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/ViewController.h"
-#include "Log.h"
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
 	mSystem(system), mMenu(window, "OPTIONS"), fromPlaceholder(false), mFiltersChanged(false)
@@ -86,7 +85,17 @@ GuiGamelistOptions::~GuiGamelistOptions()
 	} 
 	if (mFiltersChanged) 
 	{
-		ViewController::get()->reloadGameListView(mSystem);
+		if (!fromPlaceholder) {
+			FileData* root = getGamelist()->getCursor()->getSystem()->getRootFolder();
+			getGamelist()->onFileChanged(root, FILE_SORTED);
+		}
+		else
+		{
+			// only reload full view if we came from a placeholder
+			// as we need to re-display the remaining elements for whatever new
+			// game is selected
+			ViewController::get()->reloadGameListView(mSystem);
+		}		
 	}
 }
 
