@@ -36,6 +36,8 @@ SystemData::SystemData(const std::string& name, const std::string& fullName, con
 	mPlatformIds = platformIds;
 	mThemeFolder = themeFolder;
 
+	mFilterIndex = new FileFilterIndex();
+
 	mRootFolder = new FileData(FOLDER, mStartPath, this);
 	mRootFolder->metadata.set("name", mFullName);
 
@@ -59,6 +61,7 @@ SystemData::~SystemData()
 	}
 
 	delete mRootFolder;
+	delete mFilterIndex;
 }
 
 
