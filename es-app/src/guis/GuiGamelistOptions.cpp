@@ -21,12 +21,25 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 	row.addElement(makeArrow(mWindow), false);
 	row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::openGamelistFilter, this));
 	mMenu.addRow(row);
+
 	row.elements.clear();
+	row.addElement(std::make_shared<TextComponent>(mWindow, "SURPRISE ME!", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.input_handler = [&](InputConfig* config, Input input) {
+		if (config->isMappedTo("a", input) && input.value)
+		{
+			ViewController::get()->goToRandomGame();
+			delete this;
+			return true;
+		}
+		return false;
+	};
+	mMenu.addRow(row);
 
 	if (!fromPlaceholder) {
 
 		if (!isFiltered) {
 			// jump to letter
+			row.elements.clear();
 			char curChar = toupper(getGamelist()->getCursor()->getName()[0]);
 			if(curChar < 'A' || curChar > 'Z')
 				curChar = 'A';
@@ -86,7 +99,17 @@ GuiGamelistOptions::~GuiGamelistOptions()
 	} 
 	if (mFiltersChanged) 
 	{
-		ViewController::get()->reloadGameListView(mSystem);
+		if (!fromPlaceholder) {
+			FileData* root = getGamelist()->getCursor()->getSystem()->getRootFolder();
+			getGamelist()->onFileChanged(root, FILE_SORTED);
+		}
+		else
+		{
+			// only reload full view if we came from a placeholder
+			// as we need to re-display the remaining elements for whatever new
+			// game is selected
+			ViewController::get()->reloadGameListView(mSystem);
+		}		
 	}
 }
 

@@ -33,6 +33,7 @@ public:
 	std::string getThemePath() const;
 	
 	unsigned int getGameCount() const;
+	unsigned int getDisplayedGameCount() const;
 
 	void launchGame(Window* window, FileData* game);
 
