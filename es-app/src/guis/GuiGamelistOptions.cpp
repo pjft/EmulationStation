@@ -2,6 +2,7 @@
 #include "GuiMetaDataEd.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/ViewController.h"
+#include "Log.h"
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
 	mSystem(system), mMenu(window, "OPTIONS"), fromPlaceholder(false), mFiltersChanged(false)
