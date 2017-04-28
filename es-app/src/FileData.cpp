@@ -44,7 +44,7 @@ std::string removeParenthesis(const std::string& str)
 
 
 FileData::FileData(FileType type, const fs::path& path, SystemData* system)
-	: mType(type), mPath(path), mSystem(system), mPlaceHolder(false), mParent(NULL), metadata(type == GAME ? GAME_METADATA : FOLDER_METADATA) // metadata is REALLY set in the constructor!
+	: mType(type), mPath(path), mSystem(system), mParent(NULL), metadata(type == GAME ? GAME_METADATA : FOLDER_METADATA) // metadata is REALLY set in the constructor!
 {
 	// metadata needs at least a name field (since that's what getName() will return)
 	if(metadata.get("name").empty())
