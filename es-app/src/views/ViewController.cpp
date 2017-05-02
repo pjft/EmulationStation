@@ -125,7 +125,7 @@ void ViewController::goToRandomGame()
 	for(auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
 	{
 		if ((*it)->getName() != "retropie")
-			total += (*it)->getGameCount();
+			total += (*it)->getDisplayedGameCount();
 	}
 	
 	// get random number in range
@@ -135,14 +135,14 @@ void ViewController::goToRandomGame()
 	{
 		if ((*it)->getName() != "retropie")
 		{
-			if ((target - (int)(*it)->getGameCount()) >= 0)
+			if ((target - (int)(*it)->getDisplayedGameCount()) >= 0)
 			{
-				target -= (int)(*it)->getGameCount();
+				target -= (int)(*it)->getDisplayedGameCount();
 			}
 			else
 			{
 				goToGameList(*it);
-				std::vector<FileData*> list = (*it)->getRootFolder()->getFilesRecursive(GAME);
+				std::vector<FileData*> list = (*it)->getRootFolder()->getFilesRecursive(GAME, true);
 				getGameListView(*it)->setCursor(list.at(target));
 				return;
 			}
@@ -395,13 +395,18 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 			bool isCurrent = (mCurrentView == it->second);
 			SystemData* system = it->first;
 			FileData* cursor = view->getCursor();
+
 			mGameListViews.erase(it);
 
 			if(reloadTheme)
 				system->loadTheme();
 
 			std::shared_ptr<IGameListView> newView = getGameListView(system);
-			newView->setCursor(cursor);
+
+			// to counter having come from a placeholder
+			if (!cursor->isPlaceHolder()) {
+				newView->setCursor(cursor);
+			}
 
 			if(isCurrent)
 				mCurrentView = newView;
@@ -409,6 +414,7 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 			break;
 		}
 	}
+	
 	// Redisplay the current view
 	if (mCurrentView)
 		mCurrentView->onShow();
