@@ -75,6 +75,7 @@ void Settings::setDefaults()
 	mStringMap["ThemeSet"] = "";
 	mStringMap["ScreenSaverBehavior"] = "dim";
 	mStringMap["Scraper"] = "TheGamesDB";
+	mStringMap["GamelistViewStyle"] = "automatic";
 
 
 	mBoolMap["LaunchOnStart"] = true;

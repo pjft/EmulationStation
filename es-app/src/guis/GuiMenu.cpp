@@ -219,6 +219,24 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			s->addWithLabel("STRETCH VIDEO ON SCREENSAVER", stretch_screensaver);
 			s->addSaveFunc([stretch_screensaver] { Settings::getInstance()->setBool("StretchVideoOnScreenSaver", stretch_screensaver->getState()); });
 
+			// GameList view style
+			auto gamelist_style = std::make_shared< OptionListComponent<std::string> >(mWindow, "GAMELIST VIEW STYLE", false);
+			std::vector<std::string> styles;
+			styles.push_back("automatic");
+			styles.push_back("basic");
+			styles.push_back("detailed");
+			styles.push_back("video");
+			for (auto it = styles.begin(); it != styles.end(); it++)
+				gamelist_style->add(*it, *it, Settings::getInstance()->getString("GamelistViewStyle") == *it);
+			s->addWithLabel("GAMELIST VIEW STYLE", gamelist_style);
+			s->addSaveFunc([gamelist_style] {
+				bool needReload = false;
+				if (Settings::getInstance()->getString("GamelistViewStyle") != gamelist_style->getSelected())
+					needReload = true;
+				Settings::getInstance()->setString("GamelistViewStyle", gamelist_style->getSelected()); 
+				if (needReload)
+					ViewController::get()->reloadAll();
+			});
 			mWindow->pushGui(s);
 	});
 
