@@ -50,7 +50,7 @@ public:
 	virtual const std::string& getMarqueePath() const;
 
 	const std::vector<FileData*>& getChildrenListToDisplay();
-	std::vector<FileData*> getFilesRecursive(unsigned int typeMask) const;
+	std::vector<FileData*> getFilesRecursive(unsigned int typeMask, bool displayedOnly = false) const;	
 
 	void addChild(FileData* file); // Error if mType != FOLDER
 	void removeChild(FileData* file); //Error if mType != FOLDER

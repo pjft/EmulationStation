@@ -432,6 +432,11 @@ unsigned int SystemData::getGameCount() const
 	return mRootFolder->getFilesRecursive(GAME).size();
 }
 
+unsigned int SystemData::getDisplayedGameCount() const
+{
+	return mRootFolder->getFilesRecursive(GAME, true).size();
+}
+
 void SystemData::loadTheme()
 {
 	mTheme = std::make_shared<ThemeData>();

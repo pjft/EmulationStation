@@ -24,13 +24,13 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 	row.elements.clear();
 	row.addElement(std::make_shared<TextComponent>(mWindow, "SURPRISE ME!", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	row.input_handler = [&](InputConfig* config, Input input) {
-	if (config->isMappedTo("a", input) && input.value)
-	{
-	  ViewController::get()->goToRandomGame();
-	  delete this;
-	  return true;
-	}
-	  return false;
+		if (config->isMappedTo("a", input) && input.value)
+		{
+			ViewController::get()->goToRandomGame();
+			delete this;
+			return true;
+		}
+		return false;
 	};
 	mMenu.addRow(row);
 
@@ -38,7 +38,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 		if (!isFiltered) {
 			// jump to letter
-      row.elements.clear();
+			row.elements.clear();
 			char curChar = toupper(getGamelist()->getCursor()->getName()[0]);
 			if(curChar < 'A' || curChar > 'Z')
 				curChar = 'A';
@@ -63,7 +63,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 			};
 			mMenu.addRow(row);
 		}
-		
+
 		// sort list by
 		mListSort = std::make_shared<SortList>(mWindow, "SORT GAMES BY", false);
 		for(unsigned int i = 0; i < FileSorts::SortTypes.size(); i++)
@@ -71,6 +71,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 			const FileData::SortType& sort = FileSorts::SortTypes.at(i);
 			mListSort->add(sort.description, &sort, i == 0); // TODO - actually make the sort type persistent
 		}
+
 		mMenu.addWithLabel("SORT GAMES BY", mListSort);
 
 		row.elements.clear();

@@ -111,19 +111,22 @@ const std::string& FileData::getMarqueePath() const
 	return metadata.get("marquee");
 }
 
-
-std::vector<FileData*> FileData::getFilesRecursive(unsigned int typeMask) const
+std::vector<FileData*> FileData::getFilesRecursive(unsigned int typeMask, bool displayedOnly) const
 {
 	std::vector<FileData*> out;
+	FileFilterIndex* idx = mSystem->getIndex();
 
 	for(auto it = mChildren.begin(); it != mChildren.end(); it++)
 	{
 		if((*it)->getType() & typeMask)
-			out.push_back(*it);
+		{
+			if (!displayedOnly || !idx->isFiltered() || idx->showFile(*it))
+				out.push_back(*it);
+		}
 		
 		if((*it)->getChildren().size() > 0)
 		{
-			std::vector<FileData*> subchildren = (*it)->getFilesRecursive(typeMask);
+			std::vector<FileData*> subchildren = (*it)->getFilesRecursive(typeMask, displayedOnly);
 			out.insert(out.end(), subchildren.cbegin(), subchildren.cend());
 		}
 	}
