@@ -38,7 +38,7 @@ bool TextureData::initSVGFromMemory(const unsigned char* fileData, size_t length
 			return true;
 	}
 
-	// nsvgParse excepts a modifiable, null-terminated string
+	// nsvgParse expects a modifiable, null-terminated string
 	char* copy = (char*)malloc(length + 1);
 	assert(copy != NULL);
 	memcpy(copy, fileData, length);
@@ -59,8 +59,11 @@ bool TextureData::initSVGFromMemory(const unsigned char* fileData, size_t length
 		mSourceWidth = svgImage->width;
 		mSourceHeight = svgImage->height;
 	}
-	mWidth = (size_t)round(mSourceWidth);
-	mHeight = (size_t)round(mSourceHeight);
+	
+	// since we are re-using SVGs now, we want to make sure that we always store the largest rasterized
+	// version we'll be using of it. We'll then re-scale appropriately via the image component.
+	mWidth = std::max((size_t)round(mSourceWidth), mWidth);
+	mHeight = std::max((size_t)round(mSourceHeight), mHeight);
 
 	if (mWidth == 0)
 	{

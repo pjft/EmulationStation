@@ -77,17 +77,14 @@ void Settings::setDefaults()
 	mStringMap["Scraper"] = "TheGamesDB";
 	mStringMap["GamelistViewStyle"] = "automatic";
 
-
-	mBoolMap["LaunchOnStart"] = true;
-	mBoolMap["ScreenSaverControls"] = true;
-	mBoolMap["ScreenSaverGameName"] = false;
-	mBoolMap["StretchVideoOnTheme"] = false;
-	mBoolMap["StretchVideoOnScreenSaver"] = false;
-
-	// This setting only applies to raspberry pi but set it for all platforms so
-	// we don't get a warning if we encounter it on a different platform
-	mBoolMap["VideoOmxPlayer"] = false;
-	mBoolMap["VideoAudio"] = true;
+#ifdef _RPI_
+	// if on the raspberry pi, we want to re-use in-memory SVG images from the 
+	// same path, rather than create one instance per use, for memory saving
+	// purposes
+	mBoolMap["ReUseSVGs"] = true;
+#else
+	mBoolMap["ReUseSVGs"] = false;
+#endif
 
 }
 
