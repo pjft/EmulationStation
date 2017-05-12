@@ -130,7 +130,7 @@ std::shared_ptr<TextureResource> TextureResource::get(const std::string& path, b
 	std::shared_ptr<TextureData> data = sTextureDataManager.get(tex.get());
 
 	// is it an SVG?
-	if(key.first.substr(key.first.size() - 4, std::string::npos) != ".svg")
+	if(key.first.substr(key.first.size() - 4, std::string::npos) != ".svg" || Settings::getInstance()->getBool("ReUseSVGs"))
 	{
 		// Probably not. Add it to our map. We don't add SVGs because 2 svgs might be rasterized at different sizes
 		sTextureMap[key] = std::weak_ptr<TextureResource>(tex);

@@ -76,6 +76,9 @@ void Settings::setDefaults()
 	mStringMap["ScreenSaverBehavior"] = "dim";
 	mStringMap["Scraper"] = "TheGamesDB";
 	mStringMap["GamelistViewStyle"] = "automatic";
+
+	mBoolMap["ReUseSVGs"] = false;
+	mBoolMap["MultithreadedImages"] = true;
 }
 
 template <typename K, typename V>

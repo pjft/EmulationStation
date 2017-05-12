@@ -121,7 +121,7 @@ void TextureDataManager::load(std::shared_ptr<TextureData> tex, bool block)
 		mLoader->remove(*it);
 		size = TextureResource::getTotalMemUsage();
 	}
-	if (!block)
+	if (!block && Settings::getInstance()->getBool("MultithreadedImages"))
 		mLoader->load(tex);
 	else
 		tex->load();

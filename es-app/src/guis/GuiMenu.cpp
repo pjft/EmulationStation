@@ -202,6 +202,18 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			s->addWithLabel("VRAM LIMIT", max_vram);
 			s->addSaveFunc([max_vram] { Settings::getInstance()->setInt("MaxVRAM", (int)round(max_vram->getValue())); });
 
+			// use multiple threads to load images
+			auto multithread_images = std::make_shared<SwitchComponent>(mWindow);
+			multithread_images->setState(Settings::getInstance()->getBool("MultithreadedImages"));
+			s->addWithLabel("MULTITHREADED IMAGE LOAD", multithread_images);
+			s->addSaveFunc([multithread_images] { Settings::getInstance()->setBool("MultithreadedImages", multithread_images->getState()); });
+
+			// re-use SVGs
+			auto reuse_svgs = std::make_shared<SwitchComponent>(mWindow);
+			reuse_svgs->setState(Settings::getInstance()->getBool("ReUseSVGs"));
+			s->addWithLabel("RE-USE THEME IMAGES", reuse_svgs);
+			s->addSaveFunc([reuse_svgs] { Settings::getInstance()->setBool("ReUseSVGs", reuse_svgs->getState()); });
+
 			mWindow->pushGui(s);
 	});
 
