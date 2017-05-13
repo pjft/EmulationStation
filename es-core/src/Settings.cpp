@@ -77,7 +77,14 @@ void Settings::setDefaults()
 	mStringMap["Scraper"] = "TheGamesDB";
 	mStringMap["GamelistViewStyle"] = "automatic";
 
+#ifdef _RPI_
+	// re-use in-memory SVGs for the same path instead of creating individual
+	// in-memory textures for each instance, since the Pi has low GPU memory
+	// and it doesn't seem to have any noticeable, significant impact
+	mBoolMap["ReUseSVGs"] = true;
+#else
 	mBoolMap["ReUseSVGs"] = false;
+#endif
 	mBoolMap["MultithreadedImages"] = true;
 }
 
