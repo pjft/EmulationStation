@@ -56,6 +56,8 @@ private:
 	unsigned char*	mDataRGBA;
 	size_t			mWidth;
 	size_t			mHeight;
+	size_t			mMaxWidth;
+	size_t			mMaxHeight;
 	float			mSourceWidth;
 	float			mSourceHeight;
 	bool			mScalable;

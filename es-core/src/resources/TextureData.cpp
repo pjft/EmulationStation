@@ -11,7 +11,7 @@
 #define DPI 96
 
 TextureData::TextureData(bool tile) : mTile(tile), mTextureID(0), mDataRGBA(nullptr), mScalable(false),
-									  mWidth(0), mHeight(0), mSourceWidth(0.0f), mSourceHeight(0.0f)
+									  mWidth(0), mHeight(0), mMaxWidth(0), mMaxHeight(0), mSourceWidth(0.0f), mSourceHeight(0.0f)
 {
 }
 
@@ -34,8 +34,12 @@ bool TextureData::initSVGFromMemory(const unsigned char* fileData, size_t length
 	// If already initialised then don't read again
 	{
 		std::unique_lock<std::mutex> lock(mMutex);
-		if (mDataRGBA)
+		if (mDataRGBA) {
+			LOG(LogInfo) << "Already initialized: " << mPath;
+			LOG(LogError) << "Current width and height: " << mWidth << " w, " << mHeight << " h.";
+			LOG(LogError) << "Current source width and height: " << mSourceWidth << " w, " << mSourceHeight << " h.";
 			return true;
+		}
 	}
 	LOG(LogInfo) << "Not initialized yet? " << mPath;
 
@@ -53,6 +57,8 @@ bool TextureData::initSVGFromMemory(const unsigned char* fileData, size_t length
 		return false;
 	}
 
+	LOG(LogError) << "Current source width and height: " << mSourceWidth << " w, " << mSourceHeight << " h.";
+
 	// We want to rasterise this texture at a specific resolution. If the source size
 	// variables are set then use them otherwise set them from the parsed file
 	if ((mSourceWidth == 0.0f) && (mSourceHeight == 0.0f))
@@ -60,8 +66,11 @@ bool TextureData::initSVGFromMemory(const unsigned char* fileData, size_t length
 		mSourceWidth = svgImage->width;
 		mSourceHeight = svgImage->height;
 	}
-	mWidth = (size_t)round(mSourceWidth);
-	mHeight = (size_t)round(mSourceHeight);
+	mWidth = std::max((size_t)round(mSourceWidth), mWidth);
+	mHeight = std::max((size_t)round(mSourceHeight), mHeight);
+
+	LOG(LogError) << "Going to set width and height: " << mWidth << " w, " << mHeight << " h.";
+	LOG(LogError) << "Going to set source width and source height: " << mSourceWidth << " w, " << mSourceHeight << " h.";
 
 	if (mWidth == 0)
 	{
@@ -134,7 +143,7 @@ bool TextureData::load()
 	// pjft
 	//int mem = getFreeGPUMemory();
 	//LOG(LogError) << "TextureData: Load Image: " << mPath << " - Start Memory: " << mem << "MB";
-	
+	LOG(LogError) << "TextureData: Loading Image: " << mPath;
 	bool retval = false;
 
 	// Need to load. See if there is a file
@@ -215,8 +224,7 @@ void TextureData::releaseVRAM()
 		mTextureID = 0;
 
 		int delta = mem - getFreeGPUMemory();
-		if (delta != 0)
-			LOG(LogError) << clock() << " | releaseVRAM  | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << mPath;	
+		LOG(LogError) << clock() << " | releaseVRAM  | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << mPath;	
 	}	
 }
 

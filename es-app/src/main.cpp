@@ -296,6 +296,9 @@ int main(int argc, char* argv[])
 	int lastTime = SDL_GetTicks();
 	bool running = true;
 
+	// finished loading, we should kill the Loading Screen from memory
+	// pjft
+
 	while(running)
 	{
 		SDL_Event event;
