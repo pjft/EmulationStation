@@ -89,7 +89,7 @@ void parseGamelist(SystemData* system)
 	if(!boost::filesystem::exists(xmlpath))
 		return;
 
-	LOG(LogInfo) << "Parsing XML file \"" << xmlpath << "\"...";
+	//LOG(LogInfo) << "Parsing XML file \"" << xmlpath << "\"...";
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(xmlpath.c_str());
@@ -121,7 +121,7 @@ void parseGamelist(SystemData* system)
 			
 			if(!trustGamelist && !boost::filesystem::exists(path))
 			{
-				LOG(LogWarning) << "File \"" << path << "\" does not exist! Ignoring.";
+				//LOG(LogWarning) << "File \"" << path << "\" does not exist! Ignoring.";
 				continue;
 			}
 

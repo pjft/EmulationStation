@@ -34,3 +34,9 @@ boost::filesystem::path makeRelativePath(const boost::filesystem::path& path, co
 boost::filesystem::path resolvePath(const boost::filesystem::path& path, const boost::filesystem::path& relativeTo, bool allowHome);
 
 boost::posix_time::ptime string_to_ptime(const std::string& str, const std::string& fmt = "%Y%m%dT%H%M%S%F%q");
+
+#ifdef _RPI_
+int getFreeMemory();
+int getFreeGPUMemory();
+int getFreeMaxGPUMemory();
+#endif

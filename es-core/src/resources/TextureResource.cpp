@@ -13,6 +13,7 @@ std::set<TextureResource*> 	TextureResource::sAllTextures;
 
 TextureResource::TextureResource(const std::string& path, bool tile, bool dynamic) : mTextureData(nullptr), mForceLoad(false)
 {
+	LOG(LogInfo) << "Creating new TextureResource with path: " << path;
 	// Create a texture data object for this texture
 	if (!path.empty())
 	{
@@ -21,6 +22,7 @@ TextureResource::TextureResource(const std::string& path, bool tile, bool dynami
 		std::shared_ptr<TextureData> data;
 		if (dynamic)
 		{
+			LOG(LogInfo) << "Dynamic Texture. Going to add it. " << path;
 			data = sTextureDataManager.add(this, tile);
 			data->initFromPath(path);
 			// Force the texture manager to load it using a blocking load
@@ -28,6 +30,7 @@ TextureResource::TextureResource(const std::string& path, bool tile, bool dynami
 		}
 		else
 		{
+			LOG(LogInfo) << "Not Dynamic Texture. Going to load it. " << path;
 			mTextureData = std::shared_ptr<TextureData>(new TextureData(tile));
 			data = mTextureData;
 			data->initFromPath(path);
@@ -120,17 +123,19 @@ std::shared_ptr<TextureResource> TextureResource::get(const std::string& path, b
 	auto foundTexture = sTextureMap.find(key);
 	if(foundTexture != sTextureMap.end())
 	{
+		LOG(LogInfo) << "Already found texture with Path: " << canonicalPath;
 		if(!foundTexture->second.expired())
 			return foundTexture->second.lock();
 	}
 
+	LOG(LogInfo) << "Creating new TextureResource with path: " << canonicalPath;
 	// need to create it
 	std::shared_ptr<TextureResource> tex;
 	tex = std::shared_ptr<TextureResource>(new TextureResource(key.first, tile, dynamic));
 	std::shared_ptr<TextureData> data = sTextureDataManager.get(tex.get());
 
 	// is it an SVG?
-	if(key.first.substr(key.first.size() - 4, std::string::npos) != ".svg")
+	if(key.first.substr(key.first.size() - 4, std::string::npos) != ".svg" || 1)
 	{
 		// Probably not. Add it to our map. We don't add SVGs because 2 svgs might be rasterized at different sizes
 		sTextureMap[key] = std::weak_ptr<TextureResource>(tex);

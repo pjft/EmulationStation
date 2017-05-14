@@ -151,7 +151,7 @@ void SystemData::populateFolder(FileData* folder)
 	const fs::path& folderPath = folder->getPath();
 	if(!fs::is_directory(folderPath))
 	{
-		LOG(LogWarning) << "Error - folder with path \"" << folderPath << "\" is not a directory!";
+		//LOG(LogWarning) << "Error - folder with path \"" << folderPath << "\" is not a directory!";
 		return;
 	}
 
@@ -293,7 +293,10 @@ bool SystemData::loadConfig()
 
 			// if there appears to be an actual platform ID supplied but it didn't match the list, warn
 			if(str != NULL && str[0] != '\0' && platformId == PlatformIds::PLATFORM_UNKNOWN)
-				LOG(LogWarning) << "  Unknown platform for system \"" << name << "\" (platform \"" << str << "\" from list \"" << platformList << "\")";
+			{
+				// pjft
+				// LOG(LogWarning) << "  Unknown platform for system \"" << name << "\" (platform \"" << str << "\" from list \"" << platformList << "\")";
+			}
 			else if(platformId != PlatformIds::PLATFORM_UNKNOWN)
 				platformIds.push_back(platformId);
 		}
@@ -315,7 +318,8 @@ bool SystemData::loadConfig()
 		SystemData* newSys = new SystemData(name, fullname, path, extensions, cmd, platformIds, themeFolder);
 		if(newSys->getRootFolder()->getChildrenByFilename().size() == 0)
 		{
-			LOG(LogWarning) << "System \"" << name << "\" has no games! Ignoring it.";
+			// pjft
+			// LOG(LogWarning) << "System \"" << name << "\" has no games! Ignoring it.";
 			delete newSys;
 		}else{
 			sSystemVector.push_back(newSys);

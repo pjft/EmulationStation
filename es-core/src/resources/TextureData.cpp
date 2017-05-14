@@ -37,6 +37,7 @@ bool TextureData::initSVGFromMemory(const unsigned char* fileData, size_t length
 		if (mDataRGBA)
 			return true;
 	}
+	LOG(LogInfo) << "Not initialized yet? " << mPath;
 
 	// nsvgParse excepts a modifiable, null-terminated string
 	char* copy = (char*)malloc(length + 1);
@@ -114,6 +115,7 @@ bool TextureData::initImageFromMemory(const unsigned char* fileData, size_t leng
 
 bool TextureData::initFromRGBA(const unsigned char* dataRGBA, size_t width, size_t height)
 {
+
 	// If already initialised then don't read again
 	std::unique_lock<std::mutex> lock(mMutex);
 	if (mDataRGBA)
@@ -129,6 +131,10 @@ bool TextureData::initFromRGBA(const unsigned char* dataRGBA, size_t width, size
 
 bool TextureData::load()
 {
+	// pjft
+	//int mem = getFreeGPUMemory();
+	//LOG(LogError) << "TextureData: Load Image: " << mPath << " - Start Memory: " << mem << "MB";
+	
 	bool retval = false;
 
 	// Need to load. See if there is a file
@@ -145,6 +151,8 @@ bool TextureData::load()
 		else
 			retval = initImageFromMemory((const unsigned char*)data.ptr.get(), data.length);
 	}
+	//int delta = mem - getFreeGPUMemory();
+	//LOG(LogError) << clock() << " | load Texture | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << mPath;	
 	return retval;
 }
 
@@ -163,6 +171,7 @@ bool TextureData::uploadAndBind()
 	if (mTextureID != 0)
 	{
 		glBindTexture(GL_TEXTURE_2D, mTextureID);
+		//LOG(LogError) << clock() << " | uploadBindSh | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << mPath;	
 	}
 	else
 	{
@@ -174,6 +183,7 @@ bool TextureData::uploadAndBind()
 		// Make sure we're ready to upload
 		if ((mWidth == 0) || (mHeight == 0) || (mDataRGBA == nullptr))
 			return false;
+		int mem = getFreeGPUMemory();
 		glGetError();
 		//now for the openGL texture stuff
 		glGenTextures(1, &mTextureID);
@@ -187,6 +197,9 @@ bool TextureData::uploadAndBind()
 		const GLint wrapMode = mTile ? GL_REPEAT : GL_CLAMP_TO_EDGE;
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+		int delta = mem - getFreeGPUMemory();
+		LOG(LogError) << clock() << " | uploadBindLg | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << mPath;	
+	
 	}
 	return true;
 }
@@ -196,16 +209,25 @@ void TextureData::releaseVRAM()
 	std::unique_lock<std::mutex> lock(mMutex);
 	if (mTextureID != 0)
 	{
+		int mem = getFreeGPUMemory();
+	
 		glDeleteTextures(1, &mTextureID);
 		mTextureID = 0;
-	}
+
+		int delta = mem - getFreeGPUMemory();
+		if (delta != 0)
+			LOG(LogError) << clock() << " | releaseVRAM  | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << mPath;	
+	}	
 }
 
 void TextureData::releaseRAM()
 {
+	//int mem = getFreeGPUMemory();
 	std::unique_lock<std::mutex> lock(mMutex);
 	delete[] mDataRGBA;
 	mDataRGBA = 0;
+	//int delta = mem - getFreeGPUMemory();
+	//LOG(LogError) << clock() << " | releaseRAM   | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << mPath;	
 }
 
 size_t TextureData::width()

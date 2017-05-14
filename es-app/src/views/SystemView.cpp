@@ -36,6 +36,7 @@ void SystemView::populate()
 		e.name = (*it)->getName();
 		e.object = *it;
 
+		//int mem = getFreeGPUMemory();
 		// make logo
 		if(theme->getElement("system", "logo", "image"))
 		{
@@ -71,11 +72,16 @@ void SystemView::populate()
 			textSelected->setSize(mCarousel.logoSize);
 			e.data.logoSelected = std::shared_ptr<GuiComponent>(textSelected);
 		}
-
+		//int delta = mem - getFreeGPUMemory();
+		//LOG(LogError) << clock() << " | populateLogo | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << (*it)->getName();	
+		
 		// make background extras
+
+		//mem = getFreeGPUMemory();
 		e.data.backgroundExtras = std::shared_ptr<ThemeExtras>(new ThemeExtras(mWindow));
 		e.data.backgroundExtras->setExtras(ThemeData::makeExtras((*it)->getTheme(), "system", mWindow));
-
+		//delta = mem - getFreeGPUMemory();
+		//LOG(LogError) << clock() << " | populateXtra | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << (*it)->getName();	
 		this->add(e);
 	}
 }

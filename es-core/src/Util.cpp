@@ -1,6 +1,12 @@
 #include "Util.h"
 #include "resources/ResourceManager.h"
 #include "platform.h"
+#include <signal.h>
+#include <wait.h>
+#include <iostream>
+#include <fstream>
+#include "Log.h"
+#include <ctime>
 
 namespace fs = boost::filesystem;
 
@@ -208,3 +214,159 @@ boost::posix_time::ptime string_to_ptime(const std::string& str, const std::stri
 
 	return time;
 }
+
+#ifdef _RPI_
+int getFreeMemory()
+{
+  int returnValue;
+  const int BUFFER_SIZE = 1000;
+  char buffer[BUFFER_SIZE];
+  FILE *fInput;
+  int loop;
+  int len;
+  char ch;
+  returnValue = -1;
+  fInput = fopen("/proc/meminfo","r");
+  if (fInput != NULL)
+  {
+    while (!feof(fInput))
+    {
+      fgets(buffer,BUFFER_SIZE-1,fInput);
+      if (feof(fInput))
+      {
+        break;
+      }
+      buffer[BUFFER_SIZE-1] = 0;
+      // Look for serial number
+      if (strncmp(buffer,"MemFree:",8)==0)
+      {
+        // Extract mem free from the line.
+        for(loop=0;loop<BUFFER_SIZE;loop++)
+        {
+          ch = buffer[loop];
+          if (ch == ':')
+          {
+             returnValue = 0;
+             continue;
+          }
+          if (ch == 0)
+          {
+              break;
+          }
+          if (returnValue >=0)
+          {
+             if (ch >='A')
+             {
+                break;
+             }
+             if ((ch >='0') && (ch <='9'))
+             {
+                returnValue = returnValue * 10 + (ch-'0');
+             }
+          }
+        }
+        break;
+      }
+    } 
+    fclose(fInput);
+  }
+  return returnValue;
+}
+
+int getFreeMaxGPUMemory()
+{
+	return 0;
+	FILE * f = popen( "sudo vcdbg reloc | grep \"[0-9]* free memory\" | grep -o \"[0-9\\.]*[MK]\" | grep -o \"[0-9\\.]*\"", "r" );
+    if ( f == 0 ) {
+        LOG(LogError) << "Couldn't get GPU Memory!";
+        return 0;
+    }
+    std::string mem;
+    const int BUFSIZE = 1000;
+    char buf[ BUFSIZE ];
+    while( fgets( buf, BUFSIZE,  f ) ) {
+      mem += buf;        
+    }
+    pclose( f );
+    //LOG(LogError) << "Memory: " << mem;
+    int out = 0;
+
+    if (mem == "")
+    	mem = "0";
+
+    try {
+    	out = std::stoi(mem);
+    } 
+    catch (int e)
+    {
+    	out = 0;
+    }
+
+    return out;
+
+}
+
+int getFreeGPUMemory()
+{
+	// TO DO
+	// sudo vcdbg reloc
+	// sudo vcdbg reloc | grep "largest free block"
+	// /opt/vc/lib /opt/vc/bin/vcdbg reloc
+	// https://github.com/nezticle/RaspberryPi-BuildRoot/wiki/VideoCore-Tools
+	// see https://github.com/MilhouseVH/bcmstat/blob/master/bcmstat.sh#L586
+
+	/*pid_t pid = fork();
+	if (!pid)
+	{
+		// do stuff
+		execl(getenv("SHELL"),"sh","-c","sudo vcdbg reloc | grep \"largest free block is [0-9]*\" | grep -o \"[0-9]*\" > /home/pi/.emulationstation/mem.log",NULL);
+		
+	    exit(1);
+	}
+	else {
+		// now the ptm file handle is used to send data
+		// to the process and to receive output from the process
+		int status;
+		waitpid(pid, &status, 0);
+		std::string mem;
+		std::ifstream infile;
+		infile.open ("/home/pi/.emulationstation/mem.log");
+	    getline(infile,mem); // Saves the line in STRING.
+	    infile.close();
+
+		return std::stoi(mem);
+	}*/
+
+	return 0;
+
+	FILE * f = popen( "sudo vcdbg reloc | grep \"largest free block is [0-9\\.]*\" | grep -o \"[0-9\\.]*\"", "r" );
+    if ( f == 0 ) {
+        LOG(LogError) << "Couldn't get GPU Memory!";
+        return 0;
+    }
+    std::string mem;
+    const int BUFSIZE = 1000;
+    char buf[ BUFSIZE ];
+    while( fgets( buf, BUFSIZE,  f ) ) {
+      mem += buf;        
+    }
+    pclose( f );
+    //LOG(LogError) << "Memory: " << mem;
+
+	int out = 0;
+
+	if (mem == "")
+    	mem = "0";
+
+    try {
+    	out = std::stoi(mem);
+    } 
+    catch (int e)
+    {
+    	out = 0;
+    }
+
+    return out;
+
+}
+#endif

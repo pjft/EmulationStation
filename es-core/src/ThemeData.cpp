@@ -361,7 +361,8 @@ void ThemeData::parseElement(const pugi::xml_node& root, const std::map<std::str
 				ss << "could not find file \"" << node.text().get() << "\" ";
 				if(node.text().get() != path)
 					ss << "(which resolved to \"" << path << "\") ";
-				LOG(LogWarning) << ss.str();
+				// pjft
+				// LOG(LogWarning) << ss.str();
 			}
 			element.properties[node.name()] = path;
 			break;

@@ -69,14 +69,14 @@ void SystemScreenSaver::startScreenSaver()
 		int retry = 20;
 		while(retry > 0 && ((path.empty() || !boost::filesystem::exists(path)) || mCurrentGame == NULL))
 		{
-			LOG(LogInfo) << "Hm. Something went wrong with: \"" << path << "\"; Retries left (out of 20): " << retry;
+			//LOG(LogInfo) << "Hm. Something went wrong with: \"" << path << "\"; Retries left (out of 20): " << retry;
 			retry--;
 			pickRandomVideo(path);
 		}
 
 
 
-		LOG(LogDebug) << "Starting Video at path \"" << path << "\"; Retries left (out of 20): " << retry;
+		//LOG(LogDebug) << "Starting Video at path \"" << path << "\"; Retries left (out of 20): " << retry;
 		if (!path.empty() && boost::filesystem::exists(path))
 		{
 		// Create the correct type of video component
@@ -98,7 +98,7 @@ void SystemScreenSaver::startScreenSaver()
 			return;
 		}
 	}
-	LOG(LogError) << "Starting standard screensaver";
+	//LOG(LogError) << "Starting standard screensaver";
 	// No videos. Just use a standard screensaver
 	mState = STATE_SCREENSAVER_ACTIVE;
 	mCurrentGame = NULL;
@@ -179,7 +179,7 @@ void SystemScreenSaver::pickRandomVideo(std::string& path)
 	{
 		int video = (int)(((float)rand() / float(RAND_MAX)) * (float)mVideoCount);
 
-		LOG(LogDebug) << "Random Video: " << video;
+		//LOG(LogDebug) << "Random Video: " << video;
 
 		std::vector<SystemData*>:: iterator it;
 		for (it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); ++it)
@@ -223,15 +223,15 @@ void SystemScreenSaver::pickRandomVideo(std::string& path)
 							
 							if (screenSaverGame != children.end()) 
 							{
-								LOG(LogDebug) << "Found FileData for: " << shortPath;
-								LOG(LogDebug) << "Long Path: " << gamePath;
+								//LOG(LogDebug) << "Found FileData for: " << shortPath;
+								//LOG(LogDebug) << "Long Path: " << gamePath;
 								// Found the corresponding FileData
 								mCurrentGame = screenSaverGame->second;
 							}
 							else 
 							{
-								LOG(LogDebug) << "ERROR: Didn't find FileData for: " << shortPath;
-								LOG(LogDebug) << "Long Path: " << gamePath;
+								//LOG(LogDebug) << "ERROR: Didn't find FileData for: " << shortPath;
+								//LOG(LogDebug) << "Long Path: " << gamePath;
 								
 								// Couldn't find FileData. Going for the full iteration.
 								// iterate on children
@@ -244,7 +244,7 @@ void SystemScreenSaver::pickRandomVideo(std::string& path)
 									if ((*itf)->getPath() == gamePath)
 									{
 										mCurrentGame = (*itf);
-										LOG(LogDebug) << "Iteratively Found FileData for: " << gamePath;
+										//LOG(LogDebug) << "Iteratively Found FileData for: " << gamePath;
 										
 								
 										break;

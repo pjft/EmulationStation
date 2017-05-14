@@ -101,22 +101,33 @@ void ImageComponent::onSizeChanged()
 
 void ImageComponent::setImage(std::string path, bool tile)
 {
+	// pjft
+	//int mem = getFreeGPUMemory();
+	//LOG(LogError) << "ImageComponent: Setting Image: " << path << " - Start Memory: " << mem  << "MB";
 	if(path.empty() || !ResourceManager::getInstance()->fileExists(path))
 		mTexture.reset();
 	else
 		mTexture = TextureResource::get(path, tile, mForceLoad, mDynamic);
 
 	resize();
+	//int delta = mem - getFreeGPUMemory();
+	//LOG(LogError) << clock() << " | setImage     | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << path;	
 }
 
 void ImageComponent::setImage(const char* path, size_t length, bool tile)
 {
+	// pjft
+	//int mem = getFreeGPUMemory();
+	
 	mTexture.reset();
 
 	mTexture = TextureResource::get("", tile);
 	mTexture->initFromMemory(path, length);
 	
 	resize();
+
+	//int delta = mem - getFreeGPUMemory();
+	//LOG(LogError) << clock() << " | setImage     | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << path;	
 }
 
 void ImageComponent::setImage(const std::shared_ptr<TextureResource>& texture)

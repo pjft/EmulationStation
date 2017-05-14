@@ -1,5 +1,6 @@
 #include "resources/TextureDataManager.h"
 #include "resources/TextureResource.h"
+#include "Log.h"
 #include "Settings.h"
 
 TextureDataManager::TextureDataManager()
@@ -121,7 +122,11 @@ void TextureDataManager::load(std::shared_ptr<TextureData> tex, bool block)
 		mLoader->remove(*it);
 		size = TextureResource::getTotalMemUsage();
 	}
-	if (!block)
+	/*if (block)
+		LOG(LogInfo) << "Loading texture in a blocking load!";
+	else
+		LOG(LogInfo) << "Loading texture in a separate thread!";*/
+	if (!block && 0)
 		mLoader->load(tex);
 	else
 		tex->load();
