@@ -76,6 +76,16 @@ void Settings::setDefaults()
 	mStringMap["ScreenSaverBehavior"] = "dim";
 	mStringMap["Scraper"] = "TheGamesDB";
 	mStringMap["GamelistViewStyle"] = "automatic";
+
+#ifdef _RPI_
+	// if on the raspberry pi, we want to re-use in-memory SVG images from the 
+	// same path, rather than create one instance per use, for memory saving
+	// purposes
+	mBoolMap["ReUseSVGs"] = true;
+#else
+	mBoolMap["ReUseSVGs"] = false;
+#endif
+
 }
 
 template <typename K, typename V>

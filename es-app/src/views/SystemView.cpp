@@ -39,14 +39,14 @@ void SystemView::populate()
 		// make logo
 		if(theme->getElement("system", "logo", "image"))
 		{
-			ImageComponent* logo = new ImageComponent(mWindow);
+			ImageComponent* logo = new ImageComponent(mWindow, false, false);
 			logo->setMaxSize(Eigen::Vector2f(mCarousel.logoSize.x(), mCarousel.logoSize.y()));
 			logo->applyTheme((*it)->getTheme(), "system", "logo", ThemeFlags::PATH);
 			logo->setPosition((mCarousel.logoSize.x() - logo->getSize().x()) / 2,
 				(mCarousel.logoSize.y() - logo->getSize().y()) / 2); // center
 			e.data.logo = std::shared_ptr<GuiComponent>(logo);
 
-			ImageComponent* logoSelected = new ImageComponent(mWindow);
+			ImageComponent* logoSelected = new ImageComponent(mWindow, false, false);
 			logoSelected->setMaxSize(Eigen::Vector2f(mCarousel.logoSize.x() * mCarousel.logoScale, mCarousel.logoSize.y() * mCarousel.logoScale));
 			logoSelected->applyTheme((*it)->getTheme(), "system", "logo", ThemeFlags::PATH | ThemeFlags::COLOR);
 			logoSelected->setPosition((mCarousel.logoSize.x() - logoSelected->getSize().x()) / 2,
@@ -145,6 +145,12 @@ bool SystemView::input(InputConfig* config, Input input)
 			config->isMappedTo("up", input) || 
 			config->isMappedTo("down", input))
 			listInput(0);
+		if(config->isMappedTo("select", input) && Settings::getInstance()->getBool("ScreenSaverControls"))
+		{						
+			mWindow->startScreenSaver();
+			mWindow->renderScreenSaver();
+			return true;
+		}
 	}
 
 	return GuiComponent::input(config, input);
@@ -292,6 +298,10 @@ std::vector<HelpPrompt> SystemView::getHelpPrompts()
 		prompts.push_back(HelpPrompt("left/right", "choose"));
 	prompts.push_back(HelpPrompt("a", "select"));
 	prompts.push_back(HelpPrompt("x", "random"));
+ 
+	if (Settings::getInstance()->getBool("ScreenSaverControls") && Settings::getInstance()->getString("ScreenSaverBehavior") == "random video")
+		prompts.push_back(HelpPrompt("select", "random game screensaver"));
+	
 	return prompts;
 }
 
