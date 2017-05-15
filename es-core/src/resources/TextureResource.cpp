@@ -130,9 +130,14 @@ std::shared_ptr<TextureResource> TextureResource::get(const std::string& path, b
 	std::shared_ptr<TextureData> data = sTextureDataManager.get(tex.get());
 
 	// is it an SVG?
-	if(key.first.substr(key.first.size() - 4, std::string::npos) != ".svg")
+	// We usually don't add SVGs because 2 svgs might be rasterized at different sizes, so we 
+	// create a separate instace for each.
+	// On the Raspberry Pi, for memory reasones, we want to re-use the in-memory copy
+	// of the same SVG file (per path). That's the exception. We'll always only store
+	// the highest-resolution rasterized version of each SVG.
+	// Might also be a good option for other OS, if they have similar memory problems.
+	if(key.first.substr(key.first.size() - 4, std::string::npos) != ".svg" || Settings::getInstance()->getBool("ReUseSVGs"))
 	{
-		// Probably not. Add it to our map. We don't add SVGs because 2 svgs might be rasterized at different sizes
 		sTextureMap[key] = std::weak_ptr<TextureResource>(tex);
 	}
 

@@ -39,14 +39,14 @@ void SystemView::populate()
 		// make logo
 		if(theme->getElement("system", "logo", "image"))
 		{
-			ImageComponent* logo = new ImageComponent(mWindow);
+			ImageComponent* logo = new ImageComponent(mWindow, false, false);
 			logo->setMaxSize(Eigen::Vector2f(mCarousel.logoSize.x(), mCarousel.logoSize.y()));
 			logo->applyTheme((*it)->getTheme(), "system", "logo", ThemeFlags::PATH);
 			logo->setPosition((mCarousel.logoSize.x() - logo->getSize().x()) / 2,
 				(mCarousel.logoSize.y() - logo->getSize().y()) / 2); // center
 			e.data.logo = std::shared_ptr<GuiComponent>(logo);
 
-			ImageComponent* logoSelected = new ImageComponent(mWindow);
+			ImageComponent* logoSelected = new ImageComponent(mWindow, false, false);
 			logoSelected->setMaxSize(Eigen::Vector2f(mCarousel.logoSize.x() * mCarousel.logoScale, mCarousel.logoSize.y() * mCarousel.logoScale));
 			logoSelected->applyTheme((*it)->getTheme(), "system", "logo", ThemeFlags::PATH | ThemeFlags::COLOR);
 			logoSelected->setPosition((mCarousel.logoSize.x() - logoSelected->getSize().x()) / 2,
