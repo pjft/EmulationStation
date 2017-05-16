@@ -89,6 +89,8 @@ void Settings::setDefaults()
 	mBoolMap["VideoOmxPlayer"] = false;
 	mBoolMap["VideoAudio"] = true;
 
+	mBoolMap["ReUseSVGs"] = false;
+
 }
 
 template <typename K, typename V>

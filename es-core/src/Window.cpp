@@ -77,7 +77,9 @@ bool Window::init(unsigned int width, unsigned int height)
 	
 	InputManager::getInstance()->init();
 
+	LOG(LogError) << "## Going to ReloadAll";
 	ResourceManager::getInstance()->reloadAll();
+	LOG(LogError) << "## Finished Reloading All";
 
 	//keep a reference to the default fonts, so they don't keep getting destroyed/recreated
 	if(mDefaultFonts.empty())

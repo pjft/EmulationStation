@@ -104,6 +104,7 @@ void TextureDataManager::load(std::shared_ptr<TextureData> tex, bool block)
 	// See if it's already loaded
 	if (tex->isLoaded())
 		return;
+	LOG(LogInfo) << "Attempting to load Texture WAS NOT LOADED: " << tex->getPath();
 	// Not loaded. Make sure there is room
 	size_t size = TextureResource::getTotalMemUsage();
 	size_t max_texture = (size_t)Settings::getInstance()->getInt("MaxVRAM") * 1024 * 1024;
@@ -126,7 +127,7 @@ void TextureDataManager::load(std::shared_ptr<TextureData> tex, bool block)
 		LOG(LogInfo) << "Loading texture in a blocking load!";
 	else
 		LOG(LogInfo) << "Loading texture in a separate thread!";*/
-	if (!block && 0)
+	if (!block)
 		mLoader->load(tex);
 	else
 		tex->load();

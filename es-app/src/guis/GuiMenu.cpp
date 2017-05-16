@@ -261,6 +261,11 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			s->addWithLabel("VRAM LIMIT", max_vram);
 			s->addSaveFunc([max_vram] { Settings::getInstance()->setInt("MaxVRAM", (int)round(max_vram->getValue())); });
 
+			auto reuse_svgs = std::make_shared<SwitchComponent>(mWindow);
+			reuse_svgs->setState(Settings::getInstance()->getBool("ReUseSVGs"));
+			s->addWithLabel("RE-USE THEME SVGS", reuse_svgs);
+			s->addSaveFunc([reuse_svgs] { Settings::getInstance()->setBool("ReUseSVGs", reuse_svgs->getState()); });
+
 			mWindow->pushGui(s);
 	});
 

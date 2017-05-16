@@ -11,7 +11,7 @@ TextureDataManager		TextureResource::sTextureDataManager;
 std::map< TextureResource::TextureKeyType, std::weak_ptr<TextureResource> > TextureResource::sTextureMap;
 std::set<TextureResource*> 	TextureResource::sAllTextures;
 
-TextureResource::TextureResource(const std::string& path, bool tile, bool dynamic) : mTextureData(nullptr), mForceLoad(false)
+TextureResource::TextureResource(const std::string& path, bool tile, bool dynamic) : mTextureData(nullptr), mForceLoad(false), mDynamic(dynamic)
 {
 	LOG(LogInfo) << "Creating new TextureResource with path: " << path;
 	// Create a texture data object for this texture
@@ -135,7 +135,7 @@ std::shared_ptr<TextureResource> TextureResource::get(const std::string& path, b
 	std::shared_ptr<TextureData> data = sTextureDataManager.get(tex.get());
 
 	// is it an SVG?
-	if(key.first.substr(key.first.size() - 4, std::string::npos) != ".svg" || 1)
+	if(key.first.substr(key.first.size() - 4, std::string::npos) != ".svg" || Settings::getInstance()->getBool("ReUseSVGs"))
 	{
 		// Probably not. Add it to our map. We don't add SVGs because 2 svgs might be rasterized at different sizes
 		sTextureMap[key] = std::weak_ptr<TextureResource>(tex);
@@ -225,6 +225,25 @@ void TextureResource::reload(std::shared_ptr<ResourceManager>& rm)
 {
 	// For dynamically loaded textures the texture manager will load them on demand.
 	// For manually loaded textures we have to reload them here
+
 	if (mTextureData)
-		mTextureData->load();
+	{
+		if (mDynamic) {
+			LOG(LogError) << "Dynamic Texture. Going to block reload it. " << mTextureData->getPath();
+			sTextureDataManager.load(mTextureData, true);
+		}
+		else
+		{	
+			LOG(LogError) << "NOT Dynamic Texture. Going to reload it. " << mTextureData->getPath();
+			mTextureData->load();
+		}
+	}
+	else
+	{
+		LOG(LogError) << "No mTextureData! What does this mean?";
+		std::shared_ptr<TextureData> data = sTextureDataManager.get(this);
+		// Force the texture manager to load it using a blocking load
+		sTextureDataManager.load(data, true);
+		data->load();
+	}
 }

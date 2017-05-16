@@ -55,4 +55,5 @@ private:
 	typedef std::pair<std::string, bool> TextureKeyType;
 	static std::map< TextureKeyType, std::weak_ptr<TextureResource> > sTextureMap; // map of textures, used to prevent duplicate textures
 	static std::set<TextureResource*> 	sAllTextures;	// Set of all textures, used for memory management
+	bool mDynamic;
 };

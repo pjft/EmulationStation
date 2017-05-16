@@ -45,6 +45,7 @@ public:
 	float sourceWidth();
 	float sourceHeight();
 	void setSourceSize(float width, float height);
+	std::string getPath() { return mPath; }
 
 	bool tiled() { return mTile; }
 

@@ -79,7 +79,7 @@ bool ResourceManager::fileExists(const std::string& path) const
 void ResourceManager::unloadAll()
 {
 	// pjft
-	LOG(LogError) << "Unloading all textures!";
+	//LOG(LogError) << "Unloading all textures!";
 	auto iter = mReloadables.begin();
 	while(iter != mReloadables.end())
 	{
@@ -96,17 +96,16 @@ void ResourceManager::unloadAll()
 void ResourceManager::reloadAll()
 {
 	// pjft
-	LOG(LogError) << "Reloading all textures!";
+	//LOG(LogError) << "Reloading all textures!";
 	auto iter = mReloadables.begin();
 	while(iter != mReloadables.end())
 	{
 		if(!iter->expired())
 		{
-			LOG(LogError) << "Not expired. ";
 			iter->lock()->reload(sInstance);
 			iter++;
 		}else{
-			LOG(LogError) << "Expired. ";
+			//LOG(LogError) << "Expired. ";
 			iter = mReloadables.erase(iter);
 		}
 	}

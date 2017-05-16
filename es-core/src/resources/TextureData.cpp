@@ -35,14 +35,10 @@ bool TextureData::initSVGFromMemory(const unsigned char* fileData, size_t length
 	{
 		std::unique_lock<std::mutex> lock(mMutex);
 		if (mDataRGBA) {
-			LOG(LogInfo) << "Already initialized: " << mPath;
-			LOG(LogError) << "Current width and height: " << mWidth << " w, " << mHeight << " h.";
-			LOG(LogError) << "Current source width and height: " << mSourceWidth << " w, " << mSourceHeight << " h.";
 			return true;
 		}
 	}
-	LOG(LogInfo) << "Not initialized yet? " << mPath;
-
+	
 	// nsvgParse excepts a modifiable, null-terminated string
 	char* copy = (char*)malloc(length + 1);
 	assert(copy != NULL);
@@ -53,11 +49,8 @@ bool TextureData::initSVGFromMemory(const unsigned char* fileData, size_t length
 	free(copy);
 	if (!svgImage)
 	{
-		LOG(LogError) << "Error parsing SVG image.";
 		return false;
 	}
-
-	LOG(LogError) << "Current source width and height: " << mSourceWidth << " w, " << mSourceHeight << " h.";
 
 	// We want to rasterise this texture at a specific resolution. If the source size
 	// variables are set then use them otherwise set them from the parsed file
@@ -69,8 +62,8 @@ bool TextureData::initSVGFromMemory(const unsigned char* fileData, size_t length
 	mWidth = std::max((size_t)round(mSourceWidth), mWidth);
 	mHeight = std::max((size_t)round(mSourceHeight), mHeight);
 
-	LOG(LogError) << "Going to set width and height: " << mWidth << " w, " << mHeight << " h.";
-	LOG(LogError) << "Going to set source width and source height: " << mSourceWidth << " w, " << mSourceHeight << " h.";
+	LOG(LogError) << "initSVG: Width: " << mWidth << " | sourceWidth: " << mSourceWidth << " | " << mPath;
+	LOG(LogError) << "initSVG: Height: " << mHeight << " | sourceHeight: " << mSourceHeight << " | " << mPath;
 
 	if (mWidth == 0)
 	{
@@ -180,7 +173,7 @@ bool TextureData::uploadAndBind()
 	if (mTextureID != 0)
 	{
 		glBindTexture(GL_TEXTURE_2D, mTextureID);
-		//LOG(LogError) << clock() << " | uploadBindSh | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << mPath;	
+		//LOG(LogError) << clock() << " | uploadBindSh | " << mPath;	
 	}
 	else
 	{
@@ -207,7 +200,7 @@ bool TextureData::uploadAndBind()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
 		int delta = mem - getFreeGPUMemory();
-		LOG(LogError) << clock() << " | uploadBindLg | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << mPath;	
+		//LOG(LogError) << clock() << " | uploadBindLg | " << mPath;	
 	
 	}
 	return true;
@@ -224,7 +217,7 @@ void TextureData::releaseVRAM()
 		mTextureID = 0;
 
 		int delta = mem - getFreeGPUMemory();
-		LOG(LogError) << clock() << " | releaseVRAM  | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << mPath;	
+		//LOG(LogError) << clock() << " | releaseVRAM  | MM: " << getFreeMaxGPUMemory() << " | DT: " << delta << " | SM: " << mem  << "MB | EM: " << getFreeGPUMemory() << " | " << mPath;	
 	}	
 }
 
