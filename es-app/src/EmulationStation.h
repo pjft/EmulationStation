@@ -4,8 +4,9 @@
 // Do this version number update as the very last commit for the new release version.
 #define PROGRAM_VERSION_MAJOR       2
 #define PROGRAM_VERSION_MINOR        1
+
 #define PROGRAM_VERSION_MAINTENANCE  8
-#define PROGRAM_VERSION_STRING "2.1.8rp"
+#define PROGRAM_VERSION_STRING "2.1.8rp-OMX-Merged"
 
 #define PROGRAM_BUILT_STRING __DATE__ " - " __TIME__
 
