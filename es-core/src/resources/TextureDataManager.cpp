@@ -9,9 +9,12 @@ TextureDataManager::TextureDataManager()
 	mBlank = std::shared_ptr<TextureData>(new TextureData(false));
 	for (int i = 0; i < (5 * 5); ++i)
 	{
-		data[i*4] = (i % 2) * 255;
+		/*data[i*4] = (i % 2) * 255;
 		data[i*4+1] = (i % 2) * 255;
-		data[i*4+2] = (i % 2) * 255;
+		data[i*4+2] = (i % 2) * 255;*/
+		data[i*4] = 0;
+		data[i*4+1] = 0;
+		data[i*4+2] = 0;
 		data[i*4+3] = 0;
 	}
 	mBlank->initFromRGBA(data, 5, 5);
@@ -99,10 +102,10 @@ size_t TextureDataManager::getQueueSize()
 	return mLoader->getQueueSize();
 }
 
-void TextureDataManager::load(std::shared_ptr<TextureData> tex, bool block)
+void TextureDataManager::load(std::shared_ptr<TextureData> tex, bool block, bool forceLoad)
 {
 	// See if it's already loaded
-	if (tex->isLoaded())
+	if (tex->isLoaded() & !forceLoad)
 		return;
 	LOG(LogInfo) << "Attempting to load Texture WAS NOT LOADED: " << tex->getPath();
 	// Not loaded. Make sure there is room
@@ -187,9 +190,11 @@ void TextureLoader::threadProc()
 
 void TextureLoader::load(std::shared_ptr<TextureData> textureData)
 {
+
 	// Make sure it's not already loaded
 	if (!textureData->isLoaded())
 	{
+		LOG(LogError) << "MLoader - Not Loaded: " << textureData->getPath();
 		std::unique_lock<std::mutex> lock(mMutex);
 		// Remove it from the queue if it is already there
 		auto td = mTextureDataLookup.find(textureData.get());
@@ -203,6 +208,10 @@ void TextureLoader::load(std::shared_ptr<TextureData> textureData)
 		mTextureDataQ.push_front(textureData);
 		mTextureDataLookup[textureData.get()] = mTextureDataQ.begin();
 		mEvent.notify_one();
+	}
+	else
+	{
+		LOG(LogError) << "MLoader - Was Loaded: " << textureData->getPath();
 	}
 }
 

@@ -38,6 +38,7 @@ bool TextureData::initSVGFromMemory(const unsigned char* fileData, size_t length
 			return true;
 		}
 	}
+	LOG(LogError) << "initSVG: " << mPath;
 	
 	// nsvgParse excepts a modifiable, null-terminated string
 	char* copy = (char*)malloc(length + 1);
@@ -61,9 +62,6 @@ bool TextureData::initSVGFromMemory(const unsigned char* fileData, size_t length
 	}
 	mWidth = std::max((size_t)round(mSourceWidth), mWidth);
 	mHeight = std::max((size_t)round(mSourceHeight), mHeight);
-
-	LOG(LogError) << "initSVG: Width: " << mWidth << " | sourceWidth: " << mSourceWidth << " | " << mPath;
-	LOG(LogError) << "initSVG: Height: " << mHeight << " | sourceHeight: " << mSourceHeight << " | " << mPath;
 
 	if (mWidth == 0)
 	{
@@ -100,7 +98,7 @@ bool TextureData::initImageFromMemory(const unsigned char* fileData, size_t leng
 		if (mDataRGBA)
 			return true;
 	}
-
+	LOG(LogError) << "Initting from memory: " << mPath;
 	std::vector<unsigned char> imageRGBA = ImageIO::loadFromMemoryRGBA32((const unsigned char*)(fileData), length, width, height);
 	if (imageRGBA.size() == 0)
 	{

@@ -382,7 +382,10 @@ void SystemView::renderCarousel(const Eigen::Affine3f& trans)
 	int center = (int)(mCamOffset);
 	int logoCount = std::min(mCarousel.maxLogoCount, (int)mEntries.size()) + 2;
 
-	for (int i = center - logoCount / 2; i < center + logoCount / 2 + 1; i++)
+	LOG(LogError) << "Center: " << center << " | logoCount: " << logoCount << " | mCarousel.maxLogoCount: " << mCarousel.maxLogoCount << " | mEntries.size(): " << mEntries.size();
+	LOG(LogError) << "start: " << center - logoCount / 2 << " | max: " << center + logoCount / 2 + 1;
+
+	for (int i = center - logoCount; i < center + logoCount; i++)
 	{
 		int index = i;
 		while (index < 0)
@@ -418,7 +421,7 @@ void SystemView::renderExtras(const Eigen::Affine3f& trans)
 {
 	Eigen::Affine3f extrasTrans = trans;
 	int extrasCenter = (int)mExtrasCamOffset;
-	for (int i = extrasCenter - 1; i < extrasCenter + 2; i++)
+	for (int i = extrasCenter - 2; i < extrasCenter + 3; i++)
 	{
 		int index = i;
 		while (index < 0)

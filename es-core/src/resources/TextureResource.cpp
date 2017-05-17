@@ -228,22 +228,22 @@ void TextureResource::reload(std::shared_ptr<ResourceManager>& rm)
 
 	if (mTextureData)
 	{
-		if (mDynamic) {
+		/*if (mDynamic) {
 			LOG(LogError) << "Dynamic Texture. Going to block reload it. " << mTextureData->getPath();
-			sTextureDataManager.load(mTextureData, true);
+			sTextureDataManager.load(mTextureData, false, true);
 		}
 		else
-		{	
+		{*/	
 			LOG(LogError) << "NOT Dynamic Texture. Going to reload it. " << mTextureData->getPath();
 			mTextureData->load();
-		}
+		//}
 	}
 	else
 	{
 		LOG(LogError) << "No mTextureData! What does this mean?";
-		std::shared_ptr<TextureData> data = sTextureDataManager.get(this);
-		// Force the texture manager to load it using a blocking load
-		sTextureDataManager.load(data, true);
-		data->load();
+		//std::shared_ptr<TextureData> data = sTextureDataManager.get(this);
+		// Force the texture manager to load it using a non-blocking load
+		//sTextureDataManager.load(data, false, true);
+		// //data->load();
 	}
 }
