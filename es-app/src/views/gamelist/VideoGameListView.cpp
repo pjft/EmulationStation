@@ -11,17 +11,17 @@
 #include "components/VideoVlcComponent.h"
 
 VideoGameListView::VideoGameListView(Window* window, FileData* root) :
-	BasicGameListView(window, root), 
-	mDescContainer(window), mDescription(window), 
+	BasicGameListView(window, root),
+	mDescContainer(window), mDescription(window),
 	mMarquee(window),
 	mImage(window),
 	mVideo(nullptr),
 	mVideoPlaying(false),
 
-	mLblRating(window), mLblReleaseDate(window), mLblDeveloper(window), mLblPublisher(window), 
+	mLblRating(window), mLblReleaseDate(window), mLblDeveloper(window), mLblPublisher(window),
 	mLblGenre(window), mLblPlayers(window), mLblLastPlayed(window), mLblPlayCount(window),
 
-	mRating(window), mReleaseDate(window), mDeveloper(window), mPublisher(window), 
+	mRating(window), mReleaseDate(window), mDeveloper(window), mPublisher(window),
 	mGenre(window), mPlayers(window), mLastPlayed(window), mPlayCount(window)
 {
 	const float padding = 0.01f;
@@ -167,7 +167,7 @@ void VideoGameListView::initMDLabels()
 	const unsigned int rowCount = components.size() / 2;
 
 	Vector3f start(mSize.x() * 0.01f, mSize.y() * 0.625f, 0.0f);
-	
+
 	const float colSize = (mSize.x() * 0.48f) / colCount;
 	const float rowPadding = 0.01f * mSize.y();
 
@@ -284,13 +284,13 @@ void VideoGameListView::updateInfoPanel()
 		mPublisher.setValue(file->metadata.get("publisher"));
 		mGenre.setValue(file->metadata.get("genre"));
 		mPlayers.setValue(file->metadata.get("players"));
-		
+
 		if(file->getType() == GAME)
 		{
 			mLastPlayed.setValue(file->metadata.get("lastplayed"));
 			mPlayCount.setValue(file->metadata.get("playcount"));
 		}
-		
+
 		fadingOut = false;
 	}
 
@@ -309,7 +309,7 @@ void VideoGameListView::updateInfoPanel()
 		//   then animate if reverse != fadingOut
 		// an animation is not playing
 		//   then animate if opacity != our target opacity
-		if((comp->isAnimationPlaying(0) && comp->isAnimationReversed(0) != fadingOut) || 
+		if((comp->isAnimationPlaying(0) && comp->isAnimationReversed(0) != fadingOut) ||
 			(!comp->isAnimationPlaying(0) && comp->getOpacity() != (fadingOut ? 0 : 255)))
 		{
 			auto func = [comp](float t)
@@ -323,9 +323,25 @@ void VideoGameListView::updateInfoPanel()
 
 void VideoGameListView::launch(FileData* game)
 {
-	Eigen::Vector3f target(Renderer::getScreenWidth() / 2.0f, Renderer::getScreenHeight() / 2.0f, 0);
-	if(mMarquee.hasImage())
-		target << mVideo->getCenter().x(), mVideo->getCenter().y(), 0;
+	float screenWidth = Renderer::getScreenWidth();
+	float screenHeight = Renderer::getScreenHeight();
+
+	Eigen::Vector3f target(screenWidth / 2.0f, screenHeight / 2.0f, 0);
+
+	if(mMarquee.hasImage() &&
+		(mMarquee.getPosition().x() < screenWidth && mMarquee.getPosition().x() > 0.0f &&
+		 mMarquee.getPosition().y() < screenHeight && mMarquee.getPosition().y() > 0.0f))
+		target << mMarquee.getCenter().x(), mMarquee.getCenter().y(), 0;
+	else if(mImage.hasImage() &&
+		(mImage.getPosition().x() < screenWidth && mImage.getPosition().x() > 2.0f &&
+		 mImage.getPosition().y() < screenHeight && mImage.getPosition().y() > 2.0f))
+		target << mImage.getCenter().x(), mImage.getCenter().y(), 0;
+	else if(mHeaderImage.hasImage() &&
+		(mHeaderImage.getPosition().x() < screenWidth && mHeaderImage.getPosition().x() > 0.0f &&
+		 mHeaderImage.getPosition().y() < screenHeight && mHeaderImage.getPosition().y() > 0.0f))
+		target << mHeaderImage.getCenter().x(), mHeaderImage.getCenter().y(), 0;
+	else if(mVideo->getPosition().x() < screenWidth && mVideo->getPosition().x() > 0.0f &&
+		 mVideo->getPosition().y() < screenHeight && mVideo->getPosition().y() > 0.0f);
 
 	ViewController::get()->launch(game, target);
 }
