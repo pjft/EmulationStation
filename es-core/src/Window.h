@@ -56,6 +56,7 @@ private:
 	int mFrameTimeElapsed;
 	int mFrameCountElapsed;
 	int mAverageDeltaTime;
+	bool mRenderScreenSaver;
 
 	std::unique_ptr<TextCache> mFrameDataText;
 
