@@ -4,7 +4,7 @@
 #include "views/ViewController.h"
 #include "Log.h"
 
-GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
+GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window),
 	mSystem(system), mMenu(window, "OPTIONS"), fromPlaceholder(false), mFiltersChanged(false)
 {
 	addChild(&mMenu);
@@ -96,8 +96,8 @@ GuiGamelistOptions::~GuiGamelistOptions()
 
 		// notify that the root folder was sorted
 		getGamelist()->onFileChanged(root, FILE_SORTED);
-	} 
-	if (mFiltersChanged) 
+	}
+	if (mFiltersChanged)
 	{
 		if (!fromPlaceholder) {
 			FileData* root = getGamelist()->getCursor()->getSystem()->getRootFolder();
@@ -109,7 +109,7 @@ GuiGamelistOptions::~GuiGamelistOptions()
 			// as we need to re-display the remaining elements for whatever new
 			// game is selected
 			ViewController::get()->reloadGameListView(mSystem);
-		}		
+		}
 	}
 }
 
@@ -118,7 +118,7 @@ void GuiGamelistOptions::openGamelistFilter()
 	mFiltersChanged = true;
 	GuiGamelistFilter* ggf = new GuiGamelistFilter(mWindow, mSystem);
 	mWindow->pushGui(ggf);
-}	
+}
 
 void GuiGamelistOptions::openMetaDataEd()
 {
@@ -141,7 +141,7 @@ void GuiGamelistOptions::openMetaDataEd()
 		};
 	}
 
-	mWindow->pushGui(new GuiMetaDataEd(mWindow, &file->metadata, file->metadata.getMDD(), p, file->getPath().filename().string(), 
+	mWindow->pushGui(new GuiMetaDataEd(mWindow, &file->metadata, file->metadata.getMDD(), p, file->getPath().filename().string(),
 		std::bind(&IGameListView::onFileChanged, getGamelist(), file, FILE_METADATA_CHANGED), deleteBtnFunc));
 }
 
@@ -152,7 +152,7 @@ void GuiGamelistOptions::jumpToLetter()
 
 	// this is a really shitty way to get a list of files
 	const std::vector<FileData*>& files = gamelist->getCursor()->getParent()->getChildren();
-	
+
 	long min = 0;
 	long max = files.size() - 1;
 	long mid = 0;

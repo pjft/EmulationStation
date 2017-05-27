@@ -47,7 +47,7 @@ void VideoPlayerComponent::setMaxSize(float width, float height)
 
 void VideoPlayerComponent::startVideo()
 {
-	if (!mIsPlaying) 
+	if (!mIsPlaying)
 	{
 		mVideoWidth = 0;
 		mVideoHeight = 0;
@@ -77,11 +77,11 @@ void VideoPlayerComponent::startVideo()
 			}
 			else
 			{
-				
+
 				// Find out the pixel position of the video view and build a command line for
 				// omxplayer to position it in the right place
 				//setSize(mStaticImage.getSize());
-				
+
 				char buf[32];
 				float x = mPosition.x() - (mOrigin.x() * mSize.x());
 				float y = mPosition.y() - (mOrigin.y() * mSize.y());
@@ -98,7 +98,7 @@ void VideoPlayerComponent::startVideo()
 
 				// test if there's a path for possible subtitles, meaning we're a screensaver video
 				if (!subtitlePath.empty())
-				{						
+				{
 					// if we are rendering a screensaver
 
 					// check if we want to stretch the image
@@ -112,18 +112,18 @@ void VideoPlayerComponent::startVideo()
 						// if we have chosen to render subtitles
 						argv[11] = "--subtitles";
 						argv[12] = subtitlePath.c_str();
-						argv[13] = mPlayingVideoPath.c_str();	
+						argv[13] = mPlayingVideoPath.c_str();
 					}
 					else
 					{
 						// if we have chosen NOT to render subtitles in the screensaver
 						argv[11] = mPlayingVideoPath.c_str();
 					}
-				} 				
+				}
 				else
 				{
 					// if we are rendering a video gamelist
-					if (/*Settings::getInstance()->getBool("StretchVideoOnTheme") || */!mTargetIsMax)
+					if (!mTargetIsMax)
 					{
 						argv[6] = "stretch";
 					}
@@ -133,7 +133,7 @@ void VideoPlayerComponent::startVideo()
 
 				//const char* argv[] = args;
 				const char* env[] = { "LD_LIBRARY_PATH=/opt/vc/libs:/usr/lib/omxplayer", NULL };
-				
+
 				// Redirect stdout
 				int fdin = open("/dev/null", O_RDONLY);
 				int fdout = open("/dev/null", O_WRONLY);
@@ -159,7 +159,7 @@ void VideoPlayerComponent::stopVideo()
 {
 	mIsPlaying = false;
 	mStartDelayed = false;
-	
+
 	// Stop the player process
 	if (mPlayerPid != -1)
 	{

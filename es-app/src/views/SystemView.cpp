@@ -56,29 +56,38 @@ void SystemView::populate()
 			logoSelected->setPosition((mCarousel.logoSize.x() - logoSelected->getSize().x()) / 2,
 				(mCarousel.logoSize.y() - logoSelected->getSize().y()) / 2); // center
 			e.data.logoSelected = std::shared_ptr<GuiComponent>(logoSelected);
-			
+
 		}else{
 			// no logo in theme; use text
-			TextComponent* text = new TextComponent(mWindow, 
-				(*it)->getName(), 
-				Font::get(FONT_SIZE_LARGE), 
-				0x000000FF, 
+			TextComponent* text = new TextComponent(mWindow,
+				(*it)->getName(),
+				Font::get(FONT_SIZE_LARGE),
+				0x000000FF,
 				ALIGN_CENTER);
 			text->setSize(mCarousel.logoSize);
 			e.data.logo = std::shared_ptr<GuiComponent>(text);
 
-			TextComponent* textSelected = new TextComponent(mWindow, 
-				(*it)->getName(), 
+			TextComponent* textSelected = new TextComponent(mWindow,
+				(*it)->getName(),
 				Font::get((int)(FONT_SIZE_LARGE * 1.5)),
-				0x000000FF, 
+				0x000000FF,
 				ALIGN_CENTER);
 			textSelected->setSize(mCarousel.logoSize);
 			e.data.logoSelected = std::shared_ptr<GuiComponent>(textSelected);
 		}
 
+		// delete any existing extras
+		for (auto extra : e.data.backgroundExtras)
+			delete extra;
+		e.data.backgroundExtras.clear();
+
 		// make background extras
-		e.data.backgroundExtras = std::shared_ptr<ThemeExtras>(new ThemeExtras(mWindow));
-		e.data.backgroundExtras->setExtras(ThemeData::makeExtras((*it)->getTheme(), "system", mWindow));
+		e.data.backgroundExtras = ThemeData::makeExtras((*it)->getTheme(), "system", mWindow);
+
+		// sort the extras by z-index
+		std:stable_sort(e.data.backgroundExtras.begin(), e.data.backgroundExtras.end(),  [](GuiComponent* a, GuiComponent* b) {
+			return b->getZIndex() > a->getZIndex();
+		});
 
 		this->add(e);
 	}
@@ -144,9 +153,9 @@ bool SystemView::input(InputConfig* config, Input input)
 			return true;
 		}
 	}else{
-		if(config->isMappedTo("left", input) || 
+		if(config->isMappedTo("left", input) ||
 			config->isMappedTo("right", input) ||
-			config->isMappedTo("up", input) || 
+			config->isMappedTo("up", input) ||
 			config->isMappedTo("down", input))
 			listInput(0);
 		if(config->isMappedTo("select", input) && Settings::getInstance()->getBool("ScreenSaverControls"))
@@ -181,13 +190,13 @@ void SystemView::onCursorChanged(const CursorState& state)
 
 	float endPos = target; // directly
 	float dist = abs(endPos - startPos);
-	
+
 	if(abs(target + posMax - startPos) < dist)
 		endPos = target + posMax; // loop around the end (0 -> max)
 	if(abs(target - posMax - startPos) < dist)
 		endPos = target - posMax; // loop around the start (max - 1 -> -1)
 
-	
+
 	// animate mSystemInfo's opacity (fade out, wait, fade back in)
 
 	cancelAnimation(1);
@@ -201,19 +210,19 @@ void SystemView::onCursorChanged(const CursorState& state)
 		mSystemInfo.setOpacity((unsigned char)(lerp<float>(infoStartOpacity, 0.f, t) * 255));
 	}, (int)(infoStartOpacity * 150));
 
-	unsigned int gameCount = getSelected()->getGameCount();
+	unsigned int gameCount = getSelected()->getDisplayedGameCount();
 
 	// also change the text after we've fully faded out
 	setAnimation(infoFadeOut, 0, [this, gameCount] {
 		std::stringstream ss;
-		
+
 		if (getSelected()->getName() == "retropie")
 			ss << "CONFIGURATION";
 		// only display a game count if there are at least 2 games
 		else if(gameCount > 1)
 			ss << gameCount << " GAMES AVAILABLE";
 
-		mSystemInfo.setText(ss.str()); 
+		mSystemInfo.setText(ss.str());
 	}, false, 1);
 
 	// only display a game count if there are at least 2 games
@@ -285,12 +294,30 @@ void SystemView::render(const Eigen::Affine3f& parentTrans)
 {
 	if(size() == 0)
 		return;  // nothing to render
-	
+
 	Eigen::Affine3f trans = getTransform() * parentTrans;
 
-	renderExtras(trans);
-	renderCarousel(trans);
-	renderInfoBar(trans);
+	auto systemInfoZIndex = mSystemInfo.getZIndex();
+	auto minMax = std::minmax(mCarousel.zIndex, systemInfoZIndex);
+
+	renderExtras(trans, INT16_MIN, minMax.first);
+	renderFade(trans);
+
+	if (mCarousel.zIndex > mSystemInfo.getZIndex()) {
+		renderInfoBar(trans);
+	} else {
+		renderCarousel(trans);
+	}
+
+	renderExtras(trans, minMax.first, minMax.second);
+
+	if (mCarousel.zIndex > mSystemInfo.getZIndex()) {
+		renderCarousel(trans);
+	} else {
+		renderInfoBar(trans);
+	}
+
+	renderExtras(trans, minMax.second, INT16_MAX);
 }
 
 std::vector<HelpPrompt> SystemView::getHelpPrompts()
@@ -415,14 +442,15 @@ void SystemView::renderInfoBar(const Eigen::Affine3f& trans)
 }
 
 // Draw background extras
-void SystemView::renderExtras(const Eigen::Affine3f& trans)
+void SystemView::renderExtras(const Eigen::Affine3f& trans, float lower, float upper)
 {
-	Eigen::Affine3f extrasTrans = trans;
 	int extrasCenter = (int)mExtrasCamOffset;
-	
+
 	// Adding texture loading buffers depending on scrolling speed and status
 	int bufferIndex = getScrollingVelocity() + 1;
-	
+
+	Renderer::pushClipRect(Eigen::Vector2i(0, 0), mSize.cast<int>());
+
 	for (int i = extrasCenter + logoBuffersLeft[bufferIndex]; i <= extrasCenter + logoBuffersRight[bufferIndex]; i++)
 	{
 		int index = i;
@@ -431,14 +459,26 @@ void SystemView::renderExtras(const Eigen::Affine3f& trans)
 		while (index >= (int)mEntries.size())
 			index -= mEntries.size();
 
-		extrasTrans.translation() = trans.translation() + Eigen::Vector3f((i - mExtrasCamOffset) * mSize.x(), 0, 0);
+		Eigen::Affine3f extrasTrans = trans;
+		if (mCarousel.type == HORIZONTAL)
+			extrasTrans.translate(Eigen::Vector3f((i - mExtrasCamOffset) * mSize.x(), 0, 0));
+		else
+			extrasTrans.translate(Eigen::Vector3f(0, (i - mExtrasCamOffset) * mSize.y(), 0));
 
-		Eigen::Vector2i clipRect = Eigen::Vector2i((int)((i - mExtrasCamOffset) * mSize.x()), 0);
-		Renderer::pushClipRect(clipRect, mSize.cast<int>());
-		mEntries.at(index).data.backgroundExtras->render(extrasTrans);
-		Renderer::popClipRect();
+		SystemViewData data = mEntries.at(index).data;
+		for(unsigned int j = 0; j < data.backgroundExtras.size(); j++)
+		{
+			GuiComponent* extra = data.backgroundExtras[j];
+			if (extra->getZIndex() >= lower && extra->getZIndex() < upper) {
+				extra->render(extrasTrans);
+			}
+		}
 	}
+	Renderer::popClipRect();
+}
 
+void SystemView::renderFade(const Eigen::Affine3f& trans)
+{
 	// fade extras if necessary
 	if (mExtrasFadeOpacity)
 	{
@@ -461,6 +501,7 @@ void  SystemView::getDefaultElements(void)
 	mCarousel.logoSize.x() = 0.25f * mSize.x();
 	mCarousel.logoSize.y() = 0.155f * mSize.y();
 	mCarousel.maxLogoCount = 3;
+	mCarousel.zIndex = 40;
 
 	// System Info Bar
 	mSystemInfo.setSize(mSize.x(), mSystemInfo.getFont()->getLetterHeight()*2.2f);
@@ -469,6 +510,8 @@ void  SystemView::getDefaultElements(void)
 	mSystemInfo.setRenderBackground(true);
 	mSystemInfo.setFont(Font::get((int)(0.035f * mSize.y()), Font::getDefaultPath()));
 	mSystemInfo.setColor(0x000000FF);
+	mSystemInfo.setZIndex(50);
+	mSystemInfo.setDefaultZIndex(50);
 }
 
 void SystemView::getCarouselFromTheme(const ThemeData::ThemeElement* elem)
@@ -487,4 +530,6 @@ void SystemView::getCarouselFromTheme(const ThemeData::ThemeElement* elem)
 		mCarousel.logoSize = elem->get<Eigen::Vector2f>("logoSize").cwiseProduct(mSize);
 	if (elem->has("maxLogoCount"))
 		mCarousel.maxLogoCount = std::round(elem->get<float>("maxLogoCount"));
+	if (elem->has("zIndex"))
+		mCarousel.zIndex = elem->get<float>("zIndex");
 }

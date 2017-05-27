@@ -209,6 +209,11 @@ void VideoComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const s
 
 	if (elem->has("showSnapshotDelay"))
 		mConfig.showSnapshotDelay = elem->get<bool>("showSnapshotDelay");
+
+	if(properties & ThemeFlags::Z_INDEX && elem->has("zIndex"))
+		setZIndex(elem->get<float>("zIndex"));
+	else
+		setZIndex(getDefaultZIndex());
 }
 
 std::vector<HelpPrompt> VideoComponent::getHelpPrompts()
