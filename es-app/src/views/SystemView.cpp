@@ -158,6 +158,12 @@ bool SystemView::input(InputConfig* config, Input input)
 			config->isMappedTo("up", input) ||
 			config->isMappedTo("down", input))
 			listInput(0);
+		if(config->isMappedTo("select", input) && Settings::getInstance()->getBool("ScreenSaverControls"))
+		{						
+			mWindow->startScreenSaver();
+			mWindow->renderScreenSaver();
+			return true;
+		}
 	}
 
 	return GuiComponent::input(config, input);
@@ -323,6 +329,10 @@ std::vector<HelpPrompt> SystemView::getHelpPrompts()
 		prompts.push_back(HelpPrompt("left/right", "choose"));
 	prompts.push_back(HelpPrompt("a", "select"));
 	prompts.push_back(HelpPrompt("x", "random"));
+ 
+	if (Settings::getInstance()->getBool("ScreenSaverControls") && Settings::getInstance()->getString("ScreenSaverBehavior") == "random video")
+		prompts.push_back(HelpPrompt("select", "random game screensaver"));
+	
 	return prompts;
 }
 
@@ -397,9 +407,9 @@ void SystemView::renderCarousel(const Eigen::Affine3f& trans)
 	int center = (int)(mCamOffset);
 	int logoCount = std::min(mCarousel.maxLogoCount, (int)mEntries.size());
 
-	// Adding texture loading buffers depending on scrolling speed and status
-	int bufferIndex = getScrollingVelocity() + 1;
-
+	// Adding texture loading buffers depending on scrolling speed and status	
+	int bufferIndex = getScrollingVelocity() + 1;	
+	
 	for (int i = center - logoCount / 2 + logoBuffersLeft[bufferIndex]; i <= center + logoCount / 2 + logoBuffersRight[bufferIndex]; i++)
 	{
 		int index = i;

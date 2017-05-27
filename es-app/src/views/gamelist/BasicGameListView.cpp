@@ -42,6 +42,7 @@ void BasicGameListView::onFileChanged(FileData* file, FileChangeType change)
 void BasicGameListView::populateList(const std::vector<FileData*>& files)
 {
 	mList.clear();
+
 	if (files.size() > 0)
 	{
 		mHeaderText.setText(files.at(0)->getSystem()->getFullName());
