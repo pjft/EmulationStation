@@ -187,6 +187,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 		[this] {
 			auto s = new GuiSettings(mWindow, "VIDEO PLAYER SETTINGS");
 
+#ifdef _RPI_
 			// Video Player - VideoOmxPlayer
 			auto omx_player = std::make_shared<SwitchComponent>(mWindow);
 			omx_player->setState(Settings::getInstance()->getBool("VideoOmxPlayer"));
@@ -203,6 +204,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 				if(needReload)
 					ViewController::get()->reloadAll();
 			});
+#endif
 
 			auto video_audio = std::make_shared<SwitchComponent>(mWindow);
 			video_audio->setState(Settings::getInstance()->getBool("VideoAudio"));
