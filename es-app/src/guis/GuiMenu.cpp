@@ -31,8 +31,8 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 	// [version]
 
 	auto openScrapeNow = [this] { mWindow->pushGui(new GuiScraperStart(mWindow)); };
-	addEntry("SCRAPER", 0x777777FF, true, 
-		[this, openScrapeNow] { 
+	addEntry("SCRAPER", 0x777777FF, true,
+		[this, openScrapeNow] {
 			auto s = new GuiSettings(mWindow, "SCRAPER");
 
 			// scrape from
@@ -65,7 +65,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			mWindow->pushGui(s);
 	});
 
-	addEntry("SOUND SETTINGS", 0x777777FF, true, 
+	addEntry("SOUND SETTINGS", 0x777777FF, true,
 		[this] {
 			auto s = new GuiSettings(mWindow, "SOUND SETTINGS");
 
@@ -74,7 +74,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			volume->setValue((float)VolumeControl::getInstance()->getVolume());
 			s->addWithLabel("SYSTEM VOLUME", volume);
 			s->addSaveFunc([volume] { VolumeControl::getInstance()->setVolume((int)round(volume->getValue())); });
-			
+
 			// disable sounds
 			auto sounds_enabled = std::make_shared<SwitchComponent>(mWindow);
 			sounds_enabled->setState(Settings::getInstance()->getBool("EnableSounds"));
@@ -148,7 +148,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 				s->addWithLabel("THEME SET", theme_set);
 
 				Window* window = mWindow;
-				s->addSaveFunc([window, theme_set] 
+				s->addSaveFunc([window, theme_set]
 				{
 					bool needReload = false;
 					if(Settings::getInstance()->getString("ThemeSet") != theme_set->getSelected())
@@ -159,7 +159,55 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 					if(needReload)
 						ViewController::get()->reloadAll(); // TODO - replace this with some sort of signal-based implementation
 				});
-			}			
+			}
+
+			// GameList view style
+			auto gamelist_style = std::make_shared< OptionListComponent<std::string> >(mWindow, "GAMELIST VIEW STYLE", false);
+			std::vector<std::string> styles;
+			styles.push_back("automatic");
+			styles.push_back("basic");
+			styles.push_back("detailed");
+			styles.push_back("video");
+			for (auto it = styles.begin(); it != styles.end(); it++)
+				gamelist_style->add(*it, *it, Settings::getInstance()->getString("GamelistViewStyle") == *it);
+			s->addWithLabel("GAMELIST VIEW STYLE", gamelist_style);
+			s->addSaveFunc([gamelist_style] {
+				bool needReload = false;
+				if (Settings::getInstance()->getString("GamelistViewStyle") != gamelist_style->getSelected())
+					needReload = true;
+				Settings::getInstance()->setString("GamelistViewStyle", gamelist_style->getSelected());
+				if (needReload)
+					ViewController::get()->reloadAll();
+			});
+
+			mWindow->pushGui(s);
+	});
+
+	addEntry("VIDEO PLAYER SETTINGS", 0x777777FF, true,
+		[this] {
+			auto s = new GuiSettings(mWindow, "VIDEO PLAYER SETTINGS");
+
+			// Video Player - VideoOmxPlayer
+			auto omx_player = std::make_shared<SwitchComponent>(mWindow);
+			omx_player->setState(Settings::getInstance()->getBool("VideoOmxPlayer"));
+			s->addWithLabel("USE EXPERIMENTAL OMX VIDEO PLAYER", omx_player);
+			s->addSaveFunc([omx_player]
+			{
+				// need to reload all views to re-create the right video components
+				bool needReload = false;
+				if(Settings::getInstance()->getBool("VideoOmxPlayer") != omx_player->getState())
+					needReload = true;
+
+				Settings::getInstance()->setBool("VideoOmxPlayer", omx_player->getState());
+
+				if(needReload)
+					ViewController::get()->reloadAll();
+			});
+
+			auto video_audio = std::make_shared<SwitchComponent>(mWindow);
+			video_audio->setState(Settings::getInstance()->getBool("VideoAudio"));
+			s->addWithLabel("ENABLE VIDEO AUDIO", video_audio);
+			s->addSaveFunc([video_audio] { Settings::getInstance()->setBool("VideoAudio", video_audio->getState()); });
 
 			// Allow ScreenSaver Controls - ScreenSaverControls
 			auto ss_controls = std::make_shared<SwitchComponent>(mWindow);
@@ -179,64 +227,11 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			s->addWithLabel("SHOW GAME AND SYSTEM NAME ON SCREENSAVER", ss_subtitles);
 			s->addSaveFunc([ss_subtitles] { Settings::getInstance()->setBool("ScreenSaverGameName", ss_subtitles->getState()); });
 
-
-			mWindow->pushGui(s);
-	});
-
-	addEntry("VIDEO PLAYER SETTINGS", 0x777777FF, true, 
-		[this] {
-			auto s = new GuiSettings(mWindow, "VIDEO PLAYER SETTINGS");
-
-			// Video Player - VideoOmxPlayer
-			auto omx_player = std::make_shared<SwitchComponent>(mWindow);
-			omx_player->setState(Settings::getInstance()->getBool("VideoOmxPlayer"));
-			s->addWithLabel("USE EXPERIMENTAL OMX VIDEO PLAYER", omx_player);
-			s->addSaveFunc([omx_player] 
-			{ 	
-				// need to reload all views to re-create the right video components
-				bool needReload = false;
-				if(Settings::getInstance()->getBool("VideoOmxPlayer") != omx_player->getState())
-					needReload = true;
-
-				Settings::getInstance()->setBool("VideoOmxPlayer", omx_player->getState());
-
-				if(needReload)
-					ViewController::get()->reloadAll();
-			});
-
-			auto video_audio = std::make_shared<SwitchComponent>(mWindow);
-			video_audio->setState(Settings::getInstance()->getBool("VideoAudio"));
-			s->addWithLabel("ENABLE VIDEO AUDIO", video_audio);
-			s->addSaveFunc([video_audio] { Settings::getInstance()->setBool("VideoAudio", video_audio->getState()); });
-
-			auto stretch_theme = std::make_shared<SwitchComponent>(mWindow);
-			stretch_theme->setState(Settings::getInstance()->getBool("StretchVideoOnTheme"));
-			s->addWithLabel("STRETCH VIDEO ON THEME VIEW (EXPERIMENTAL PLAYER ONLY)", stretch_theme);
-			s->addSaveFunc([stretch_theme] { Settings::getInstance()->setBool("StretchVideoOnTheme", stretch_theme->getState()); });
-
 			auto stretch_screensaver = std::make_shared<SwitchComponent>(mWindow);
 			stretch_screensaver->setState(Settings::getInstance()->getBool("StretchVideoOnScreenSaver"));
 			s->addWithLabel("STRETCH VIDEO ON SCREENSAVER", stretch_screensaver);
 			s->addSaveFunc([stretch_screensaver] { Settings::getInstance()->setBool("StretchVideoOnScreenSaver", stretch_screensaver->getState()); });
 
-			// GameList view style
-			auto gamelist_style = std::make_shared< OptionListComponent<std::string> >(mWindow, "GAMELIST VIEW STYLE", false);
-			std::vector<std::string> styles;
-			styles.push_back("automatic");
-			styles.push_back("basic");
-			styles.push_back("detailed");
-			styles.push_back("video");
-			for (auto it = styles.begin(); it != styles.end(); it++)
-				gamelist_style->add(*it, *it, Settings::getInstance()->getString("GamelistViewStyle") == *it);
-			s->addWithLabel("GAMELIST VIEW STYLE", gamelist_style);
-			s->addSaveFunc([gamelist_style] {
-				bool needReload = false;
-				if (Settings::getInstance()->getString("GamelistViewStyle") != gamelist_style->getSelected())
-					needReload = true;
-				Settings::getInstance()->setString("GamelistViewStyle", gamelist_style->getSelected()); 
-				if (needReload)
-					ViewController::get()->reloadAll();
-			});
 			mWindow->pushGui(s);
 	});
 
@@ -264,7 +259,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			mWindow->pushGui(s);
 	});
 
-	addEntry("CONFIGURE INPUT", 0x777777FF, true, 
+	addEntry("CONFIGURE INPUT", 0x777777FF, true,
 		[this] {
 			Window* window = mWindow;
 			window->pushGui(new GuiMsgBox(window, "ARE YOU SURE YOU WANT TO CONFIGURE INPUT?", "YES",
@@ -274,10 +269,10 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			);
 	});
 
-	addEntry("QUIT", 0x777777FF, true, 
+	addEntry("QUIT", 0x777777FF, true,
 		[this] {
 			auto s = new GuiSettings(mWindow, "QUIT");
-			
+
 			Window* window = mWindow;
 
 			ComponentListRow row;
@@ -293,8 +288,8 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 
 			row.elements.clear();
 			row.makeAcceptInputHandler([window] {
-				window->pushGui(new GuiMsgBox(window, "REALLY RESTART?", "YES", 
-				[] { 
+				window->pushGui(new GuiMsgBox(window, "REALLY RESTART?", "YES",
+				[] {
 					if(quitES("/tmp/es-sysrestart") != 0)
 						LOG(LogWarning) << "Restart terminated with non-zero result!";
 				}, "NO", nullptr));
@@ -304,8 +299,8 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 
 			row.elements.clear();
 			row.makeAcceptInputHandler([window] {
-				window->pushGui(new GuiMsgBox(window, "REALLY SHUTDOWN?", "YES", 
-				[] { 
+				window->pushGui(new GuiMsgBox(window, "REALLY SHUTDOWN?", "YES",
+				[] {
 					if(quitES("/tmp/es-shutdown") != 0)
 						LOG(LogWarning) << "Shutdown terminated with non-zero result!";
 				}, "NO", nullptr));
@@ -317,8 +312,8 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			{
 				row.elements.clear();
 				row.makeAcceptInputHandler([window] {
-					window->pushGui(new GuiMsgBox(window, "REALLY QUIT?", "YES", 
-					[] { 
+					window->pushGui(new GuiMsgBox(window, "REALLY QUIT?", "YES",
+					[] {
 						SDL_Event ev;
 						ev.type = SDL_QUIT;
 						SDL_PushEvent(&ev);
@@ -352,7 +347,7 @@ void GuiMenu::onSizeChanged()
 void GuiMenu::addEntry(const char* name, unsigned int color, bool add_arrow, const std::function<void()>& func)
 {
 	std::shared_ptr<Font> font = Font::get(FONT_SIZE_MEDIUM);
-	
+
 	// populate the list
 	ComponentListRow row;
 	row.addElement(std::make_shared<TextComponent>(mWindow, name, font, color), true);
@@ -362,7 +357,7 @@ void GuiMenu::addEntry(const char* name, unsigned int color, bool add_arrow, con
 		std::shared_ptr<ImageComponent> bracket = makeArrow(mWindow);
 		row.addElement(bracket, false);
 	}
-	
+
 	row.makeAcceptInputHandler(func);
 
 	mMenu.addRow(row);
