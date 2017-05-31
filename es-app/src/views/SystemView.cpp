@@ -243,7 +243,8 @@ void SystemView::onCursorChanged(const CursorState& state)
 		return;
 
 	Animation* anim;
-	if(Settings::getInstance()->getString("TransitionStyle") == "fade")
+	std::string transition_style = Settings::getInstance()->getString("TransitionStyle");
+	if(transition_style == "fade")
 	{
 		float startExtrasFade = mExtrasFadeOpacity;
 		anim = new LambdaAnimation(
@@ -270,10 +271,10 @@ void SystemView::onCursorChanged(const CursorState& state)
 				this->mExtrasCamOffset = endPos;
 
 		}, 500);
-	}
-	else{ // slide
+	} else if (transition_style == "slide") {
+		// slide
 		anim = new LambdaAnimation(
-			[startPos, endPos, posMax, this](float t)
+			[this, startPos, endPos, posMax](float t)
 		{
 			t -= 1;
 			float f = lerp<float>(startPos, endPos, t*t*t + 1);
@@ -285,7 +286,31 @@ void SystemView::onCursorChanged(const CursorState& state)
 			this->mCamOffset = f;
 			this->mExtrasCamOffset = f;
 		}, 500);
+	} else if (transition_style == "simple slide") {
+		// simple slide
+		anim = new LambdaAnimation(
+			[this, startPos, endPos, posMax](float t)
+		{
+			t -= 1;
+			float f = lerp<float>(startPos, endPos, t*t*t + 1);
+			if(f < 0)
+				f += posMax;
+			if(f >= posMax)
+				f -= posMax;
+
+			this->mCamOffset = f;
+			this->mExtrasCamOffset = endPos;
+		}, 500);
+	} else {
+		// instant
+		anim = new LambdaAnimation(
+			[this, endPos](float t)
+		{
+			this->mCamOffset = endPos;
+			this->mExtrasCamOffset = endPos;
+		}, 1);
 	}
+
 
 	setAnimation(anim, 0, nullptr, false, 0);
 }
@@ -465,6 +490,7 @@ void SystemView::renderExtras(const Eigen::Affine3f& trans, float lower, float u
 		else
 			extrasTrans.translate(Eigen::Vector3f(0, (i - mExtrasCamOffset) * mSize.y(), 0));
 
+		Renderer::pushClipRect(Eigen::Vector2i(extrasTrans.translation()[0], extrasTrans.translation()[1]), mSize.cast<int>());
 		SystemViewData data = mEntries.at(index).data;
 		for(unsigned int j = 0; j < data.backgroundExtras.size(); j++)
 		{
@@ -473,6 +499,7 @@ void SystemView::renderExtras(const Eigen::Affine3f& trans, float lower, float u
 				extra->render(extrasTrans);
 			}
 		}
+		Renderer::popClipRect();
 	}
 	Renderer::popClipRect();
 }

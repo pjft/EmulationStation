@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "ThemeData.h"
 #include "Util.h"
+#include "Window.h"
 #ifdef WIN32
 #include <codecvt>
 #endif
@@ -56,6 +57,9 @@ VideoComponent::VideoComponent(Window* window) :
 	mConfig.showSnapshotDelay 		= false;
 	mConfig.showSnapshotNoVideo		= false;
 	mConfig.startDelay				= 0;
+	if (mWindow->getGuiStackSize() > 1) {
+		topWindow(false);
+	}
 
 	std::string path = getTitleFolder();
 	if(!boost::filesystem::exists(path))
@@ -118,7 +122,7 @@ void VideoComponent::setImage(std::string path)
 	// Check that the image has changed
 	if (path == mStaticImagePath)
 		return;
-	
+
 	mStaticImage.setImage(path);
 	// Make the image stretch to fill the video region
 	mStaticImage.setSize(getSize());
@@ -279,10 +283,10 @@ void VideoComponent::update(int deltaTime)
 	if (mStartDelayed)
 	{
 		Uint32 ticks = SDL_GetTicks();
-		if (mStartTime > ticks) 
+		if (mStartTime > ticks)
 		{
 			Uint32 diff = mStartTime - ticks;
-			if (diff < FADE_TIME_MS) 
+			if (diff < FADE_TIME_MS)
 			{
 				mFadeIn = (float)diff / (float)FADE_TIME_MS;
 				return;

@@ -80,7 +80,6 @@ void VideoPlayerComponent::startVideo()
 
 				// Find out the pixel position of the video view and build a command line for
 				// omxplayer to position it in the right place
-				//setSize(mStaticImage.getSize());
 
 				char buf[32];
 				float x = mPosition.x() - (mOrigin.x() * mSize.x());
@@ -88,6 +87,7 @@ void VideoPlayerComponent::startVideo()
 				sprintf(buf, "%d,%d,%d,%d", (int)x, (int)y, (int)(x + mSize.x()), (int)(y + mSize.y()));
 				// We need to specify the layer of 10000 or above to ensure the video is displayed on top
 				// of our SDL display
+
 				const char* argv[] = { "", "--layer", "10010", "--loop", "--no-osd", "--aspect-mode", "letterbox", "--vol", "0", "--win", buf, "-b", "", "", "", "", NULL };
 
 				// check if we want to mute the audio

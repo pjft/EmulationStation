@@ -260,7 +260,6 @@ void VideoGameListView::updateInfoPanel()
 			thumbnail_path.erase(0, 1);
 			thumbnail_path.insert(0, getHomePath());
 		}
-
 		if (!mVideo->setVideo(video_path))
 		{
 			mVideo->setDefaultVideo();

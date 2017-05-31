@@ -128,6 +128,8 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			std::vector<std::string> transitions;
 			transitions.push_back("fade");
 			transitions.push_back("slide");
+			transitions.push_back("simple slide");
+			transitions.push_back("instant");
 			for(auto it = transitions.begin(); it != transitions.end(); it++)
 				transition_style->add(*it, *it, Settings::getInstance()->getString("TransitionStyle") == *it);
 			s->addWithLabel("TRANSITION STYLE", transition_style);
@@ -233,6 +235,36 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			stretch_screensaver->setState(Settings::getInstance()->getBool("StretchVideoOnScreenSaver"));
 			s->addWithLabel("STRETCH VIDEO ON SCREENSAVER", stretch_screensaver);
 			s->addSaveFunc([stretch_screensaver] { Settings::getInstance()->setBool("StretchVideoOnScreenSaver", stretch_screensaver->getState()); });
+
+			mWindow->pushGui(s);
+	});
+
+	addEntry("VIDEO PLAYER SETTINGS", 0x777777FF, true,
+		[this] {
+			auto s = new GuiSettings(mWindow, "VIDEO PLAYER SETTINGS");
+
+#ifdef _RPI_
+			// Video Player - VideoOmxPlayer
+			auto omx_player = std::make_shared<SwitchComponent>(mWindow);
+			omx_player->setState(Settings::getInstance()->getBool("VideoOmxPlayer"));
+			s->addWithLabel("USE OMX VIDEO PLAYER (HW ACCELERATED)", omx_player);
+			s->addSaveFunc([omx_player]
+			{
+				// need to reload all views to re-create the right video components
+				bool needReload = false;
+				if(Settings::getInstance()->getBool("VideoOmxPlayer") != omx_player->getState())
+					needReload = true;
+
+				Settings::getInstance()->setBool("VideoOmxPlayer", omx_player->getState());
+
+				if(needReload)
+					ViewController::get()->reloadAll();
+			});
+#endif
+			auto video_audio = std::make_shared<SwitchComponent>(mWindow);
+			video_audio->setState(Settings::getInstance()->getBool("VideoAudio"));
+			s->addWithLabel("ENABLE VIDEO AUDIO", video_audio);
+			s->addSaveFunc([video_audio] { Settings::getInstance()->setBool("VideoAudio", video_audio->getState()); });
 
 			mWindow->pushGui(s);
 	});
@@ -377,6 +409,13 @@ bool GuiMenu::input(InputConfig* config, Input input)
 	}
 
 	return false;
+}
+
+HelpStyle GuiMenu::getHelpStyle()
+{
+	HelpStyle style = HelpStyle();
+	style.applyTheme(ViewController::get()->getState().getSystem()->getTheme(), "system");
+	return style;
 }
 
 std::vector<HelpPrompt> GuiMenu::getHelpPrompts()

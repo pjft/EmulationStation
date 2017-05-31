@@ -133,7 +133,7 @@ void VideoVlcComponent::render(const Eigen::Affine3f& parentTrans)
 	GuiComponent::renderChildren(trans);
 
 	Renderer::setMatrix(trans);
-	
+
 	if (mIsPlaying && mContext.valid)
 	{
 		float tex_offs_x = 0.0f;
@@ -232,15 +232,23 @@ void VideoVlcComponent::setupVLC(std::string subtitles)
 	// If VLC hasn't been initialised yet then do it now
 	if (!mVLC)
 	{
-		const char* args[] = { "--quiet", "", "", "" };
-		// check if we want to mute the audio
+    const char** args;
+		const char* singleargs[] = { "--quiet" };
+    int argslen = 0;
 			
 		if (!subtitles.empty()) 
-		{			
-			args[1] = "--sub-file";
-			args[2] = subtitles.c_str();			
-		}		
-		mVLC = libvlc_new(sizeof(args) / sizeof(args[0]), args);
+		{
+      const char* newargs[] = { "--quiet", "--sub-file", subtitles.c_str() };
+      argslen = sizeof(newargs) / sizeof(newargs[0]);
+      args = newargs;
+    }
+    else
+    {
+      const char* singleargs[] = { "--quiet" };
+      argslen = sizeof(singleargs) / sizeof(singleargs[0]);
+      args = singleargs;
+    }
+		mVLC = libvlc_new(argslen, args);
 	}
 }
 
