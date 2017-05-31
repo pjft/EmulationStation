@@ -432,6 +432,7 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 			bool isCurrent = (mCurrentView == it->second);
 			SystemData* system = it->first;
 			FileData* cursor = view->getCursor();
+
 			mGameListViews.erase(it);
 
 			if(reloadTheme)
@@ -450,6 +451,7 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 			break;
 		}
 	}
+	
 	// Redisplay the current view
 	if (mCurrentView)
 		mCurrentView->onShow();

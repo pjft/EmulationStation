@@ -30,7 +30,7 @@ static void display(void *data, void *id) {
     //Data to be displayed
 }
 
-VideoVlcComponent::VideoVlcComponent(Window* window) :
+VideoVlcComponent::VideoVlcComponent(Window* window, std::string subtitles) :
 	VideoComponent(window),
 	mMediaPlayer(nullptr)
 {
@@ -40,11 +40,12 @@ VideoVlcComponent::VideoVlcComponent(Window* window) :
 	mTexture = TextureResource::get("");
 
 	// Make sure VLC has been initialised
-	setupVLC();
+	setupVLC(subtitles);
 }
 
 VideoVlcComponent::~VideoVlcComponent()
 {
+	stopVideo();
 }
 
 void VideoVlcComponent::setResize(float width, float height)
@@ -226,13 +227,28 @@ void VideoVlcComponent::freeContext()
 	}
 }
 
-void VideoVlcComponent::setupVLC()
+void VideoVlcComponent::setupVLC(std::string subtitles)
 {
 	// If VLC hasn't been initialised yet then do it now
 	if (!mVLC)
 	{
-		const char* args[] = { "--quiet" };
-		mVLC = libvlc_new(sizeof(args) / sizeof(args[0]), args);
+    const char** args;
+		const char* singleargs[] = { "--quiet" };
+    int argslen = 0;
+			
+		if (!subtitles.empty()) 
+		{
+      const char* newargs[] = { "--quiet", "--sub-file", subtitles.c_str() };
+      argslen = sizeof(newargs) / sizeof(newargs[0]);
+      args = newargs;
+    }
+    else
+    {
+      const char* singleargs[] = { "--quiet" };
+      argslen = sizeof(singleargs) / sizeof(singleargs[0]);
+      args = singleargs;
+    }
+		mVLC = libvlc_new(argslen, args);
 	}
 }
 
@@ -291,10 +307,15 @@ void VideoVlcComponent::startVideo()
 				// Make sure we found a valid video track
 				if ((mVideoWidth > 0) && (mVideoHeight > 0))
 				{
+					if (mScreensaverMode) 
+					{
+						mVideoWidth = (unsigned)Renderer::getScreenWidth();
+						mVideoHeight = (unsigned)Renderer::getScreenHeight();
+					}
 					setupContext();
 
 					// Setup the media player
-					mMediaPlayer = libvlc_media_player_new_from_media(mMedia);
+					mMediaPlayer = libvlc_media_player_new_from_media(mMedia);	
 					if (!Settings::getInstance()->getBool("VideoAudio"))
 					{
 						libvlc_audio_set_mute(mMediaPlayer, 1);
