@@ -19,9 +19,9 @@ std::string getTitleFolder() {
 	return home + "/.emulationstation/tmp/";
 }
 
-void writeSubtitle(const char* gameName, const char* systemName) 
+void writeSubtitle(const char* gameName, const char* systemName)
 {
-	FILE* file = fopen(getTitlePath().c_str(), "w");	
+	FILE* file = fopen(getTitlePath().c_str(), "w");
 	fprintf(file, "1\n00:00:01,000 --> 00:00:08,000\n");
 	fprintf(file, "%s\n", gameName);
 	fprintf(file, "<i>%s</i>\n\n", systemName);
@@ -124,8 +124,6 @@ void VideoComponent::setImage(std::string path)
 		return;
 
 	mStaticImage.setImage(path);
-	// Make the image stretch to fill the video region
-	mStaticImage.setSize(getSize());
 	mFadeIn = 0.0f;
 	mStaticImagePath = path;
 }

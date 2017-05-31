@@ -11,23 +11,23 @@ libvlc_instance_t*		VideoVlcComponent::mVLC = NULL;
 
 // VLC prepares to render a video frame.
 static void *lock(void *data, void **p_pixels) {
-    struct VideoContext *c = (struct VideoContext *)data;
-    SDL_LockMutex(c->mutex);
-    SDL_LockSurface(c->surface);
+	struct VideoContext *c = (struct VideoContext *)data;
+	SDL_LockMutex(c->mutex);
+	SDL_LockSurface(c->surface);
 	*p_pixels = c->surface->pixels;
-    return NULL; // Picture identifier, not needed here.
+	return NULL; // Picture identifier, not needed here.
 }
 
 // VLC just rendered a video frame.
 static void unlock(void *data, void *id, void *const *p_pixels) {
-    struct VideoContext *c = (struct VideoContext *)data;
-    SDL_UnlockSurface(c->surface);
-    SDL_UnlockMutex(c->mutex);
+	struct VideoContext *c = (struct VideoContext *)data;
+	SDL_UnlockSurface(c->surface);
+	SDL_UnlockMutex(c->mutex);
 }
 
 // VLC wants to display a video frame.
 static void display(void *data, void *id) {
-    //Data to be displayed
+	//Data to be displayed
 }
 
 VideoVlcComponent::VideoVlcComponent(Window* window, std::string subtitles) :
@@ -232,22 +232,22 @@ void VideoVlcComponent::setupVLC(std::string subtitles)
 	// If VLC hasn't been initialised yet then do it now
 	if (!mVLC)
 	{
-    const char** args;
+		const char** args;
 		const char* singleargs[] = { "--quiet" };
-    int argslen = 0;
-			
-		if (!subtitles.empty()) 
+		int argslen = 0;
+
+		if (!subtitles.empty())
 		{
-      const char* newargs[] = { "--quiet", "--sub-file", subtitles.c_str() };
-      argslen = sizeof(newargs) / sizeof(newargs[0]);
-      args = newargs;
-    }
-    else
-    {
-      const char* singleargs[] = { "--quiet" };
-      argslen = sizeof(singleargs) / sizeof(singleargs[0]);
-      args = singleargs;
-    }
+			const char* newargs[] = { "--quiet", "--sub-file", subtitles.c_str() };
+			argslen = sizeof(newargs) / sizeof(newargs[0]);
+			args = newargs;
+		}
+		else
+		{
+			const char* singleargs[] = { "--quiet" };
+			argslen = sizeof(singleargs) / sizeof(singleargs[0]);
+			args = singleargs;
+		}
 		mVLC = libvlc_new(argslen, args);
 	}
 }
@@ -307,7 +307,7 @@ void VideoVlcComponent::startVideo()
 				// Make sure we found a valid video track
 				if ((mVideoWidth > 0) && (mVideoHeight > 0))
 				{
-					if (mScreensaverMode) 
+					if (mScreensaverMode)
 					{
 						mVideoWidth = (unsigned)Renderer::getScreenWidth();
 						mVideoHeight = (unsigned)Renderer::getScreenHeight();
@@ -315,7 +315,7 @@ void VideoVlcComponent::startVideo()
 					setupContext();
 
 					// Setup the media player
-					mMediaPlayer = libvlc_media_player_new_from_media(mMedia);	
+					mMediaPlayer = libvlc_media_player_new_from_media(mMedia);
 					if (!Settings::getInstance()->getBool("VideoAudio"))
 					{
 						libvlc_audio_set_mute(mMediaPlayer, 1);
