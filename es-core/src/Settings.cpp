@@ -77,6 +77,14 @@ void Settings::setDefaults()
 	mStringMap["Scraper"] = "TheGamesDB";
 	mStringMap["GamelistViewStyle"] = "automatic";
 
+
+	mBoolMap["LaunchOnStart"] = true;
+	mBoolMap["ScreenSaverControls"] = true;
+	mBoolMap["ScreenSaverGameName"] = false;
+	mBoolMap["StretchVideoOnScreenSaver"] = false;
+	// This setting only applies for non-Pi systems
+	mStringMap["ScreenSaverResolution"] = "native";
+
 	// This setting only applies to raspberry pi but set it for all platforms so
 	// we don't get a warning if we encounter it on a different platform
 	mBoolMap["VideoOmxPlayer"] = false;

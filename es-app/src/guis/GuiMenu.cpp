@@ -95,7 +95,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			s->addSaveFunc([screensaver_time] { Settings::getInstance()->setInt("ScreenSaverTime", (int)round(screensaver_time->getValue()) * (1000 * 60)); });
 
 			// screensaver behavior
-			auto screensaver_behavior = std::make_shared< OptionListComponent<std::string> >(mWindow, "STYLE", false);
+			auto screensaver_behavior = std::make_shared< OptionListComponent<std::string> >(mWindow, "SCREENSAVER BEHAVIOR", false);
 			std::vector<std::string> screensavers;
 			screensavers.push_back("dim");
 			screensavers.push_back("black");
@@ -211,6 +211,41 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			s->addWithLabel("ENABLE VIDEO AUDIO", video_audio);
 			s->addSaveFunc([video_audio] { Settings::getInstance()->setBool("VideoAudio", video_audio->getState()); });
 
+			// Allow ScreenSaver Controls - ScreenSaverControls
+			auto ss_controls = std::make_shared<SwitchComponent>(mWindow);
+			ss_controls->setState(Settings::getInstance()->getBool("ScreenSaverControls"));
+			s->addWithLabel("SCREENSAVER CONTROLS", ss_controls);
+			s->addSaveFunc([ss_controls] { Settings::getInstance()->setBool("ScreenSaverControls", ss_controls->getState()); });
+
+			// Launch Game on Start from ScreenSaver - LaunchOnStart
+			auto launch_on_start = std::make_shared<SwitchComponent>(mWindow);
+			launch_on_start->setState(Settings::getInstance()->getBool("LaunchOnStart"));
+			s->addWithLabel("LAUNCH GAME FROM VIDEO SCREENSAVER", launch_on_start);
+			s->addSaveFunc([launch_on_start] { Settings::getInstance()->setBool("LaunchOnStart", launch_on_start->getState()); });
+
+			// Render Video Game Name as subtitles
+			auto ss_subtitles = std::make_shared<SwitchComponent>(mWindow);
+			ss_subtitles->setState(Settings::getInstance()->getBool("ScreenSaverGameName"));
+			s->addWithLabel("SHOW GAME AND SYSTEM NAME ON SCREENSAVER", ss_subtitles);
+			s->addSaveFunc([ss_subtitles] { Settings::getInstance()->setBool("ScreenSaverGameName", ss_subtitles->getState()); });
+
+#ifndef _RPI_
+			auto screensaver_resolution = std::make_shared< OptionListComponent<std::string> >(mWindow, "SCREENSAVER RESOLUTION (ONLY FOR GAME NAME TEXT)", false);
+			std::vector<std::string> resolutions;
+			resolutions.push_back("highest");
+			resolutions.push_back("medium");
+			resolutions.push_back("native");
+			for(auto it = resolutions.begin(); it != resolutions.end(); it++)
+				screensaver_resolution->add(*it, *it, Settings::getInstance()->getString("ScreenSaverResolution") == *it);
+			s->addWithLabel("SCREENSAVER RESOLUTION (ONLY FOR GAME NAME TEXT)", screensaver_resolution);
+			s->addSaveFunc([screensaver_resolution] { Settings::getInstance()->setString("ScreenSaverResolution", screensaver_resolution->getSelected()); });
+#endif
+#ifdef _RPI_
+			auto stretch_screensaver = std::make_shared<SwitchComponent>(mWindow);
+			stretch_screensaver->setState(Settings::getInstance()->getBool("StretchVideoOnScreenSaver"));
+			s->addWithLabel("STRETCH VIDEO ON SCREENSAVER", stretch_screensaver);
+			s->addSaveFunc([stretch_screensaver] { Settings::getInstance()->setBool("StretchVideoOnScreenSaver", stretch_screensaver->getState()); });
+#endif
 			mWindow->pushGui(s);
 	});
 
