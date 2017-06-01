@@ -49,7 +49,7 @@ bool SystemScreenSaver::allowSleep()
 	return (mVideoScreensaver == NULL);
 }
 
-bool SystemScreenSaver::isScreenSaverActive() 
+bool SystemScreenSaver::isScreenSaverActive()
 {
 	return (mState != STATE_INACTIVE);
 }
@@ -205,34 +205,34 @@ void SystemScreenSaver::pickRandomVideo(std::string& path)
 						if (video-- == 0)
 						{
 							// Yes. Resolve to a full path
-							path = resolvePath(videoNode.text().get(), (*it)->getStartPath(), true).generic_string();	
+							path = resolvePath(videoNode.text().get(), (*it)->getStartPath(), true).generic_string();
 							mSystemName = (*it)->getFullName();
 							mGameName = fileNode.child("name").text().get();
-							
+
 							// getting corresponding FileData
 
 							// try the easy way. Should work for the majority of cases, unless in subfolders
 							FileData* rootFileData = (*it)->getRootFolder();
 							std::string gamePath = resolvePath(fileNode.child("path").text().get(), (*it)->getStartPath(), false).string();
-							
+
 							std::string shortPath = gamePath;
 							shortPath = shortPath.replace(0, (*it)->getStartPath().length()+1, "");
-							
+
 							const std::unordered_map<std::string, FileData*>& children = rootFileData->getChildrenByFilename();
 							std::unordered_map<std::string, FileData*>::const_iterator screenSaverGame = children.find(shortPath);
-							
-							if (screenSaverGame != children.end()) 
+
+							if (screenSaverGame != children.end())
 							{
 								LOG(LogDebug) << "Found FileData for: " << shortPath;
 								LOG(LogDebug) << "Long Path: " << gamePath;
 								// Found the corresponding FileData
 								mCurrentGame = screenSaverGame->second;
 							}
-							else 
+							else
 							{
 								LOG(LogDebug) << "ERROR: Didn't find FileData for: " << shortPath;
 								LOG(LogDebug) << "Long Path: " << gamePath;
-								
+
 								// Couldn't find FileData. Going for the full iteration.
 								// iterate on children
 								FileType type = GAME;
@@ -245,8 +245,8 @@ void SystemScreenSaver::pickRandomVideo(std::string& path)
 									{
 										mCurrentGame = (*itf);
 										LOG(LogDebug) << "Iteratively Found FileData for: " << gamePath;
-										
-								
+
+
 										break;
 									}
 								}
@@ -316,8 +316,8 @@ void SystemScreenSaver::launchGame()
 	ViewController::get()->goToGameList(mCurrentGame->getSystem());
 	IGameListView* view = ViewController::get()->getGameListView(mCurrentGame->getSystem()).get();
  	view->setCursor(mCurrentGame);
- 	if (Settings::getInstance()->getBool("LaunchOnStart")) 
+ 	if (Settings::getInstance()->getBool("LaunchOnStart"))
  	{
- 		ViewController::get()->launch(mCurrentGame);
+ 		view->launch(mCurrentGame);
  	}
 }
