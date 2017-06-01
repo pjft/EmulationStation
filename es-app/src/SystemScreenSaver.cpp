@@ -66,20 +66,17 @@ void SystemScreenSaver::startScreenSaver()
 		std::string path = "";
 		pickRandomVideo(path);
 
-		int retry = 20;
+		int retry = 200;
 		while(retry > 0 && ((path.empty() || !boost::filesystem::exists(path)) || mCurrentGame == NULL))
 		{
-			LOG(LogInfo) << "Hm. Something went wrong with: \"" << path << "\"; Retries left (out of 20): " << retry;
 			retry--;
 			pickRandomVideo(path);
 		}
 
-
-
-		LOG(LogDebug) << "Starting Video at path \"" << path << "\"; Retries left (out of 20): " << retry;
 		if (!path.empty() && boost::filesystem::exists(path))
 		{
 		// Create the correct type of video component
+
 #ifdef _RPI_
 			// We're defaulting to OMXPlayer for screensaver on the Pi
 			mVideoScreensaver = new VideoPlayerComponent(mWindow, getTitlePath());
@@ -98,7 +95,7 @@ void SystemScreenSaver::startScreenSaver()
 			return;
 		}
 	}
-	LOG(LogError) << "Starting standard screensaver";
+	LOG(LogError) << "Couldn't find a video in all the retries. Starting standard screensaver.";
 	// No videos. Just use a standard screensaver
 	mState = STATE_SCREENSAVER_ACTIVE;
 	mCurrentGame = NULL;
@@ -179,8 +176,6 @@ void SystemScreenSaver::pickRandomVideo(std::string& path)
 	{
 		int video = (int)(((float)rand() / float(RAND_MAX)) * (float)mVideoCount);
 
-		LOG(LogDebug) << "Random Video: " << video;
-
 		std::vector<SystemData*>:: iterator it;
 		for (it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); ++it)
 		{
@@ -223,16 +218,11 @@ void SystemScreenSaver::pickRandomVideo(std::string& path)
 
 							if (screenSaverGame != children.end())
 							{
-								LOG(LogDebug) << "Found FileData for: " << shortPath;
-								LOG(LogDebug) << "Long Path: " << gamePath;
 								// Found the corresponding FileData
 								mCurrentGame = screenSaverGame->second;
 							}
 							else
 							{
-								LOG(LogDebug) << "ERROR: Didn't find FileData for: " << shortPath;
-								LOG(LogDebug) << "Long Path: " << gamePath;
-
 								// Couldn't find FileData. Going for the full iteration.
 								// iterate on children
 								FileType type = GAME;
@@ -244,9 +234,6 @@ void SystemScreenSaver::pickRandomVideo(std::string& path)
 									if ((*itf)->getPath() == gamePath)
 									{
 										mCurrentGame = (*itf);
-										LOG(LogDebug) << "Iteratively Found FileData for: " << gamePath;
-
-
 										break;
 									}
 								}
