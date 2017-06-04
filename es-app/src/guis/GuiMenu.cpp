@@ -233,7 +233,9 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			auto screensaver_resolution = std::make_shared< OptionListComponent<std::string> >(mWindow, "SCREENSAVER RESOLUTION (ONLY FOR GAME NAME TEXT)", false);
 			std::vector<std::string> resolutions;
 			resolutions.push_back("highest");
+			resolutions.push_back("high");
 			resolutions.push_back("medium");
+			resolutions.push_back("low");
 			resolutions.push_back("native");
 			for(auto it = resolutions.begin(); it != resolutions.end(); it++)
 				screensaver_resolution->add(*it, *it, Settings::getInstance()->getString("ScreenSaverResolution") == *it);

@@ -113,24 +113,20 @@ void SystemScreenSaver::renderScreenSaver()
 	float lOpacity = mOpacity;
 	#ifdef _RPI_
 	// If random video on the Pi, we're using OMX so we need to have black background
-	if (Settings::getInstance()->getString("ScreenSaverBehavior") == "random video" &&
-		Settings::getInstance()->getBool("VideoOmxPlayer"))
+	if (Settings::getInstance()->getString("ScreenSaverBehavior") == "random video")
 		lOpacity = 1.0f;
 	#endif
-	if (mVideoScreensaver && Settings::getInstance()->getString("ScreenSaverBehavior") == "random video" &&
-		!Settings::getInstance()->getBool("VideoOmxPlayer"))
+	if (mVideoScreensaver && Settings::getInstance()->getString("ScreenSaverBehavior") == "random video")
 	{
+		// Handle any fade
+		Renderer::setMatrix(Eigen::Affine3f::Identity());
+		Renderer::drawRect(0, 0, Renderer::getScreenWidth(), Renderer::getScreenHeight(), (unsigned char)(lOpacity * 255));
+
 		// Only render the video if the state requires it
 		if ((int)mState >= STATE_FADE_IN_VIDEO)
 		{
 			Eigen::Affine3f transform = Eigen::Affine3f::Identity();
 			mVideoScreensaver->render(transform);
-		}
-		else
-		{
-			// Handle any fade
-			Renderer::setMatrix(Eigen::Affine3f::Identity());
-			Renderer::drawRect(0, 0, Renderer::getScreenWidth(), Renderer::getScreenHeight(), (unsigned char)(lOpacity * 255));
 		}
 	}
 	else if (mState != STATE_INACTIVE)

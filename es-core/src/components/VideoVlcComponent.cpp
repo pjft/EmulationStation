@@ -312,15 +312,25 @@ void VideoVlcComponent::startVideo()
 							mVideoWidth = (unsigned)Renderer::getScreenWidth();
 							mVideoHeight = (unsigned)Renderer::getScreenHeight();
 						}
-						else if(Settings::getInstance()->getString("ScreenSaverResolution") == "medium") {
+						else if(Settings::getInstance()->getString("ScreenSaverResolution") == "high") {
 							mVideoWidth = (unsigned)Renderer::getScreenWidth()/2;
 							mVideoHeight = (unsigned)Renderer::getScreenHeight()/2;
 						}
+						else if(Settings::getInstance()->getString("ScreenSaverResolution") == "medium") {
+							mVideoWidth = 640;
+							mVideoHeight = 480;
+						}
+						else if(Settings::getInstance()->getString("ScreenSaverResolution") == "low") {
+							mVideoWidth = 480;
+							mVideoHeight = 360;
+						}
 					}
+
 					setupContext();
 
 					// Setup the media player
 					mMediaPlayer = libvlc_media_player_new_from_media(mMedia);
+
 					if (!Settings::getInstance()->getBool("VideoAudio"))
 					{
 						libvlc_audio_set_mute(mMediaPlayer, 1);

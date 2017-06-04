@@ -41,7 +41,7 @@ public:
 
 	// sets whether it's going to render in screensaver mode
 	void setScreensaverMode(bool isScreensaver);
-	
+
 	virtual void onShow() override;
 	virtual void onHide() override;
 	virtual void onScreenSaverActivate() override;
