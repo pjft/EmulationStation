@@ -53,9 +53,7 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 	}
 	else
 	{
-		// empty list - add a placeholder
-		FileData* placeholder = new FileData(PLACEHOLDER, "<No Results Found for Current Filter Criteria>", this->mRoot->getSystem());
-		mList.add(placeholder->getName(), placeholder, (placeholder->getType() == PLACEHOLDER));
+		addPlaceholder();
 	}
 }
 
@@ -95,27 +93,42 @@ void BasicGameListView::setCursor(FileData* cursor)
 	}
 }
 
+void BasicGameListView::addPlaceholder()
+{
+	// empty list - add a placeholder
+	FileData* placeholder = new FileData(PLACEHOLDER, "<No Entries Found>", this->mRoot->getSystem()->getSystemEnvData(), this->mRoot->getSystem());
+	mList.add(placeholder->getName(), placeholder, (placeholder->getType() == PLACEHOLDER));
+}
+
 void BasicGameListView::launch(FileData* game)
 {
 	ViewController::get()->launch(game);
 }
 
-void BasicGameListView::remove(FileData *game)
+void BasicGameListView::remove(FileData *game, bool deleteFile)
 {
-	boost::filesystem::remove(game->getPath());  // actually delete the file on the filesystem
+	if (deleteFile)
+		boost::filesystem::remove(game->getPath());  // actually delete the file on the filesystem
 	if (getCursor() == game)                     // Select next element in list, or prev if none
 	{
-		std::vector<FileData*> siblings = game->getParent()->getChildren();
-		auto gameIter = std::find(siblings.begin(), siblings.end(), game);
-		auto gamePos = std::distance(siblings.begin(), gameIter);
-		if (gameIter != siblings.end())
+		std::vector<FileData*> siblings = game->getParent()->getChildrenListToDisplay();
+		if (siblings.size() > 0)
 		{
-			if ((gamePos + 1) < siblings.size())
+			auto gameIter = std::find(siblings.begin(), siblings.end(), game);
+			auto gamePos = std::distance(siblings.begin(), gameIter);
+			if (gameIter != siblings.end())
 			{
-				setCursor(siblings.at(gamePos + 1));
-			} else if ((gamePos - 1) > 0) {
-				setCursor(siblings.at(gamePos - 1));
+				if ((gamePos + 1) < siblings.size())
+				{
+					setCursor(siblings.at(gamePos + 1));
+				} else if ((gamePos - 1) > 0) {
+					setCursor(siblings.at(gamePos - 1));
+				}
 			}
+		}
+		else
+		{
+			addPlaceholder();
 		}
 	}
 	delete game;                                 // remove before repopulating (removes from parent)
@@ -133,5 +146,7 @@ std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("b", "back"));
 	prompts.push_back(HelpPrompt("select", "options"));
 	prompts.push_back(HelpPrompt("x", "random"));
+	if(Settings::getInstance()->getString("CollectionSystemsAuto").find("favorites") != std::string::npos && mRoot->getSystem()->isGameSystem())
+		prompts.push_back(HelpPrompt("y", "favorite"));
 	return prompts;
 }
