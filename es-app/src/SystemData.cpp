@@ -60,7 +60,7 @@ void SystemData::setIsGameSystemStatus()
 	// we exclude non-game systems from specific operations (i.e. the "RetroPie" system, at least)
 	// if/when there are more in the future, maybe this can be a more complex method, with a proper list
 	// but for now a simple string comparison is more performant
-	mIsGameSystem = (mName != "retropie");
+	mIsGameSystem = (mName != "retropie") && (mName != "kodi");
 }
 
 void SystemData::populateFolder(FileData* folder)
@@ -383,13 +383,12 @@ SystemData* SystemData::getRandomSystem()
 	}
 
 	// get random number in range
-	int target = std::round(((double)std::rand() / (double)RAND_MAX) * total);
-
+	int target = std::round(((double)std::rand() / (double)RAND_MAX) * (total - 1));
 	for (auto it = sSystemVector.begin(); it != sSystemVector.end(); it++)
 	{
 		if ((*it)->isGameSystem())
 		{
-			if (target >= 0)
+			if (target > 0)
 			{
 				target--;
 			}
@@ -406,7 +405,7 @@ FileData* SystemData::getRandomGame()
 	std::vector<FileData*> list = mRootFolder->getFilesRecursive(GAME, true);
 	unsigned int total = list.size();
 	// get random number in range
-	int target = std::round(((double)std::rand() / (double)RAND_MAX) * total);
+	int target = std::round(((double)std::rand() / (double)RAND_MAX) * (total - 1));
 	return list.at(target);
 }
 
