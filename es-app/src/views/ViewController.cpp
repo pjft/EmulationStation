@@ -469,10 +469,8 @@ void ViewController::reloadAll()
 		it->first->loadTheme();
 		getGameListView(it->first)->setCursor(it->second);
 	}
-
 	mSystemListView.reset();
 	getSystemListView();
-
 	// update mCurrentView since the pointers changed
 	if(mState.viewing == GAME_LIST)
 	{
@@ -486,7 +484,6 @@ void ViewController::reloadAll()
 	}else{
 		goToSystemView(SystemData::sSystemVector.front());
 	}
-
 	updateHelpPrompts();
 }
 

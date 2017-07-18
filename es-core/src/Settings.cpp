@@ -97,6 +97,8 @@ void Settings::setDefaults()
 	// Audio out device for Video playback using OMX player.
 	mStringMap["OMXAudioDev"] = "both";
 	mStringMap["CollectionSystemsAuto"] = "";
+	mStringMap["CollectionSystemsCustom"] = "";
+	mBoolMap["SortAllSystems"] = true;
 
 	// Audio out device for volume control
 	#ifdef _RPI_

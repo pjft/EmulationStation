@@ -23,7 +23,8 @@ FileData::~FileData()
 	if(mParent)
 		mParent->removeChild(this);
 
-	mSystem->getIndex()->removeFromIndex(this);
+	if(mType == GAME)
+		mSystem->getIndex()->removeFromIndex(this);
 
 	mChildren.clear();
 }
@@ -210,14 +211,11 @@ void FileData::launchGame(Window* window)
 	//update last played time
 	boost::posix_time::ptime time = boost::posix_time::second_clock::universal_time();
 	gameToUpdate->metadata.setTime("lastplayed", time);
-	CollectionSystemManager::get()->updateCollectionSystems(gameToUpdate);
+	CollectionSystemManager::get()->refreshCollectionSystems(gameToUpdate);
 }
 
 CollectionFileData::CollectionFileData(FileData* file, SystemData* system)
-	: FileData(file->getType(), file->getPath(), file->getSystemEnvData(), system)/*,
-	  mSourceFileData(file->getSourceFileData()),
-	  mParent(NULL),
-	  metadata(file->getSourceFileData()->metadata)*/
+	: FileData(file->getSourceFileData()->getType(), file->getSourceFileData()->getPath(), file->getSourceFileData()->getSystemEnvData(), system)
 {
 	// we use this constructor to create a clone of the filedata, and change its system
 	mSourceFileData = file->getSourceFileData();
@@ -259,4 +257,20 @@ const std::string& CollectionFileData::getName()
 		mDirty = false;
 	}
 	return mCollectionFileName;
+}
+
+// returns Sort Type based on a string description
+FileData::SortType getSortTypeFromString(std::string desc) {
+	std::vector<FileData::SortType> SortTypes = FileSorts::SortTypes;
+	// find it
+	for(unsigned int i = 0; i < FileSorts::SortTypes.size(); i++)
+	{
+		const FileData::SortType& sort = FileSorts::SortTypes.at(i);
+		if(sort.description == desc)
+		{
+			return sort;
+		}
+	}
+	// if not found default to name, ascending
+	return FileSorts::SortTypes.at(0);
 }

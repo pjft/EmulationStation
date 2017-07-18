@@ -170,21 +170,21 @@ void FileFilterIndex::clearAllFilters()
 
 void FileFilterIndex::debugPrintIndexes()
 {
-	LOG(LogError) << "Printing Indexes...";
+	LOG(LogInfo) << "Printing Indexes...";
 	for (auto x: playersIndexAllKeys) {
-		LOG(LogError) << "Multiplayer Index: " << x.first << ": " << x.second;
+		LOG(LogInfo) << "Multiplayer Index: " << x.first << ": " << x.second;
 	}
 	for (auto x: genreIndexAllKeys) {
-		LOG(LogError) << "Genre Index: " << x.first << ": " << x.second;
+		LOG(LogInfo) << "Genre Index: " << x.first << ": " << x.second;
 	}
 	for (auto x: ratingsIndexAllKeys) {
-		LOG(LogError) << "Ratings Index: " << x.first << ": " << x.second;
+		LOG(LogInfo) << "Ratings Index: " << x.first << ": " << x.second;
 	}
 	for (auto x: pubDevIndexAllKeys) {
-		LOG(LogError) << "PubDev Index: " << x.first << ": " << x.second;
+		LOG(LogInfo) << "PubDev Index: " << x.first << ": " << x.second;
 	}
 	for (auto x: favoritesIndexAllKeys) {
-		LOG(LogError) << "Favorites Index: " << x.first << ": " << x.second;
+		LOG(LogInfo) << "Favorites Index: " << x.first << ": " << x.second;
 	}
 }
 

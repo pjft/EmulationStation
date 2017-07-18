@@ -2,6 +2,7 @@
 #include "views/ViewController.h"
 #include "Renderer.h"
 #include "Window.h"
+#include "Log.h"
 #include "ThemeData.h"
 #include "SystemData.h"
 #include "Settings.h"
@@ -143,7 +144,10 @@ std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("b", "back"));
 	prompts.push_back(HelpPrompt("select", "options"));
 	prompts.push_back(HelpPrompt("x", "random"));
-	if(Settings::getInstance()->getString("CollectionSystemsAuto").find("favorites") != std::string::npos && mRoot->getSystem()->isGameSystem())
-		prompts.push_back(HelpPrompt("y", "favorite"));
+	if(mRoot->getSystem()->isGameSystem())
+	{
+		const char* prompt = CollectionSystemManager::get()->getEditingCollection().c_str();
+		prompts.push_back(HelpPrompt("y", prompt));
+	}
 	return prompts;
 }
