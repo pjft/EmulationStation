@@ -114,6 +114,7 @@ std::string FileFilterIndex::getIndexableKey(FileData* game, FilterIndexType typ
 
 void FileFilterIndex::addToIndex(FileData* game)
 {
+	LOG(LogError) << "Adding '" << game->getName() << "' to Index.";
 	manageGenreEntryInIndex(game);
 	managePlayerEntryInIndex(game);
 	managePubDevEntryInIndex(game);
@@ -123,6 +124,7 @@ void FileFilterIndex::addToIndex(FileData* game)
 
 void FileFilterIndex::removeFromIndex(FileData* game)
 {
+	LOG(LogError) << "Removing '" << game->getName() << "' from Index.";
 	manageGenreEntryInIndex(game, true);
 	managePlayerEntryInIndex(game, true);
 	managePubDevEntryInIndex(game, true);
@@ -381,6 +383,9 @@ void FileFilterIndex::manageIndexEntry(std::map<std::string, int>* index, std::s
 		{
 			// this shouldn't happen
 			LOG(LogInfo) << "Couldn't find entry in index! " << key;
+			LOG(LogInfo) << "--- *************** START OF PRINTING INDEX **************** ";
+			debugPrintIndexes();
+			LOG(LogInfo) << "--- *************** END OF PRINTING INDEX ****************** ";
 		}
 		else
 		{

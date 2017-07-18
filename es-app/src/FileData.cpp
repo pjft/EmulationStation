@@ -23,7 +23,8 @@ FileData::~FileData()
 	if(mParent)
 		mParent->removeChild(this);
 
-	mSystem->getIndex()->removeFromIndex(this);
+	if(mType == GAME)
+		mSystem->getIndex()->removeFromIndex(this);
 
 	mChildren.clear();
 }

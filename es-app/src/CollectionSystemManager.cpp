@@ -76,7 +76,7 @@ void CollectionSystemManager::loadEnabledListFromSettings()
 	std::vector<std::string> selected = commaStringToVector(Settings::getInstance()->getString("CollectionSystemsAuto"));
 
 	// iterate the map
-	for(std::map<std::string, CollectionSystemData>::iterator it = mAllCollectionSystems.begin() ; it != mAllCollectionSystems.end() ; it++ )
+	for(std::map<std::string, CollectionSystemData>::iterator it = mAllCollectionSystemsDecls.begin() ; it != mAllCollectionSystemsDecls.end() ; it++ )
 	{
 		it->second.isEnabled = (std::find(selected.begin(), selected.end(), it->first) != selected.end());
 	}
@@ -256,7 +256,7 @@ void CollectionSystemManager::updateSystemsList()
 	}
 
 	// add enabled ones
-	for(std::map<std::string, CollectionSystemData>::iterator it = mAllCollectionSystems.begin() ; it != mAllCollectionSystems.end() ; it++ )
+	for(std::map<std::string, CollectionSystemData>::iterator it = mAllCollectionSystemsDecls.begin() ; it != mAllCollectionSystemsDecls.end() ; it++ )
 	{
 		if(it->second.isEnabled)
 		{
@@ -276,45 +276,61 @@ void CollectionSystemManager::loadAutoCollectionSystems()
 		CollectionSystemDecl sysDecl = it->second;
 		if (!sysDecl.isCustom && !findCollectionSystem(sysDecl.name))
 		{
-			SystemData* newSys = new SystemData(sysDecl.name, sysDecl.longName, mCollectionEnvData, sysDecl.themeFolder, true);
-
-			FileData* rootFolder = newSys->getRootFolder();
-			FileFilterIndex* index = newSys->getIndex();
-			for(auto sysIt = SystemData::sSystemVector.begin(); sysIt != SystemData::sSystemVector.end(); sysIt++)
-			{
-				if ((*sysIt)->isGameSystem()) {
-					std::vector<FileData*> files = (*sysIt)->getRootFolder()->getFilesRecursive(GAME);
-					for(auto gameIt = files.begin(); gameIt != files.end(); gameIt++)
-					{
-						bool include = includeFileInAutoCollections((*gameIt));
-						switch(sysDecl.type) {
-							case AUTO_LAST_PLAYED:
-								include = include && (*gameIt)->metadata.get("playcount") > "0";
-								break;
-							case AUTO_FAVORITES:
-								// we may still want to add files we don't want in auto collections in "favorites"
-								include = (*gameIt)->metadata.get("favorite") == "true";
-								break;
-						}
-
-						if (include) {
-							CollectionFileData* newGame = new CollectionFileData(*gameIt, newSys);
-							rootFolder->addChild(newGame);
-							index->addToIndex(newGame);
-						}
-					}
-				}
-			}
-			rootFolder->sort(getSortType(sysDecl.defaultSort));
-			mAutoCollectionSystems.push_back(newSys);
-
-			CollectionSystemData newCollectionData;
-			newCollectionData.system = newSys;
-			newCollectionData.decl = sysDecl;
-			newCollectionData.isEnabled = false;
-			mAllCollectionSystems[sysDecl.name] = newCollectionData;
+			loadCollectionSystem(sysDecl.name, sysDecl, &mAutoCollectionSystems);
 		}
 	}
+}
+
+void CollectionSystemManager::loadCollectionSystem(std::string name, CollectionSystemDecl sysDecl, std::vector<SystemData*>* collectionVector)
+{
+	SystemData* newSys = createNewCollectionEntry(name, sysDecl, collectionVector);
+	populateCollection(newSys, sysDecl);
+}
+
+SystemData* CollectionSystemManager::createNewCollectionEntry(std::string name, CollectionSystemDecl sysDecl, std::vector<SystemData*>* collectionVector)
+{
+	SystemData* newSys = new SystemData(name, sysDecl.longName, mCollectionEnvData, sysDecl.themeFolder, true);
+	collectionVector->push_back(newSys);
+
+	CollectionSystemData newCollectionData;
+	newCollectionData.system = newSys;
+	newCollectionData.decl = sysDecl;
+	newCollectionData.isEnabled = false;
+	mAllCollectionSystemsDecls[name] = newCollectionData;
+
+	return newSys;
+}
+
+void CollectionSystemManager::populateCollection(SystemData* newSys, CollectionSystemDecl sysDecl)
+{
+	FileData* rootFolder = newSys->getRootFolder();
+	FileFilterIndex* index = newSys->getIndex();
+	for(auto sysIt = SystemData::sSystemVector.begin(); sysIt != SystemData::sSystemVector.end(); sysIt++)
+	{
+		if ((*sysIt)->isGameSystem()) {
+			std::vector<FileData*> files = (*sysIt)->getRootFolder()->getFilesRecursive(GAME);
+			for(auto gameIt = files.begin(); gameIt != files.end(); gameIt++)
+			{
+				bool include = includeFileInAutoCollections((*gameIt));
+				switch(sysDecl.type) {
+					case AUTO_LAST_PLAYED:
+						include = include && (*gameIt)->metadata.get("playcount") > "0";
+						break;
+					case AUTO_FAVORITES:
+						// we may still want to add files we don't want in auto collections in "favorites"
+						include = (*gameIt)->metadata.get("favorite") == "true";
+						break;
+				}
+
+				if (include) {
+					CollectionFileData* newGame = new CollectionFileData(*gameIt, newSys);
+					rootFolder->addChild(newGame);
+					index->addToIndex(newGame);
+				}
+			}
+		}
+	}
+	rootFolder->sort(getSortType(sysDecl.defaultSort));
 }
 
 void CollectionSystemManager::loadCustomCollectionSystems()
@@ -324,6 +340,27 @@ void CollectionSystemManager::loadCustomCollectionSystems()
 	//			Check settings string for selected/enabled systems, if there are any that aren't in the theme
 	//			Check saved preferences for each of those and load them if we can
 	//		Load settings to see which systems are Enabled
+
+	// 1. Load settings files from folder
+	std::vector<std::string> systems = getUnusedSystemsFromTheme();
+	// 2. Check settings for collections at the top level
+	for (auto nameIt = systems.begin(); nameIt != systems.end(); nameIt++)
+	{
+		CollectionSystemDecl decl = mCollectionSystemDecls["custom"];
+		decl.themeFolder = *nameIt;
+		SystemData* newSys = createNewCollectionEntry(*nameIt, decl, &mCustomCollectionSystems);
+	}
+	// 3. Check settings for collections under My Collections
+
+}
+
+void CollectionSystemManager::loadCustomCollectionConfigurations()
+{
+	// Get all files from folder
+	// Parse them all
+	// Create new filedatas for each found
+	// Add them to new collection
+	// add them to the main vector
 }
 
 SystemData* CollectionSystemManager::findCollectionSystem(std::string name)
@@ -373,7 +410,7 @@ void CollectionSystemManager::updateCollectionSystems(FileData* file)
 			else
 			{
 				// we didn't find it here - we need to check if we should add it
-				if (name == "recent" && file->metadata.get("playcount") > "0" ||
+				if (name == "recent" && file->metadata.get("playcount") > "0" && includeFileInAutoCollections(file) ||
 					name == "favorites" && file->metadata.get("favorite") == "true") {
 					CollectionFileData* newGame = new CollectionFileData(file, (*sysIt));
 					rootFolder->addChild(newGame);
