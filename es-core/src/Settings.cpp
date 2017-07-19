@@ -98,6 +98,7 @@ void Settings::setDefaults()
 	mStringMap["OMXAudioDev"] = "both";
 	mStringMap["CollectionSystemsAuto"] = "";
 	mStringMap["CollectionSystemsCustom"] = "";
+	mBoolMap["SortAllSystems"] = false;
 
 	// Audio out device for volume control
 	#ifdef _RPI_

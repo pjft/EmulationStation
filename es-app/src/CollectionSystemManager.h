@@ -58,6 +58,8 @@ public:
 
 	inline std::map<std::string, CollectionSystemData> getAutoCollectionSystems() { return mAutoCollectionSystemsData; };
 	inline std::map<std::string, CollectionSystemData> getCustomCollectionSystems() { return mCustomCollectionSystemsData; };
+	std::vector<std::string> getUnusedSystemsFromTheme();
+	void addNewCustomCollection(std::string name);
 
 	bool isThemeCollectionCompatible(bool customCollections);
 
@@ -66,18 +68,15 @@ public:
 private:
 	static CollectionSystemManager* sInstance;
 	SystemEnvironmentData* mCollectionEnvData;
-	SystemData* allGamesCollection;
 	std::map<std::string, CollectionSystemDecl> mCollectionSystemDeclsIndex;
 	std::map<std::string, CollectionSystemData> mAutoCollectionSystemsData;
 	std::map<std::string, CollectionSystemData> mCustomCollectionSystemsData;
-	std::vector<SystemData*> mAutoCollectionSystems;
-	std::vector<SystemData*> mCustomCollectionSystems;
 	Window* mWindow;
 
-	void loadAutoCollectionSystems();
-	void loadCustomCollectionSystems();
-	void loadCollectionSystem(std::string name, CollectionSystemDecl sysDecl, std::vector<SystemData*>* collectionVector);
-	SystemData* createNewCollectionEntry(std::string name, CollectionSystemDecl sysDecl, std::vector<SystemData*>* collectionVector);
+	void initAutoCollectionSystems();
+	void initCustomCollectionSystems();
+	SystemData* getAllGamesCollection();
+	SystemData* createNewCollectionEntry(std::string name, CollectionSystemDecl sysDecl);
 	void populateAutoCollection(SystemData* newSys, CollectionSystemDecl sysDecl);
 	void populateCustomCollection(SystemData* newSys, CollectionSystemDecl sysDecl);
 
@@ -86,13 +85,10 @@ private:
 
 	std::vector<std::string> getSystemsFromConfig();
 	std::vector<std::string> getSystemsFromTheme();
-	std::vector<std::string> getUnusedSystemsFromTheme();
 	std::vector<std::string> getCollectionsFromConfigFolder();
 	std::vector<std::string> getCollectionThemeFolders(bool custom);
 
 	bool themeFolderExists(std::string folder);
-
-	SystemData* findCollectionSystem(std::string name);
 
 	bool includeFileInAutoCollections(FileData* file);
 };

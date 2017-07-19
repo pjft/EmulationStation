@@ -60,8 +60,18 @@ CollectionSystemManager::CollectionSystemManager(Window* window) : mWindow(windo
 CollectionSystemManager::~CollectionSystemManager()
 {
 	assert(sInstance == this);
-	LOG(LogError) << "Removing CollectionSystemManager";
+	LOG(LogInfo) << "Removing CollectionSystemManager";
 	removeCollectionsFromDisplayedSystems();
+
+	// iterate the map
+	for(std::map<std::string, CollectionSystemData>::iterator it = mCustomCollectionSystemsData.begin() ; it != mCustomCollectionSystemsData.end() ; it++ )
+	{
+		if (it->second.isPopulated)
+		{
+			saveCustomCollection(it->second.system);
+		}
+		delete it->second.system;
+	}
 	sInstance = NULL;
 }
 
@@ -89,11 +99,6 @@ void CollectionSystemManager::saveCustomCollection(SystemData* sys)
 {
 	std::string name = sys->getName();
 	std::unordered_map<std::string, FileData*> games = sys->getRootFolder()->getChildrenByFilename();
-	if (games.size() == 0)
-	{
-		LOG(LogError) << "No files to save for: " << name;
-		return;
-	}
 	bool found = mCustomCollectionSystemsData.find(name) != mCustomCollectionSystemsData.end();
 	if (found) {
 		CollectionSystemData sysData = mCustomCollectionSystemsData.at(name);
@@ -120,9 +125,9 @@ void CollectionSystemManager::saveCustomCollection(SystemData* sys)
 // loads all Collection Systems
 void CollectionSystemManager::loadCollectionSystems()
 {
-	loadAutoCollectionSystems();
+	initAutoCollectionSystems();
 	// we will also load custom systems here in the future
-	loadCustomCollectionSystems();
+	initCustomCollectionSystems();
 	// Now see which ones are enabled
 	loadEnabledListFromSettings();
 	// add to the main System Vector, and create Views as needed
@@ -157,11 +162,11 @@ void CollectionSystemManager::updateSystemsList()
 	// remove all Collection Systems
 	removeCollectionsFromDisplayedSystems();
 
-	// add auto enabled ones
-	addEnabledCollectionsToDisplayedSystems(&mAutoCollectionSystemsData);
-
 	// add custom enabled ones
 	addEnabledCollectionsToDisplayedSystems(&mCustomCollectionSystemsData);
+
+	// add auto enabled ones
+	addEnabledCollectionsToDisplayedSystems(&mAutoCollectionSystemsData);
 }
 
 /* Methods to manage collection files related to a source FileData */
@@ -274,52 +279,53 @@ bool CollectionSystemManager::toggleGameInCollection(FileData* file, std::string
 
 /* Handles loading a collection system, creating an empty one, and populating on demand */
 // loads Automatic Collection systems (All, Favorites, Last Played)
-void CollectionSystemManager::loadAutoCollectionSystems()
+void CollectionSystemManager::initAutoCollectionSystems()
 {
 	for(std::map<std::string, CollectionSystemDecl>::iterator it = mCollectionSystemDeclsIndex.begin() ; it != mCollectionSystemDeclsIndex.end() ; it++ )
 	{
 		CollectionSystemDecl sysDecl = it->second;
-		if (!sysDecl.isCustom && !findCollectionSystem(sysDecl.name))
+		if (!sysDecl.isCustom)
 		{
-			loadCollectionSystem(sysDecl.name, sysDecl, &mAutoCollectionSystems);
+			createNewCollectionEntry(sysDecl.name, sysDecl);
 		}
 	}
 }
 
-void CollectionSystemManager::loadCustomCollectionSystems()
+void CollectionSystemManager::initCustomCollectionSystems()
 {
 	std::vector<std::string> systems = getCollectionsFromConfigFolder();
-	std::vector<std::string> themeSystems = getUnusedSystemsFromTheme();
-	// append both
-	systems.insert(systems.end(), themeSystems.begin(), themeSystems.end());
-
 	for (auto nameIt = systems.begin(); nameIt != systems.end(); nameIt++)
 	{
-		CollectionSystemDecl decl = mCollectionSystemDeclsIndex["custom"];
-		decl.themeFolder = *nameIt;
-		SystemData* newSys = createNewCollectionEntry(*nameIt, decl, &mCustomCollectionSystems);
-		// we should be able to delay populating until it's actually enabled
-		//populateCustomCollection(newSys, decl);
+		addNewCustomCollection(*nameIt);
 	}
 }
 
-// loads a Collection system, based on the name and declaration
-void CollectionSystemManager::loadCollectionSystem(std::string name, CollectionSystemDecl sysDecl, std::vector<SystemData*>* collectionVector)
+SystemData* CollectionSystemManager::getAllGamesCollection()
 {
-	SystemData* newSys = createNewCollectionEntry(name, sysDecl, collectionVector);
-	if (name == "all")
+	CollectionSystemData* allSysData = &mAutoCollectionSystemsData["all"];
+	if (!allSysData->isPopulated)
 	{
-		// we need to always populate the "all" collection as custom collections are based on that
-		populateAutoCollection(newSys, sysDecl);
-		mAutoCollectionSystemsData["all"].isPopulated = true;
+		populateAutoCollection(allSysData->system, allSysData->decl);
+		allSysData->isPopulated = true;
 	}
+	return allSysData->system;
+}
+
+void CollectionSystemManager::addNewCustomCollection(std::string name)
+{
+	// create new custom collection
+	// get custom Decl
+	// use name for theme folder
+	LOG(LogError) << "Adding new Custom Collection: " << name;
+	CollectionSystemDecl decl = mCollectionSystemDeclsIndex["custom"];
+	decl.themeFolder = name;
+	createNewCollectionEntry(name, decl);
 }
 
 // creates a new, empty Collection system, based on the name and declaration
-SystemData* CollectionSystemManager::createNewCollectionEntry(std::string name, CollectionSystemDecl sysDecl, std::vector<SystemData*>* collectionVector)
+SystemData* CollectionSystemManager::createNewCollectionEntry(std::string name, CollectionSystemDecl sysDecl)
 {
 	SystemData* newSys = new SystemData(name, sysDecl.longName, mCollectionEnvData, sysDecl.themeFolder, true);
-	collectionVector->push_back(newSys);
 
 	CollectionSystemData newCollectionData;
 	newCollectionData.system = newSys;
@@ -373,11 +379,6 @@ void CollectionSystemManager::populateAutoCollection(SystemData* newSys, Collect
 		}
 	}
 	rootFolder->sort(getSortTypeFromString(sysDecl.defaultSort));
-
-	if (sysDecl.name == "all")
-	{
-		allGamesCollection = newSys;
-	}
 }
 
 // populates a Custom Collection System
@@ -387,10 +388,10 @@ void CollectionSystemManager::populateCustomCollection(SystemData* newSys, Colle
 
 	if(!fs::exists(path))
 	{
-		LOG(LogError) << "Couldn't find custom collection config file at " << path;
+		LOG(LogInfo) << "Couldn't find custom collection config file at " << path;
 		return;
 	}
-	LOG(LogError) << "Loading custom collection config file at " << path;
+	LOG(LogInfo) << "Loading custom collection config file at " << path;
 
 	FileData* rootFolder = newSys->getRootFolder();
 	FileFilterIndex* index = newSys->getIndex();
@@ -399,7 +400,7 @@ void CollectionSystemManager::populateCustomCollection(SystemData* newSys, Colle
 	std::ifstream input(path);
 
 	// get all files map
-	std::unordered_map<std::string,FileData*> allFilesMap = allGamesCollection->getRootFolder()->getChildrenByFilename();
+	std::unordered_map<std::string,FileData*> allFilesMap = getAllGamesCollection()->getRootFolder()->getChildrenByFilename();
 
 	// iterate list of files in config file
 
@@ -413,7 +414,7 @@ void CollectionSystemManager::populateCustomCollection(SystemData* newSys, Colle
 		}
 		else
 		{
-			LOG(LogError) << "Couldn't find game referenced at '" << gameKey << "' for system config '" << path << "'";
+			LOG(LogInfo) << "Couldn't find game referenced at '" << gameKey << "' for system config '" << path << "'";
 		}
 	}
 	rootFolder->sort(getSortTypeFromString(sysDecl.defaultSort));
@@ -446,7 +447,6 @@ void CollectionSystemManager::addEnabledCollectionsToDisplayedSystems(std::map<s
 			// check if populated, otherwise populate
 			if (!it->second.isPopulated)
 			{
-				LOG(LogError) << "System isn't populated: " << it->second.decl.name;
 				if(it->second.decl.isCustom)
 				{
 					populateCustomCollection(it->second.system, it->second.decl);
@@ -592,12 +592,11 @@ std::vector<std::string> CollectionSystemManager::getCollectionsFromConfigFolder
 				if (boost::algorithm::ends_with(filename, ".cfg") && boost::algorithm::starts_with(filename, "custom-") && filename != "custom-.cfg")
 				{
 					filename = filename.substr(7, filename.size()-11);
-					LOG(LogError) << "Found config for : " << filename;
 					systems.push_back(filename);
 				}
 				else
 				{
-					LOG(LogError) << "Found NON-config file: " << filename;
+					LOG(LogInfo) << "Found non-collection config file in collections folder: " << filename;
 				}
 			}
 		}
@@ -625,18 +624,6 @@ bool CollectionSystemManager::themeFolderExists(std::string folder)
 {
 	std::vector<std::string> themeSys = getSystemsFromTheme();
 	return std::find(themeSys.begin(), themeSys.end(), folder) != themeSys.end();
-}
-
-SystemData* CollectionSystemManager::findCollectionSystem(std::string name)
-{
-	for(auto sysIt = SystemData::sSystemVector.begin(); sysIt != SystemData::sSystemVector.end(); sysIt++)
-	{
-		if ((*sysIt)->getName() == name) {
-			// found it!
-			return (*sysIt);
-		}
-	}
-	return NULL;
 }
 
 bool CollectionSystemManager::includeFileInAutoCollections(FileData* file)

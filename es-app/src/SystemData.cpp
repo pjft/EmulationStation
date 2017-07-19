@@ -46,11 +46,7 @@ SystemData::SystemData(const std::string& name, const std::string& fullName, Sys
 SystemData::~SystemData()
 {
 	//save changed game data back to xml
-	if (mIsCollectionSystem) {
-		// save collection system
-		CollectionSystemManager::get()->saveCustomCollection(this);
-	}
-	else if(!Settings::getInstance()->getBool("IgnoreGamelist") && Settings::getInstance()->getBool("SaveGamelistsOnExit"))
+	if(!Settings::getInstance()->getBool("IgnoreGamelist") && Settings::getInstance()->getBool("SaveGamelistsOnExit") && !mIsCollectionSystem)
 	{
 		updateGamelist(this);
 	}
