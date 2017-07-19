@@ -32,49 +32,62 @@ GuiCollectionSystemsOptions::~GuiCollectionSystemsOptions()
 void GuiCollectionSystemsOptions::addSystemsToMenu()
 {
 
-	std::map<std::string, CollectionSystemData> vSystems = CollectionSystemManager::get()->getCollectionSystems();
+	std::map<std::string, CollectionSystemData> autoSystems = CollectionSystemManager::get()->getAutoCollectionSystems();
 
 	autoOptionList = std::make_shared< OptionListComponent<std::string> >(mWindow, "SELECT COLLECTIONS", true);
 
-	// add Systems
-	ComponentListRow row;
-
-	for(std::map<std::string, CollectionSystemData>::iterator it = vSystems.begin() ; it != vSystems.end() ; it++ )
+	// add Auto Systems
+	for(std::map<std::string, CollectionSystemData>::iterator it = autoSystems.begin() ; it != autoSystems.end() ; it++ )
 	{
 		autoOptionList->add(it->second.decl.longName, it->second.decl.name, it->second.isEnabled);
 	}
-	mMenu.addWithLabel("AUTOMATIC COLLECTIONS", autoOptionList);
+	mMenu.addWithLabel("AUTOMATIC GAME COLLECTIONS", autoOptionList);
+
+	std::map<std::string, CollectionSystemData> customSystems = CollectionSystemManager::get()->getCustomCollectionSystems();
+
+	customOptionList = std::make_shared< OptionListComponent<std::string> >(mWindow, "SELECT COLLECTIONS", true);
+
+	// add Custom Systems
+	for(std::map<std::string, CollectionSystemData>::iterator it = customSystems.begin() ; it != customSystems.end() ; it++ )
+	{
+		customOptionList->add(it->second.decl.longName, it->second.decl.name, it->second.isEnabled);
+	}
+	mMenu.addWithLabel("CUSTOM GAME COLLECTIONS", customOptionList);
 }
 
 void GuiCollectionSystemsOptions::applySettings()
 {
-	std::string out = commaStringToVector(autoOptionList->getSelectedObjects());
-	std::string prev = Settings::getInstance()->getString("CollectionSystemsAuto");
-	if (out != "" && !CollectionSystemManager::get()->isThemeAutoCompatible())
+	std::string outAuto = commaStringToVector(autoOptionList->getSelectedObjects());
+	std::string prevAuto = Settings::getInstance()->getString("CollectionSystemsAuto");
+	std::string outCustom = commaStringToVector(customOptionList->getSelectedObjects());
+	std::string prevCustom = Settings::getInstance()->getString("CollectionSystemsCustom");
+	if ((outAuto != "" && !CollectionSystemManager::get()->isThemeCollectionCompatible(false)) ||
+		(outCustom != "" && !CollectionSystemManager::get()->isThemeCollectionCompatible(true)))
 	{
 		mWindow->pushGui(new GuiMsgBox(mWindow,
-			"Your theme does not support game collections. Please update your theme, or ensure that you use a theme that contains the folders:\n\n• auto-favorites\n• auto-lastplayed\n• auto-allgames\n\nDo you still want to enable collections?",
-				"YES", [this, out, prev] {
-					if (prev != out)
+			"Your theme does not support game collections. Please update your theme, or ensure that you use a theme that contains the folders:\n\n• auto-favorites\n• auto-lastplayed\n• auto-allgames\n• custom-collections\n\nDo you still want to enable collections?",
+				"YES", [this, outAuto, prevAuto, outCustom, prevCustom] {
+					if (prevAuto != outAuto || prevCustom != outCustom)
 					{
-						updateSettings(out);
+						updateSettings(outAuto, outCustom);
 					}
 					delete this; },
 				"NO", [this] { delete this; }));
 	}
 	else
 	{
-		if (prev != out)
+		if (prevAuto != outAuto || prevCustom != outCustom)
 		{
-			updateSettings(out);
+			updateSettings(outAuto, outCustom);
 		}
 		delete this;
 	}
 }
 
-void GuiCollectionSystemsOptions::updateSettings(std::string newSettings)
+void GuiCollectionSystemsOptions::updateSettings(std::string newAutoSettings, std::string newCustomSettings)
 {
-	Settings::getInstance()->setString("CollectionSystemsAuto", newSettings);
+	Settings::getInstance()->setString("CollectionSystemsAuto", newAutoSettings);
+	Settings::getInstance()->setString("CollectionSystemsCustom", newCustomSettings);
 	Settings::getInstance()->saveFile();
 	CollectionSystemManager::get()->loadEnabledListFromSettings();
 	CollectionSystemManager::get()->updateSystemsList();

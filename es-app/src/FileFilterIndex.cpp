@@ -114,7 +114,6 @@ std::string FileFilterIndex::getIndexableKey(FileData* game, FilterIndexType typ
 
 void FileFilterIndex::addToIndex(FileData* game)
 {
-	LOG(LogError) << "Adding '" << game->getName() << "' to Index.";
 	manageGenreEntryInIndex(game);
 	managePlayerEntryInIndex(game);
 	managePubDevEntryInIndex(game);
@@ -124,7 +123,6 @@ void FileFilterIndex::addToIndex(FileData* game)
 
 void FileFilterIndex::removeFromIndex(FileData* game)
 {
-	LOG(LogError) << "Removing '" << game->getName() << "' from Index.";
 	manageGenreEntryInIndex(game, true);
 	managePlayerEntryInIndex(game, true);
 	managePubDevEntryInIndex(game, true);
@@ -172,21 +170,21 @@ void FileFilterIndex::clearAllFilters()
 
 void FileFilterIndex::debugPrintIndexes()
 {
-	LOG(LogError) << "Printing Indexes...";
+	LOG(LogInfo) << "Printing Indexes...";
 	for (auto x: playersIndexAllKeys) {
-		LOG(LogError) << "Multiplayer Index: " << x.first << ": " << x.second;
+		LOG(LogInfo) << "Multiplayer Index: " << x.first << ": " << x.second;
 	}
 	for (auto x: genreIndexAllKeys) {
-		LOG(LogError) << "Genre Index: " << x.first << ": " << x.second;
+		LOG(LogInfo) << "Genre Index: " << x.first << ": " << x.second;
 	}
 	for (auto x: ratingsIndexAllKeys) {
-		LOG(LogError) << "Ratings Index: " << x.first << ": " << x.second;
+		LOG(LogInfo) << "Ratings Index: " << x.first << ": " << x.second;
 	}
 	for (auto x: pubDevIndexAllKeys) {
-		LOG(LogError) << "PubDev Index: " << x.first << ": " << x.second;
+		LOG(LogInfo) << "PubDev Index: " << x.first << ": " << x.second;
 	}
 	for (auto x: favoritesIndexAllKeys) {
-		LOG(LogError) << "Favorites Index: " << x.first << ": " << x.second;
+		LOG(LogInfo) << "Favorites Index: " << x.first << ": " << x.second;
 	}
 }
 
@@ -383,9 +381,6 @@ void FileFilterIndex::manageIndexEntry(std::map<std::string, int>* index, std::s
 		{
 			// this shouldn't happen
 			LOG(LogInfo) << "Couldn't find entry in index! " << key;
-			LOG(LogInfo) << "--- *************** START OF PRINTING INDEX **************** ";
-			debugPrintIndexes();
-			LOG(LogInfo) << "--- *************** END OF PRINTING INDEX ****************** ";
 		}
 		else
 		{

@@ -24,8 +24,9 @@ private:
 	void initializeMenu();
 	void applySettings();
 	void addSystemsToMenu();
-	void updateSettings(std::string newSettings);
+	void updateSettings(std::string newAutoSettings, std::string newCustomSettings);
 	std::shared_ptr< OptionListComponent<std::string> > autoOptionList;
+	std::shared_ptr< OptionListComponent<std::string> > customOptionList;
 	MenuComponent mMenu;
 	SystemData* mSystem;
 };

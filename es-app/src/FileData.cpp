@@ -215,10 +215,7 @@ void FileData::launchGame(Window* window)
 }
 
 CollectionFileData::CollectionFileData(FileData* file, SystemData* system)
-	: FileData(file->getType(), file->getPath(), file->getSystemEnvData(), system)/*,
-	  mSourceFileData(file->getSourceFileData()),
-	  mParent(NULL),
-	  metadata(file->getSourceFileData()->metadata)*/
+	: FileData(file->getSourceFileData()->getType(), file->getSourceFileData()->getPath(), file->getSourceFileData()->getSystemEnvData(), system)
 {
 	// we use this constructor to create a clone of the filedata, and change its system
 	mSourceFileData = file->getSourceFileData();
@@ -260,4 +257,20 @@ const std::string& CollectionFileData::getName()
 		mDirty = false;
 	}
 	return mCollectionFileName;
+}
+
+// returns Sort Type based on a string description
+FileData::SortType getSortTypeFromString(std::string desc) {
+	std::vector<FileData::SortType> SortTypes = FileSorts::SortTypes;
+	// find it
+	for(unsigned int i = 0; i < FileSorts::SortTypes.size(); i++)
+	{
+		const FileData::SortType& sort = FileSorts::SortTypes.at(i);
+		if(sort.description == desc)
+		{
+			return sort;
+		}
+	}
+	// if not found default to name, ascending
+	return FileSorts::SortTypes.at(0);
 }
