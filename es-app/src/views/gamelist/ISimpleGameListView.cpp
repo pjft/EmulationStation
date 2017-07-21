@@ -135,9 +135,9 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			return true;
 		}else if (config->isMappedTo("y", input))
 		{
-			if(Settings::getInstance()->getString("CollectionSystemsAuto").find("favorites") != std::string::npos && mRoot->getSystem()->isGameSystem())
+			if(mRoot->getSystem()->isGameSystem())
 			{
-				if(CollectionSystemManager::get()->toggleGameInCollection(getCursor(), "favorites"))
+				if(CollectionSystemManager::get()->toggleGameInCollection(getCursor()))
 				{
 					return true;
 				}

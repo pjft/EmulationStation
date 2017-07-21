@@ -53,17 +53,22 @@ public:
 	void loadEnabledListFromSettings();
 	void updateSystemsList();
 
-	void updateCollectionSystems(FileData* file);
+	void refreshCollectionSystems(FileData* file);
+	void updateCollectionSystem(FileData* file, CollectionSystemData sysData);
 	void deleteCollectionFiles(FileData* file);
 
 	inline std::map<std::string, CollectionSystemData> getAutoCollectionSystems() { return mAutoCollectionSystemsData; };
 	inline std::map<std::string, CollectionSystemData> getCustomCollectionSystems() { return mCustomCollectionSystemsData; };
 	std::vector<std::string> getUnusedSystemsFromTheme();
-	void addNewCustomCollection(std::string name);
+	SystemData* addNewCustomCollection(std::string name);
 
 	bool isThemeCollectionCompatible(bool customCollections);
 
-	bool toggleGameInCollection(FileData* file, std::string collection);
+	void setEditMode(std::string collectionName);
+	void exitEditMode();
+	inline bool isEditing() { return mIsEditingCustom; };
+	inline std::string getEditingCollection() { std::string res = mEditingCollection; return res; };
+	bool toggleGameInCollection(FileData* file);
 
 private:
 	static CollectionSystemManager* sInstance;
@@ -72,13 +77,16 @@ private:
 	std::map<std::string, CollectionSystemData> mAutoCollectionSystemsData;
 	std::map<std::string, CollectionSystemData> mCustomCollectionSystemsData;
 	Window* mWindow;
+	bool mIsEditingCustom;
+	std::string mEditingCollection;
+	SystemData* mEditingCollectionSystem;
 
 	void initAutoCollectionSystems();
 	void initCustomCollectionSystems();
 	SystemData* getAllGamesCollection();
 	SystemData* createNewCollectionEntry(std::string name, CollectionSystemDecl sysDecl);
-	void populateAutoCollection(SystemData* newSys, CollectionSystemDecl sysDecl);
-	void populateCustomCollection(SystemData* newSys, CollectionSystemDecl sysDecl);
+	void populateAutoCollection(CollectionSystemData* sysData);
+	void populateCustomCollection(CollectionSystemData* sysData);
 
 	void removeCollectionsFromDisplayedSystems();
 	void addEnabledCollectionsToDisplayedSystems(std::map<std::string, CollectionSystemData>* colSystemData);
@@ -87,6 +95,7 @@ private:
 	std::vector<std::string> getSystemsFromTheme();
 	std::vector<std::string> getCollectionsFromConfigFolder();
 	std::vector<std::string> getCollectionThemeFolders(bool custom);
+	std::vector<std::string> getUserCollectionThemeFolders();
 
 	bool themeFolderExists(std::string folder);
 

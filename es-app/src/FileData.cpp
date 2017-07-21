@@ -211,7 +211,7 @@ void FileData::launchGame(Window* window)
 	//update last played time
 	boost::posix_time::ptime time = boost::posix_time::second_clock::universal_time();
 	gameToUpdate->metadata.setTime("lastplayed", time);
-	CollectionSystemManager::get()->updateCollectionSystems(gameToUpdate);
+	CollectionSystemManager::get()->refreshCollectionSystems(gameToUpdate);
 }
 
 CollectionFileData::CollectionFileData(FileData* file, SystemData* system)

@@ -1,5 +1,6 @@
 #include "GuiGamelistOptions.h"
 #include "GuiMetaDataEd.h"
+#include "Util.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/ViewController.h"
 #include "CollectionSystemManager.h"
@@ -54,6 +55,32 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 		}
 
 		mMenu.addWithLabel("SORT GAMES BY", mListSort);
+	}
+	// show filtered menu
+	row.elements.clear();
+	row.addElement(std::make_shared<TextComponent>(mWindow, "FILTER GAMELIST", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.addElement(makeArrow(mWindow), false);
+	row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::openGamelistFilter, this));
+	mMenu.addRow(row);
+
+	std::map<std::string, CollectionSystemData> customCollections = CollectionSystemManager::get()->getCustomCollectionSystems();
+	if(customCollections.find(system->getName()) != customCollections.end() && CollectionSystemManager::get()->getEditingCollection() != system->getName())
+	{
+		row.elements.clear();
+		row.addElement(std::make_shared<TextComponent>(mWindow, "ADD/REMOVE GAMES TO THIS GAME COLLECTION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::startEditMode, this));
+		mMenu.addRow(row);
+	}
+
+	if(CollectionSystemManager::get()->isEditing())
+	{
+		row.elements.clear();
+		row.addElement(std::make_shared<TextComponent>(mWindow, "FINISH EDITING '" + strToUpper(CollectionSystemManager::get()->getEditingCollection()) + "' COLLECTION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::exitEditMode, this));
+		mMenu.addRow(row);
+	}
+
+	if (!fromPlaceholder) {
 
 		row.elements.clear();
 		row.addElement(std::make_shared<TextComponent>(mWindow, "EDIT THIS GAME'S METADATA", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
@@ -61,13 +88,6 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 		row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::openMetaDataEd, this));
 		mMenu.addRow(row);
 	}
-
-	// show filtered menu
-	row.elements.clear();
-	row.addElement(std::make_shared<TextComponent>(mWindow, "FILTER GAMELIST", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-	row.addElement(makeArrow(mWindow), false);
-	row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::openGamelistFilter, this));
-	mMenu.addRow(row);
 
 	// center the menu
 	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
@@ -105,6 +125,18 @@ void GuiGamelistOptions::openGamelistFilter()
 	mFiltersChanged = true;
 	GuiGamelistFilter* ggf = new GuiGamelistFilter(mWindow, mSystem);
 	mWindow->pushGui(ggf);
+}
+
+void GuiGamelistOptions::startEditMode()
+{
+	CollectionSystemManager::get()->setEditMode(mSystem->getName());
+	delete this;
+}
+
+void GuiGamelistOptions::exitEditMode()
+{
+	CollectionSystemManager::get()->exitEditMode();
+	delete this;
 }
 
 void GuiGamelistOptions::openMetaDataEd()

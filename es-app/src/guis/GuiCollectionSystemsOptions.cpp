@@ -4,6 +4,7 @@
 #include "views/ViewController.h"
 #include "guis/GuiSettings.h"
 #include "Log.h"
+#include "Util.h"
 #include "components/TextComponent.h"
 #include "components/OptionListComponent.h"
 
@@ -35,15 +36,25 @@ void GuiCollectionSystemsOptions::initializeMenu()
 			{
 				ComponentListRow row;
 				std::string name = *it;
-				std::function<void()> createCollection = [name, this] {
+				std::function<void()> createCollection = [name, this, s] {
 					LOG(LogError) << "Create new Collection: " << name;
-					CollectionSystemManager::get()->addNewCustomCollection(name);
+					SystemData* newSys = CollectionSystemManager::get()->addNewCustomCollection(name);
 					customOptionList->add(name, name, true);
+					std::string outAuto = commaStringToVector(autoOptionList->getSelectedObjects());
+					std::string outCustom = commaStringToVector(customOptionList->getSelectedObjects());
+					updateSettings(outAuto, outCustom);
+
+					ViewController::get()->goToSystemView(newSys);
+
+					Window* window = mWindow;
+					CollectionSystemManager::get()->setEditMode(name);
+					while(window->peekGui() && window->peekGui() != ViewController::get())
+						delete window->peekGui();
 					return;
 				};
 				row.makeAcceptInputHandler(createCollection);
 
-				auto themeFolder = std::make_shared<TextComponent>(mWindow, name, Font::get(FONT_SIZE_SMALL), 0x777777FF);
+				auto themeFolder = std::make_shared<TextComponent>(mWindow, strToUpper(name), Font::get(FONT_SIZE_SMALL), 0x777777FF);
 				row.addElement(themeFolder, true);
 				s->addRow(row);
 			}
@@ -51,51 +62,9 @@ void GuiCollectionSystemsOptions::initializeMenu()
 		});
 	}
 
-	/*auto openCreateFromTheme = [this] { return; };
-	addEntry("CREATE NEW CUSTOM COLLECTION FROM THEME", 0x777777FF, true,
-		[this, openCreateFromTheme] {
-			auto s = new GuiSettings(mWindow, "SELECT THEME FOLDER");
-
-			// scrape from
-			auto scraper_list = std::make_shared< OptionListComponent< std::string > >(mWindow, "AVAILABLE FOLDERS", false);
-			std::vector<std::string> scrapers = CollectionSystemManager::get()->getUnusedSystemsFromTheme();
-			for(auto it = scrapers.begin(); it != scrapers.end(); it++)
-				scraper_list->add(*it, *it, it == scrapers.begin());
-
-			s->addWithLabel("SCRAPE FROM", scraper_list);
-
-			// scrape now
-			ComponentListRow row;
-			std::function<void()> openAndSave = openCreateFromTheme;
-			openAndSave = [s, openAndSave] { return; };
-			row.makeAcceptInputHandler(openAndSave);
-
-			auto create_now = std::make_shared<TextComponent>(mWindow, "CREATE NEW CUSTOM COLLECTION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-			auto bracket = makeArrow(mWindow);
-			row.addElement(create_now, true);
-			row.addElement(bracket, false);
-			s->addRow(row);
-
-			mWindow->pushGui(s);
-	});*/
-
 	sortAllSystemsSwitch = std::make_shared<SwitchComponent>(mWindow);
 	sortAllSystemsSwitch->setState(Settings::getInstance()->getBool("SortAllSystems"));
 	mMenu.addWithLabel("SORT SYSTEMS AND COLLECTIONS", sortAllSystemsSwitch);
-	/////////////////////////////
-
-	/*std::vector<std::string> unusedFolders = CollectionSystemManager::get()->getCustomCollectionSystems();
-	if (unusedFolders.size() > 0)
-	{
-		std::shared_ptr< OptionListComponent<std::string> > folderThemes = std::make_shared< OptionListComponent<std::string> >(mWindow, "SELECT THEME FOLDER", true);
-
-		// add Custom Systems
-		for(std::map<std::string, CollectionSystemData>::iterator it = customSystems.begin() ; it != customSystems.end() ; it++ )
-		{
-			customOptionList->add(it->second.decl.longName, it->second.decl.name, it->second.isEnabled);
-		}
-		mMenu.addWithLabel("CUSTOM GAME COLLECTIONS", customOptionList);
-	}*/
 
 	// add "Create New Custom Collection"
 
