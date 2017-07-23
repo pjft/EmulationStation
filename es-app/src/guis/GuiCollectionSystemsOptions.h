@@ -27,6 +27,7 @@ private:
 	void addSystemsToMenu();
 	void addEntry(const char* name, unsigned int color, bool add_arrow, const std::function<void()>& func);
 	void updateSettings(std::string newAutoSettings, std::string newCustomSettings);
+	void createCollection(std::string inName);
 	std::shared_ptr< OptionListComponent<std::string> > autoOptionList;
 	std::shared_ptr< OptionListComponent<std::string> > customOptionList;
 	std::shared_ptr<SwitchComponent> sortAllSystemsSwitch;

@@ -62,7 +62,9 @@ public:
 	std::vector<std::string> getUnusedSystemsFromTheme();
 	SystemData* addNewCustomCollection(std::string name);
 
-	bool isThemeCollectionCompatible(bool customCollections);
+	bool isThemeGenericCollectionCompatible(bool genericCustomCollections);
+	bool isThemeCustomCollectionCompatible(std::vector<std::string> stringVector);
+	std::string getValidNewCollectionName(std::string name, int index = 0);
 
 	void setEditMode(std::string collectionName);
 	void exitEditMode();
@@ -79,7 +81,7 @@ private:
 	Window* mWindow;
 	bool mIsEditingCustom;
 	std::string mEditingCollection;
-	SystemData* mEditingCollectionSystem;
+	CollectionSystemData* mEditingCollectionSystemData;
 
 	void initAutoCollectionSystems();
 	void initCustomCollectionSystems();
@@ -104,3 +106,4 @@ private:
 
 std::string getCustomCollectionConfigPath(std::string collectionName);
 std::string getCollectionsFolder();
+bool systemSort(SystemData* sys1, SystemData* sys2);

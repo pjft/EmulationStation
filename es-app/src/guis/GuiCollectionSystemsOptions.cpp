@@ -1,5 +1,6 @@
 #include "guis/GuiCollectionSystemsOptions.h"
 #include "guis/GuiMsgBox.h"
+#include "guis/GuiTextEditPopup.h"
 #include "Settings.h"
 #include "views/ViewController.h"
 #include "guis/GuiSettings.h"
@@ -36,12 +37,12 @@ void GuiCollectionSystemsOptions::initializeMenu()
 			{
 				ComponentListRow row;
 				std::string name = *it;
-				std::function<void()> createCollection = [name, this, s] {
+				/*std::function<void()> createCollection = [name, this, s] {
 					LOG(LogError) << "Create new Collection: " << name;
 					SystemData* newSys = CollectionSystemManager::get()->addNewCustomCollection(name);
 					customOptionList->add(name, name, true);
-					std::string outAuto = commaStringToVector(autoOptionList->getSelectedObjects());
-					std::string outCustom = commaStringToVector(customOptionList->getSelectedObjects());
+					std::string outAuto = vectorToCommaString(autoOptionList->getSelectedObjects());
+					std::string outCustom = vectorToCommaString(customOptionList->getSelectedObjects());
 					updateSettings(outAuto, outCustom);
 
 					ViewController::get()->goToSystemView(newSys);
@@ -51,8 +52,11 @@ void GuiCollectionSystemsOptions::initializeMenu()
 					while(window->peekGui() && window->peekGui() != ViewController::get())
 						delete window->peekGui();
 					return;
+				};*/
+				std::function<void()> createCollectionCall = [name, this, s] {
+					createCollection(name);
 				};
-				row.makeAcceptInputHandler(createCollection);
+				row.makeAcceptInputHandler(createCollectionCall);
 
 				auto themeFolder = std::make_shared<TextComponent>(mWindow, strToUpper(name), Font::get(FONT_SIZE_SMALL), 0x777777FF);
 				row.addElement(themeFolder, true);
@@ -62,9 +66,25 @@ void GuiCollectionSystemsOptions::initializeMenu()
 		});
 	}
 
+	ComponentListRow row;
+	row.addElement(std::make_shared<TextComponent>(mWindow, "CREATE NEW CUSTOM COLLECTION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	auto createCustomCollection = [this](const std::string& newVal) {
+		std::string name = newVal;
+		// we need to store the first Gui and remove it, as it'll be deleted by the actual Gui
+		Window* window = mWindow;
+		GuiComponent* topGui = window->peekGui();
+		window->removeGui(topGui);
+		createCollection(name);
+	};
+	row.makeAcceptInputHandler([this, createCustomCollection] {
+		mWindow->pushGui(new GuiTextEditPopup(mWindow, "New Collection Name", "", createCustomCollection, false));
+	});
+
+	mMenu.addRow(row);
+
 	sortAllSystemsSwitch = std::make_shared<SwitchComponent>(mWindow);
 	sortAllSystemsSwitch->setState(Settings::getInstance()->getBool("SortAllSystems"));
-	mMenu.addWithLabel("SORT SYSTEMS AND COLLECTIONS", sortAllSystemsSwitch);
+	mMenu.addWithLabel("SORT CUSTOM SYSTEMS AND COLLECTIONS", sortAllSystemsSwitch);
 
 	// add "Create New Custom Collection"
 
@@ -90,6 +110,26 @@ void GuiCollectionSystemsOptions::addEntry(const char* name, unsigned int color,
 	row.makeAcceptInputHandler(func);
 
 	mMenu.addRow(row);
+}
+
+void GuiCollectionSystemsOptions::createCollection(std::string inName) {
+	std::string name = CollectionSystemManager::get()->getValidNewCollectionName(inName);
+	LOG(LogError) << "Create new Collection: " << name;
+	SystemData* newSys = CollectionSystemManager::get()->addNewCustomCollection(name);
+	customOptionList->add(name, name, true);
+	std::string outAuto = vectorToCommaString(autoOptionList->getSelectedObjects());
+	std::string outCustom = vectorToCommaString(customOptionList->getSelectedObjects());
+	updateSettings(outAuto, outCustom);
+	LOG(LogError) << "Going to New Collection View: " << name;
+	ViewController::get()->goToSystemView(newSys);
+
+	Window* window = mWindow;
+	LOG(LogError) << "Setting Edit Mode: " << name;
+	CollectionSystemManager::get()->setEditMode(name);
+	while(window->peekGui() && window->peekGui() != ViewController::get())
+		delete window->peekGui();
+	LOG(LogError) << "Finished!";
+	return;
 }
 
 GuiCollectionSystemsOptions::~GuiCollectionSystemsOptions()
@@ -125,15 +165,15 @@ void GuiCollectionSystemsOptions::addSystemsToMenu()
 
 void GuiCollectionSystemsOptions::applySettings()
 {
-	std::string outAuto = commaStringToVector(autoOptionList->getSelectedObjects());
+	std::string outAuto = vectorToCommaString(autoOptionList->getSelectedObjects());
 	std::string prevAuto = Settings::getInstance()->getString("CollectionSystemsAuto");
-	std::string outCustom = commaStringToVector(customOptionList->getSelectedObjects());
+	std::string outCustom = vectorToCommaString(customOptionList->getSelectedObjects());
 	std::string prevCustom = Settings::getInstance()->getString("CollectionSystemsCustom");
 	bool outSort = sortAllSystemsSwitch->getState();
 	bool prevSort = Settings::getInstance()->getBool("SortAllSystems");
 	bool needUpdateSettings = prevAuto != outAuto || prevCustom != outCustom || outSort != prevSort;
-	if ((outAuto != "" && !CollectionSystemManager::get()->isThemeCollectionCompatible(false)) ||
-		(outCustom != "" && !CollectionSystemManager::get()->isThemeCollectionCompatible(true)))
+	if ((outAuto != "" && !CollectionSystemManager::get()->isThemeGenericCollectionCompatible(false)) ||
+		(outCustom != "" && outCustom != prevCustom && !CollectionSystemManager::get()->isThemeCustomCollectionCompatible(customOptionList->getSelectedObjects())))
 	{
 		mWindow->pushGui(new GuiMsgBox(mWindow,
 			"Your theme does not support game collections. Please update your theme, or ensure that you use a theme that contains the folders:\n\n• auto-favorites\n• auto-lastplayed\n• auto-allgames\n• custom-collections\n\nDo you still want to enable collections?",

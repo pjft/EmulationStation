@@ -299,7 +299,7 @@ std::vector<std::string> commaStringToVector(std::string commaString)
 	return strs;
 }
 
-std::string commaStringToVector(std::vector<std::string> stringVector)
+std::string vectorToCommaString(std::vector<std::string> stringVector)
 {
 	std::string out = "";
 	// from a vector of system names get comma separated string
