@@ -141,6 +141,7 @@ void FileData::removeChild(FileData* file)
 	{
 		if(*it == file)
 		{
+			file->mParent = NULL;
 			mChildren.erase(it);
 			return;
 		}

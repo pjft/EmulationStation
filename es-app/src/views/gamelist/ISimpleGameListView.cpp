@@ -64,7 +64,10 @@ void ISimpleGameListView::onFileChanged(FileData* file, FileChangeType change)
 {
 	// we could be tricky here to be efficient;
 	// but this shouldn't happen very often so we'll just always repopulate
+	LOG(LogError) << "File Changed: " << file->getName();
 	FileData* cursor = getCursor();
+	LOG(LogError) << "File Cursor: " << cursor->getName();
+	LOG(LogError) << "File Cursor Parent: " << (cursor->getParent() == NULL ? "IS NULL!" : cursor->getParent()->getName());
 	if (!cursor->isPlaceHolder()) {
 		populateList(cursor->getParent()->getChildrenListToDisplay());
 		setCursor(cursor);

@@ -59,6 +59,7 @@ public:
 
 	inline std::map<std::string, CollectionSystemData> getAutoCollectionSystems() { return mAutoCollectionSystemsData; };
 	inline std::map<std::string, CollectionSystemData> getCustomCollectionSystems() { return mCustomCollectionSystemsData; };
+	inline SystemData* getCustomCollectionsBundle() { return mCustomCollectionsBundle; };
 	std::vector<std::string> getUnusedSystemsFromTheme();
 	SystemData* addNewCustomCollection(std::string name);
 
@@ -86,7 +87,7 @@ private:
 	void initAutoCollectionSystems();
 	void initCustomCollectionSystems();
 	SystemData* getAllGamesCollection();
-	SystemData* createNewCollectionEntry(std::string name, CollectionSystemDecl sysDecl);
+	SystemData* createNewCollectionEntry(std::string name, CollectionSystemDecl sysDecl, bool index = true);
 	void populateAutoCollection(CollectionSystemData* sysData);
 	void populateCustomCollection(CollectionSystemData* sysData);
 
@@ -102,6 +103,8 @@ private:
 	bool themeFolderExists(std::string folder);
 
 	bool includeFileInAutoCollections(FileData* file);
+
+	SystemData* mCustomCollectionsBundle;
 };
 
 std::string getCustomCollectionConfigPath(std::string collectionName);

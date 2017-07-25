@@ -269,6 +269,17 @@ void ViewController::launch(FileData* game, Eigen::Vector3f center)
 	}
 }
 
+void ViewController::removeGameListView(SystemData* system)
+{
+	//if we already made one, return that one
+	auto exists = mGameListViews.find(system);
+	if(exists != mGameListViews.end())
+	{
+		exists->second.reset();
+		mGameListViews.erase(system);
+	}
+}
+
 std::shared_ptr<IGameListView> ViewController::getGameListView(SystemData* system)
 {
 	//if we already made one, return that one
@@ -457,19 +468,29 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 
 void ViewController::reloadAll()
 {
+	LOG(LogError) << "Reloading All";
 	std::map<SystemData*, FileData*> cursorMap;
 	for(auto it = mGameListViews.begin(); it != mGameListViews.end(); it++)
 	{
+		LOG(LogError) << "Storing cursor for: " << it->first->getName();
 		cursorMap[it->first] = it->second->getCursor();
 	}
 	mGameListViews.clear();
 
 	for(auto it = cursorMap.begin(); it != cursorMap.end(); it++)
 	{
+		LOG(LogError) << "Loading theme for: " << it->first->getName();
 		it->first->loadTheme();
+		LOG(LogError) << "Setting cursor for: " << it->first->getName();
+		LOG(LogError) << "Cursor name: " << (it->second == NULL ? "Cursor is NULL" : it->second->getName());
+		getGameListView(it->first);
+		LOG(LogError) << "Got Gamelist View";
 		getGameListView(it->first)->setCursor(it->second);
+		LOG(LogError) << "Finished setting cursor";
 	}
+	LOG(LogError) << "Resetting System List View";
 	mSystemListView.reset();
+	LOG(LogError) << "Getting System List View";
 	getSystemListView();
 	// update mCurrentView since the pointers changed
 	if(mState.viewing == GAME_LIST)
@@ -484,7 +505,9 @@ void ViewController::reloadAll()
 	}else{
 		goToSystemView(SystemData::sSystemVector.front());
 	}
+	LOG(LogError) << "Updating Help Prompts";
 	updateHelpPrompts();
+	LOG(LogError) << "Finished Reloading All";
 }
 
 std::vector<HelpPrompt> ViewController::getHelpPrompts()

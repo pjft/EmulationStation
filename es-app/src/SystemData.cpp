@@ -419,7 +419,6 @@ void SystemData::loadTheme()
 	mTheme = std::make_shared<ThemeData>();
 
 	std::string path = getThemePath();
-
 	if(!fs::exists(path)) // no theme available for this platform
 		return;
 
@@ -430,7 +429,6 @@ void SystemData::loadTheme()
 		sysData.insert(std::pair<std::string, std::string>("system.name", getName()));
 		sysData.insert(std::pair<std::string, std::string>("system.theme", getThemeFolder()));
 		sysData.insert(std::pair<std::string, std::string>("system.fullName", getFullName()));
-		
 		mTheme->loadFile(sysData, path);
 	} catch(ThemeException& e)
 	{

@@ -37,22 +37,7 @@ void GuiCollectionSystemsOptions::initializeMenu()
 			{
 				ComponentListRow row;
 				std::string name = *it;
-				/*std::function<void()> createCollection = [name, this, s] {
-					LOG(LogError) << "Create new Collection: " << name;
-					SystemData* newSys = CollectionSystemManager::get()->addNewCustomCollection(name);
-					customOptionList->add(name, name, true);
-					std::string outAuto = vectorToCommaString(autoOptionList->getSelectedObjects());
-					std::string outCustom = vectorToCommaString(customOptionList->getSelectedObjects());
-					updateSettings(outAuto, outCustom);
 
-					ViewController::get()->goToSystemView(newSys);
-
-					Window* window = mWindow;
-					CollectionSystemManager::get()->setEditMode(name);
-					while(window->peekGui() && window->peekGui() != ViewController::get())
-						delete window->peekGui();
-					return;
-				};*/
 				std::function<void()> createCollectionCall = [name, this, s] {
 					createCollection(name);
 				};
@@ -81,6 +66,10 @@ void GuiCollectionSystemsOptions::initializeMenu()
 	});
 
 	mMenu.addRow(row);
+
+	bundleCustomCollections = std::make_shared<SwitchComponent>(mWindow);
+	bundleCustomCollections->setState(Settings::getInstance()->getBool("UseCustomCollectionsSystem"));
+	mMenu.addWithLabel("GROUP UNTHEMED CUSTOM COLLECTIONS", bundleCustomCollections);
 
 	sortAllSystemsSwitch = std::make_shared<SwitchComponent>(mWindow);
 	sortAllSystemsSwitch->setState(Settings::getInstance()->getBool("SortAllSystems"));
@@ -114,21 +103,17 @@ void GuiCollectionSystemsOptions::addEntry(const char* name, unsigned int color,
 
 void GuiCollectionSystemsOptions::createCollection(std::string inName) {
 	std::string name = CollectionSystemManager::get()->getValidNewCollectionName(inName);
-	LOG(LogError) << "Create new Collection: " << name;
 	SystemData* newSys = CollectionSystemManager::get()->addNewCustomCollection(name);
 	customOptionList->add(name, name, true);
 	std::string outAuto = vectorToCommaString(autoOptionList->getSelectedObjects());
 	std::string outCustom = vectorToCommaString(customOptionList->getSelectedObjects());
 	updateSettings(outAuto, outCustom);
-	LOG(LogError) << "Going to New Collection View: " << name;
 	ViewController::get()->goToSystemView(newSys);
 
 	Window* window = mWindow;
-	LOG(LogError) << "Setting Edit Mode: " << name;
 	CollectionSystemManager::get()->setEditMode(name);
 	while(window->peekGui() && window->peekGui() != ViewController::get())
 		delete window->peekGui();
-	LOG(LogError) << "Finished!";
 	return;
 }
 
@@ -171,7 +156,9 @@ void GuiCollectionSystemsOptions::applySettings()
 	std::string prevCustom = Settings::getInstance()->getString("CollectionSystemsCustom");
 	bool outSort = sortAllSystemsSwitch->getState();
 	bool prevSort = Settings::getInstance()->getBool("SortAllSystems");
-	bool needUpdateSettings = prevAuto != outAuto || prevCustom != outCustom || outSort != prevSort;
+	bool outBundle = bundleCustomCollections->getState();
+	bool prevBundle = Settings::getInstance()->getBool("UseCustomCollectionsSystem");
+	bool needUpdateSettings = prevAuto != outAuto || prevCustom != outCustom || outSort != prevSort || outBundle != prevBundle;
 	if ((outAuto != "" && !CollectionSystemManager::get()->isThemeGenericCollectionCompatible(false)) ||
 		(outCustom != "" && outCustom != prevCustom && !CollectionSystemManager::get()->isThemeCustomCollectionCompatible(customOptionList->getSelectedObjects())))
 	{
@@ -200,11 +187,15 @@ void GuiCollectionSystemsOptions::updateSettings(std::string newAutoSettings, st
 	Settings::getInstance()->setString("CollectionSystemsAuto", newAutoSettings);
 	Settings::getInstance()->setString("CollectionSystemsCustom", newCustomSettings);
 	Settings::getInstance()->setBool("SortAllSystems", sortAllSystemsSwitch->getState());
+	Settings::getInstance()->setBool("UseCustomCollectionsSystem", bundleCustomCollections->getState());
 	Settings::getInstance()->saveFile();
 	CollectionSystemManager::get()->loadEnabledListFromSettings();
 	CollectionSystemManager::get()->updateSystemsList();
+	LOG(LogError) << "Going to start";
 	ViewController::get()->goToStart();
+	LOG(LogError) << "Reloading All";
 	ViewController::get()->reloadAll();
+	LOG(LogError) << "Finished reloading all";
 }
 
 bool GuiCollectionSystemsOptions::input(InputConfig* config, Input input)

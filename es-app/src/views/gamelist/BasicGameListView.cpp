@@ -43,9 +43,10 @@ void BasicGameListView::onFileChanged(FileData* file, FileChangeType change)
 void BasicGameListView::populateList(const std::vector<FileData*>& files)
 {
 	mList.clear();
+	mHeaderText.setText(mRoot->getSystem()->getFullName());
 	if (files.size() > 0)
 	{
-		mHeaderText.setText(files.at(0)->getSystem()->getFullName());
+		//mHeaderText.setText(files.at(0)->getSystem()->getFullName());
 
 		for(auto it = files.begin(); it != files.end(); it++)
 		{
@@ -65,11 +66,16 @@ FileData* BasicGameListView::getCursor()
 
 void BasicGameListView::setCursor(FileData* cursor)
 {
+	LOG(LogError) << "Setting Cursor " << cursor->getName();
 	if(!mList.setCursor(cursor) && (!cursor->isPlaceHolder()))
 	{
+		LOG(LogError) << "Into if statement.";
+		LOG(LogError) << "cursor get parent is null? " << (cursor->getParent() == NULL ? "It's NULL!" : "Not NULL");
+		LOG(LogError) << "Parent Name: " << cursor->getParent()->getName();
 		populateList(cursor->getParent()->getChildrenListToDisplay());
+		LOG(LogError) << "After populating list";
 		mList.setCursor(cursor);
-
+		LOG(LogError) << "After setting cursor in mList";
 		// update our cursor stack in case our cursor just got set to some folder we weren't in before
 		if(mCursorStack.empty() || mCursorStack.top() != cursor->getParent())
 		{
@@ -90,6 +96,7 @@ void BasicGameListView::setCursor(FileData* cursor)
 			}
 		}
 	}
+	LOG(LogError) << "Finished setting cursor";
 }
 
 void BasicGameListView::addPlaceholder()
@@ -106,11 +113,15 @@ void BasicGameListView::launch(FileData* game)
 
 void BasicGameListView::remove(FileData *game, bool deleteFile)
 {
+	LOG(LogError) << "Removing game";
+	LOG(LogError) << "Name: " << game->getName();
+	LOG(LogError) << "Parent? " << (game->getParent() == NULL ? " IS NULL! " : game->getParent()->getName());
 	if (deleteFile)
 		boost::filesystem::remove(game->getPath());  // actually delete the file on the filesystem
 	FileData* parent = game->getParent();
 	if (getCursor() == game)                     // Select next element in list, or prev if none
 	{
+		LOG(LogError) << "Cursor is game";
 		std::vector<FileData*> siblings = parent->getChildrenListToDisplay();
 		auto gameIter = std::find(siblings.begin(), siblings.end(), game);
 		auto gamePos = std::distance(siblings.begin(), gameIter);
@@ -124,13 +135,19 @@ void BasicGameListView::remove(FileData *game, bool deleteFile)
 			}
 		}
 	}
+	LOG(LogError) << "Going to remove from mList";
 	mList.remove(game);
+	LOG(LogError) << "Removed";
 	if(mList.size() == 0)
 	{
+		LOG(LogError) << "Adding Placeholder";
 		addPlaceholder();
 	}
+	LOG(LogError) << "Going to delete";
 	delete game;                                 // remove before repopulating (removes from parent)
+	LOG(LogError) << "Deleted game";
 	onFileChanged(parent, FILE_REMOVED);           // update the view, with game removed
+	LOG(LogError) << "Finished";
 }
 
 std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()

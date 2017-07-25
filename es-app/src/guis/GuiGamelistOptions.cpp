@@ -64,7 +64,8 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 	mMenu.addRow(row);
 
 	std::map<std::string, CollectionSystemData> customCollections = CollectionSystemManager::get()->getCustomCollectionSystems();
-	if(customCollections.find(system->getName()) != customCollections.end() && CollectionSystemManager::get()->getEditingCollection() != system->getName())
+	if((customCollections.find(system->getName()) != customCollections.end() && CollectionSystemManager::get()->getEditingCollection() != system->getName()) ||
+		CollectionSystemManager::get()->getCustomCollectionsBundle()->getName() == system->getName())
 	{
 		row.elements.clear();
 		row.addElement(std::make_shared<TextComponent>(mWindow, "ADD/REMOVE GAMES TO THIS GAME COLLECTION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
@@ -129,7 +130,23 @@ void GuiGamelistOptions::openGamelistFilter()
 
 void GuiGamelistOptions::startEditMode()
 {
-	CollectionSystemManager::get()->setEditMode(mSystem->getName());
+	std::string editingSystem = mSystem->getName();
+	// need to check if we're editing the collections bundle, as we will want to edit the selected collection within
+	if(editingSystem == CollectionSystemManager::get()->getCustomCollectionsBundle()->getName())
+	{
+		FileData* file = getGamelist()->getCursor();
+		// do we have the cursor on a specific collection?
+		if (file->getType() == FOLDER)
+		{
+			editingSystem = file->getName();
+		}
+		else
+		{
+			// we are inside a specific collection. We want to edit that one.
+			editingSystem = file->getSystem()->getName();
+		}
+	}
+	CollectionSystemManager::get()->setEditMode(editingSystem);
 	delete this;
 }
 
