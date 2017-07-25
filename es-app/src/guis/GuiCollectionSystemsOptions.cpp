@@ -4,7 +4,6 @@
 #include "Settings.h"
 #include "views/ViewController.h"
 #include "guis/GuiSettings.h"
-#include "Log.h"
 #include "Util.h"
 #include "components/TextComponent.h"
 #include "components/OptionListComponent.h"
@@ -191,11 +190,8 @@ void GuiCollectionSystemsOptions::updateSettings(std::string newAutoSettings, st
 	Settings::getInstance()->saveFile();
 	CollectionSystemManager::get()->loadEnabledListFromSettings();
 	CollectionSystemManager::get()->updateSystemsList();
-	LOG(LogError) << "Going to start";
 	ViewController::get()->goToStart();
-	LOG(LogError) << "Reloading All";
 	ViewController::get()->reloadAll();
-	LOG(LogError) << "Finished reloading all";
 }
 
 bool GuiCollectionSystemsOptions::input(InputConfig* config, Input input)

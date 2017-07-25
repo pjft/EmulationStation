@@ -163,15 +163,12 @@ void CollectionSystemManager::loadEnabledListFromSettings()
 // updates enabled system list in System View
 void CollectionSystemManager::updateSystemsList()
 {
-	LOG(LogError) << "Removing";
 	// remove all Collection Systems
 	removeCollectionsFromDisplayedSystems();
 
-	LOG(LogError) << "Adding Custom";
 	// add custom enabled ones
 	addEnabledCollectionsToDisplayedSystems(&mCustomCollectionSystemsData);
 
-	LOG(LogError) << "Adding Custom Bundle";
 	if(mCustomCollectionsBundle->getRootFolder()->getChildren().size() > 0)
 	{
 		SystemData::sSystemVector.push_back(mCustomCollectionsBundle);
@@ -183,17 +180,14 @@ void CollectionSystemManager::updateSystemsList()
 		ViewController::get()->removeGameListView(mCustomCollectionsBundle);
 	}
 
-	LOG(LogError) << "Sorting";
 	if(Settings::getInstance()->getBool("SortAllSystems"))
 	{
 		std::sort(SystemData::sSystemVector.begin(), SystemData::sSystemVector.end(), systemSort);
 	}
 
-	LOG(LogError) << "Adding Auto";
 	// add auto enabled ones
 	addEnabledCollectionsToDisplayedSystems(&mAutoCollectionSystemsData);
 
-	LOG(LogError) << "Exit Edit Mode";
 	// if we were editing a custom collection, and it's no longer enabled, exit edit mode
 	if(mIsEditingCustom)
 	{
@@ -336,7 +330,6 @@ std::string CollectionSystemManager::getValidNewCollectionName(std::string inNam
 	using namespace boost::xpressive;
 	std::string name;
 	sregex regexp = sregex::compile("[^A-Za-z0-9\\[\\]\\(\\)\\s]");
-	LOG(LogError) << "Starting with: " << inName;
 	if (index == 0)
 	{
 		name = regex_replace(inName, regexp, "");
@@ -351,7 +344,7 @@ std::string CollectionSystemManager::getValidNewCollectionName(std::string inNam
 	}
 	if(name != inName)
 	{
-		LOG(LogError) << "Had to change name, from: " << inName << " to: " << name;
+		LOG(LogInfo) << "Had to change name, from: " << inName << " to: " << name;
 	}
 	// get used systems in es_systems.cfg
 	std::vector<std::string> systemsInUse = getSystemsFromConfig();
@@ -418,9 +411,7 @@ bool CollectionSystemManager::toggleGameInCollection(FileData* file)
 	{
 		GuiInfoPopup* s;
 		bool adding = true;
-		LOG(LogError) << "Adding a game!";
 		std::string name = file->getName();
-		LOG(LogError) << "Game name: " << name;
 		std::string sysName = mEditingCollection;
 		if (mIsEditingCustom)
 		{
@@ -433,7 +424,6 @@ bool CollectionSystemManager::toggleGameInCollection(FileData* file)
 			std::string key = file->getFullPath();
 			FileData* rootFolder = sysData->getRootFolder();
 			const std::unordered_map<std::string, FileData*>& children = rootFolder->getChildrenByFilename();
-			LOG(LogError) << "Got children";
 			bool found = children.find(key) != children.end();
 			FileFilterIndex* fileIndex = sysData->getIndex();
 			std::string name = sysData->getName();
@@ -443,7 +433,6 @@ bool CollectionSystemManager::toggleGameInCollection(FileData* file)
 				systemViewToUpdate = mCustomCollectionsBundle;
 			}
 			if (found) {
-				LOG(LogError) << "Found";
 				adding = false;
 				// if we found it, we need to remove it
 				FileData* collectionEntry = children.at(key);
@@ -453,24 +442,17 @@ bool CollectionSystemManager::toggleGameInCollection(FileData* file)
 			}
 			else
 			{
-				LOG(LogError) << "Not found.";
 				// we didn't find it here, we should add it
 				CollectionFileData* newGame = new CollectionFileData(file, sysData);
-				LOG(LogError) << "Adding child";
 				rootFolder->addChild(newGame);
-				LOG(LogError) << "Added. Going to add to index.";
 				fileIndex->addToIndex(newGame);
-				LOG(LogError) << "Going to do the onFileChanged";
 				if (ViewController::get()->getState().getSystem() == mCustomCollectionsBundle)
 				{
 					systemViewToUpdate = mCustomCollectionsBundle;
 				}
 				ViewController::get()->getGameListView(systemViewToUpdate)->onFileChanged(newGame, FILE_METADATA_CHANGED);
-				LOG(LogError) << "Going to sort";
 				rootFolder->sort(getSortTypeFromString(mEditingCollectionSystemData->decl.defaultSort));
-				LOG(LogError) << "Going to do the onFileChanged sorted";
 				ViewController::get()->onFileChanged(rootFolder, FILE_SORTED);
-				LOG(LogError) << "Finished the sorting stuff";
 			}
 		}
 		else
@@ -672,7 +654,6 @@ void CollectionSystemManager::removeCollectionsFromDisplayedSystems()
 	std::vector<FileData*> mChildren = customRoot->getChildren();
 	for(auto it = mChildren.begin(); it != mChildren.end(); it++)
 	{
-		LOG(LogError) << "Removing: " << (*it)->getName();
 		customRoot->removeChild(*it);
 	}
 }
