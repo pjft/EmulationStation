@@ -307,14 +307,14 @@ int main(int argc, char* argv[])
 	bool ps_standby = false;
 
 	// assuming screensaver timeout is not updated regularly.
-	int timeout = (unsigned int) Settings::getInstance()->getInt("ScreenSaverTime");
+	int timeout = (unsigned int) Settings::getInstance()->getInt("ScreenSaverTime") - PowerSaver::getTimeout();
 
 	while(running)
 	{
 		SDL_Event event;
 		bool ps_standby = PowerSaver::getState() && SDL_GetTicks() - ps_time > PowerSaver::getTimeout();
-		
-		if(ps_standby ? SDL_WaitEventTimeout(&event, timeout - 100) : SDL_PollEvent(&event))
+
+		if(ps_standby ? SDL_WaitEventTimeout(&event, timeout) : SDL_PollEvent(&event))
 		{
 			do
 			{
@@ -359,7 +359,7 @@ int main(int argc, char* argv[])
 		lastTime = curTime;
 
 		// cap deltaTime
-		if(deltaTime > timeout || deltaTime < 0)
+		if((!ps_standby && ((deltaTime > timeout && timeout > 0) || deltaTime > 1000)) || deltaTime < 0)
 			deltaTime = 1000;
 
 		window.update(deltaTime);
