@@ -115,7 +115,21 @@ void GuiScraperMulti::acceptResult(const ScraperSearchResult& result)
 {
 	ScraperSearchParams& search = mSearchQueue.front();
 
+	// we need to make sure not to overwrite non-scrapeable metadata, namely:
+	// favorites
+	// last played
+	// times played
+	// ...anything else.
+	std::string curFavorites = search.game->metadata.get("favorite");
+	std::string curTimesPlayed = search.game->metadata.get("playcount");
+	std::string curLastPlayed = search.game->metadata.get("lastplayed");
+
 	search.game->metadata = result.mdl;
+
+	search.game->metadata.set("favorite", curFavorites);
+	search.game->metadata.set("playcount", curTimesPlayed);
+	search.game->metadata.set("lastplayed", curLastPlayed);
+
 	updateGamelist(search.system);
 
 	mSearchQueue.pop();
