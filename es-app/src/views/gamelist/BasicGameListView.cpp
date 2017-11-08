@@ -4,6 +4,7 @@
 #include "CollectionSystemManager.h"
 #include "Settings.h"
 #include "SystemData.h"
+#include "Log.h"
 #include <boost/filesystem/operations.hpp>
 
 BasicGameListView::BasicGameListView(Window* window, FileData* root)
@@ -57,13 +58,20 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 
 FileData* BasicGameListView::getCursor()
 {
+	//LOG(LogError) << "Getting Cursor";
+	//LOG(LogError) << "Is NULL? " << (mList.getSelected() == NULL);
+	//LOG(LogError) << "Selected Name: " << mList.getSelectedName();
 	return mList.getSelected();
 }
 
 void BasicGameListView::setCursor(FileData* cursor)
 {
+	LOG(LogError) << "Setting cursor.";
+	LOG(LogError) << "Cursor Name: " << cursor->getName();
 	if(!mList.setCursor(cursor) && (!cursor->isPlaceHolder()))
 	{
+		LOG(LogError) << "Inside IF.";
+		LOG(LogError) << "Parent: " << cursor->getParent()->getName();
 		populateList(cursor->getParent()->getChildrenListToDisplay());
 		mList.setCursor(cursor);
 
@@ -87,6 +95,7 @@ void BasicGameListView::setCursor(FileData* cursor)
 			}
 		}
 	}
+	LOG(LogError) << "FINISHED Setting cursor.";
 }
 
 void BasicGameListView::addPlaceholder()
@@ -105,9 +114,15 @@ void BasicGameListView::remove(FileData *game, bool deleteFile)
 {
 	if (deleteFile)
 		boost::filesystem::remove(game->getPath());  // actually delete the file on the filesystem
+	LOG(LogError) << "Deleting file? " << deleteFile;
 	FileData* parent = game->getParent();
+	LOG(LogError) << "Parent: " << parent->getName();
+	LOG(LogError) << "Cursor: " << getCursor()->getName() << " -- " << getCursor()->getPath();
+	LOG(LogError) << "Game: " << game->getName() << " -- " << game->getPath();
+	LOG(LogError) << "Game == cursor? " << (getCursor() == game);
 	if (getCursor() == game)                     // Select next element in list, or prev if none
 	{
+		LOG(LogError) << "We're deleting the cursor";
 		std::vector<FileData*> siblings = parent->getChildrenListToDisplay();
 		auto gameIter = std::find(siblings.begin(), siblings.end(), game);
 		unsigned int gamePos = std::distance(siblings.begin(), gameIter);
@@ -120,6 +135,7 @@ void BasicGameListView::remove(FileData *game, bool deleteFile)
 				setCursor(siblings.at(gamePos - 1));
 			}
 		}
+		LOG(LogError) << "New cursor: " << getCursor()->getName();
 	}
 	mList.remove(game);
 	if(mList.size() == 0)
@@ -127,6 +143,7 @@ void BasicGameListView::remove(FileData *game, bool deleteFile)
 		addPlaceholder();
 	}
 	delete game;                                 // remove before repopulating (removes from parent)
+	LOG(LogError) << "Updating parent";
 	onFileChanged(parent, FILE_REMOVED);           // update the view, with game removed
 }
 

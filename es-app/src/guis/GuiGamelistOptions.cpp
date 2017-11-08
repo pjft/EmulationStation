@@ -9,6 +9,7 @@
 #include "FileSorts.h"
 #include "GuiMetaDataEd.h"
 #include "SystemData.h"
+#include "Log.h"
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window),
 	mSystem(system), mMenu(window, "OPTIONS"), fromPlaceholder(false), mFiltersChanged(false)
@@ -118,6 +119,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 GuiGamelistOptions::~GuiGamelistOptions()
 {
+	LOG(LogError) << "Exiting gamelist options";
 	// apply sort
 	if (!fromPlaceholder) {
 		FileData* root = mSystem->getRootFolder();
@@ -133,6 +135,7 @@ GuiGamelistOptions::~GuiGamelistOptions()
 		// game is selected
 		ViewController::get()->reloadGameListView(mSystem);
 	}
+	LOG(LogError) << "Finished exiting";
 }
 
 void GuiGamelistOptions::openGamelistFilter()
@@ -175,6 +178,7 @@ void GuiGamelistOptions::openMetaDataEd()
 	// open metadata editor
 	// get the FileData that hosts the original metadata
 	FileData* file = getGamelist()->getCursor()->getSourceFileData();
+	FileData* cursor = getGamelist()->getCursor();
 	ScraperSearchParams p;
 	p.game = file;
 	p.system = file->getSystem();
@@ -188,8 +192,12 @@ void GuiGamelistOptions::openMetaDataEd()
 	else
 	{
 		deleteBtnFunc = [this, file] {
+			LOG(LogError) << "File: " << file->getName();
+			LOG(LogError) << "File System: " << file->getSystem()->getName();
 			CollectionSystemManager::get()->deleteCollectionFiles(file);
+			LOG(LogError) << "Going to remove actual file";
 			ViewController::get()->getGameListView(file->getSystem()).get()->remove(file, true);
+			LOG(LogError) << "Removed file";
 		};
 	}
 

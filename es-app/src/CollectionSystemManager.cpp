@@ -289,6 +289,7 @@ void CollectionSystemManager::deleteCollectionFiles(FileData* file)
 {
 	// collection files use the full path as key, to avoid clashes
 	std::string key = file->getFullPath();
+	LOG(LogError) << "Full path: " << key;
 	// find games in collection systems
 	std::map<std::string, CollectionSystemData> allCollections;
 	allCollections.insert(mAutoCollectionSystemsData.begin(), mAutoCollectionSystemsData.end());
@@ -302,8 +303,10 @@ void CollectionSystemManager::deleteCollectionFiles(FileData* file)
 
 			bool found = children.find(key) != children.end();
 			if (found) {
+				LOG(LogError) << "Found file in system: " << sysDataIt->second.system->getName();
 				sysDataIt->second.needsSave = true;
 				FileData* collectionEntry = children.at(key);
+				LOG(LogError) << "Removing from gamelist.";
 				SystemData* systemViewToUpdate = getSystemToView(sysDataIt->second.system);
 				ViewController::get()->getGameListView(systemViewToUpdate).get()->remove(collectionEntry, false);
 			}
