@@ -8,6 +8,7 @@
 #include "platform.h"
 #include "Settings.h"
 #include "ThemeData.h"
+#include "views/UIModeController.h"
 #include <boost/filesystem/operations.hpp>
 #include <pugixml/src/pugixml.hpp>
 #include <fstream>
@@ -365,7 +366,7 @@ SystemData* SystemData::getNext() const
 		it++;
 		if (it == sSystemVector.cend())
 			it = sSystemVector.cbegin();
-	} while ((*it)->getDisplayedGameCount() == 0); 
+	} while ((*it)->getDisplayedGameCount() == 0 && !(UIModeController::getInstance()->isUIModeFull() && (*it)->isCollection()));
 	// as we are starting in a valid gamelistview, this will always succeed, even if we have to come full circle.
 
 	return *it;
@@ -379,7 +380,7 @@ SystemData* SystemData::getPrev() const
 		it++;
 		if (it == sSystemVector.crend())
 			it = sSystemVector.crbegin();
-	} while ((*it)->getDisplayedGameCount() == 0);
+	} while ((*it)->getDisplayedGameCount() == 0 && !(UIModeController::getInstance()->isUIModeFull() && (*it)->isCollection()));
 	// as we are starting in a valid gamelistview, this will always succeed, even if we have to come full circle.
 
 	return *it;
