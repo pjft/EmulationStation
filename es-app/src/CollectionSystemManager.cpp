@@ -208,6 +208,7 @@ void CollectionSystemManager::updateSystemsList()
 	{
 		if ((*sysIt)->isCollection())
 		{
+			(*sysIt)->getIndex()->setUIModeFilters();
 			ViewController::get()->getGameListView((*sysIt));
 		}
 	}
