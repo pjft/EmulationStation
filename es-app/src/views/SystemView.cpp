@@ -37,7 +37,7 @@ void SystemView::populate()
 		if(mViewNeedsReload)
 			getViewElements(theme);
 
-		if((*it)->getDisplayedGameCount() > 0 || (UIModeController::getInstance()->isUIModeFull() && (*it)->isCollection()))
+		if((*it)->isVisible())
 		{
 			Entry e;
 			e.name = (*it)->getName();
