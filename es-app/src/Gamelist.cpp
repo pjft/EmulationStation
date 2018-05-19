@@ -233,11 +233,22 @@ void updateGamelist(SystemData* system)
 
 				std::string nodePath = Utils::FileSystem::resolveRelativePath(pathNode.text().get(), system->getStartPath(), true);
 				std::string gamePath = (*fit)->getPath();
+
+				LOG(LogError) << "nodePath: " << nodePath;
+				LOG(LogError) << "gamePath: " << gamePath;
+				LOG(LogError) << "exists nodePath: " << Utils::FileSystem::exists(nodePath);
+				LOG(LogError) << "exists gamePath: " << Utils::FileSystem::exists(gamePath);
+				LOG(LogError) << "isEquivalent: " << Utils::FileSystem::isEquivalent(nodePath, gamePath);
+
+				LOG(LogError) << "--------------- ********* ----------------";
+
 				if(nodePath == gamePath || (Utils::FileSystem::exists(nodePath) &&
 				                            Utils::FileSystem::exists(gamePath) &&
 				                            Utils::FileSystem::isEquivalent(nodePath, gamePath)))
 				{
 					// found it
+					LOG(LogError) << "Removing XML for: " << nodePath;
+				
 					root.remove_child(fileNode);
 					break;
 				}
