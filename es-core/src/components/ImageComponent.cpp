@@ -5,6 +5,7 @@
 #include "Renderer.h"
 #include "Settings.h"
 #include "ThemeData.h"
+#include "utils/StringUtil.h"
 
 Vector2i ImageComponent::getTextureSize() const
 {
