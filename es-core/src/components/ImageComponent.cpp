@@ -52,7 +52,7 @@ void ImageComponent::resize()
 		// (you'll see this scattered throughout the function)
 		// this is probably not the best way, so if you're familiar with this problem and have a better solution, please make a pull request!
 
-		LOG(LogError) << "Resizing!";
+		if (logging) LOG(LogError) << "Resizing!";
 
 		if(mTargetIsMax)
 		{
@@ -273,6 +273,10 @@ void ImageComponent::updateVertices()
 	if (logging) LOG(LogError) << "UpdateVertices:: Rounding!";
 	// we go through this mess to make sure everything is properly rounded
 	// if we just round vertices at the end, edge cases occur near sizes of 0.5
+	Vector2f size(Math::round(mSize.x()), Math::round(mSize.y()));
+	Vector2f topLeft(size * mTopLeftCrop);
+	Vector2f bottomRight(size * mBottomRightCrop);
+
 	if (logging) {
 		LOG(LogError) << "Before Vertices: (" << 
 			mVertices[0].pos[0] << "," << mVertices[0].pos[1] << "); (" <<
@@ -281,10 +285,8 @@ void ImageComponent::updateVertices()
 			mVertices[3].pos[0] << "," << mVertices[3].pos[1] << "); (" <<
 			mVertices[4].pos[0] << "," << mVertices[4].pos[1] << "); (" <<
 			mVertices[5].pos[0] << "," << mVertices[5].pos[1] << ");";
+		LOG(LogError) << "Size: (" << size.x() << ", " << size.y() << "), mSize: (" << mSize.x() << ", " << mSize.y() << ")";
 	}
-	Vector2f size(Math::round(mSize.x()), Math::round(mSize.y()));
-	Vector2f topLeft(size * mTopLeftCrop);
-	Vector2f bottomRight(size * mBottomRightCrop);
 
 	mVertices[0].pos = Vector2f(topLeft.x(), topLeft.y());
 	mVertices[1].pos = Vector2f(topLeft.x(), bottomRight.y());
@@ -314,7 +316,7 @@ void ImageComponent::updateVertices()
 		py = 1;
 	}
 
-	if (logging) {
+	if (logging && false) {
 		LOG(LogError) << "Before Texture: (" << 
 			mVertices[0].tex[0] << "," << mVertices[0].tex[1] << "); (" <<
 			mVertices[1].tex[0] << "," << mVertices[1].tex[1] << "); (" <<
@@ -332,7 +334,7 @@ void ImageComponent::updateVertices()
 	mVertices[4].tex = Vector2f(mTopLeftCrop.x(), 1 - mBottomRightCrop.y());
 	mVertices[5].tex = Vector2f(px * mBottomRightCrop.x(), 1 - mBottomRightCrop.y());
 
-	if (logging) {
+	if (logging && false) {
 		LOG(LogError) << "After Texture: (" << 
 			mVertices[0].tex[0] << "," << mVertices[0].tex[1] << "); (" <<
 			mVertices[1].tex[0] << "," << mVertices[1].tex[1] << "); (" <<
@@ -386,9 +388,9 @@ void ImageComponent::render(const Transform4x4f& parentTrans)
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
-			if (logging) LOG(LogError) << "TOP LEFT: " << mDefaultPath << "Vertex: " << mVertices[0].pos[0] << " : " <<
+			/*if (logging) LOG(LogError) << "TOP LEFT: " << mDefaultPath << "Vertex: " << mVertices[0].pos[0] << " : " <<
 				 mVertices[0].pos[1] << " -- Texture: " << mVertices[0].tex[0] << " : " <<
-				 mVertices[0].tex[1];
+				 mVertices[0].tex[1];*/
 			if (logging) LOG(LogError) << "BOTTOM RIGHT: " << mDefaultPath << "Vertex: " << mVertices[5].pos[0] << " : " <<
 				 mVertices[5].pos[1] << " -- Texture: " << mVertices[5].tex[0] << " : " <<
 				 mVertices[5].tex[1];
