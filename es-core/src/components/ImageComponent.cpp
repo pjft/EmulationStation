@@ -51,7 +51,7 @@ void ImageComponent::resize()
 		// (you'll see this scattered throughout the function)
 		// this is probably not the best way, so if you're familiar with this problem and have a better solution, please make a pull request!
 
-		LOG(LogError) << "Resize: Path: " << mDefaultPath;
+		LOG(LogError) << "Resizing!";
 
 		if(mTargetIsMax)
 		{
@@ -142,8 +142,11 @@ void ImageComponent::setImage(std::string path, bool tile)
 	} else {
 		mTexture = TextureResource::get(path, tile, mForceLoad, mDynamic);
 	}
-
+	if (Utils::String::endsWith(path, "bnzabros.png")) 
+		logging = true;
+	if (logging) LOG(LogError) << "Setting Image: " << path;
 	resize();
+	if (logging) LOG(LogError) << "Finished Resizing: " << path;
 }
 
 void ImageComponent::setImage(const char* path, size_t length, bool tile)
@@ -266,9 +269,18 @@ void ImageComponent::updateVertices()
 	if(!mTexture || !mTexture->isInitialized())
 		return;
 
-	LOG(LogError) << "UpdateVertices:: Rounding! Path: " << mDefaultPath;
+	if (logging) LOG(LogError) << "UpdateVertices:: Rounding!";
 	// we go through this mess to make sure everything is properly rounded
 	// if we just round vertices at the end, edge cases occur near sizes of 0.5
+	if (logging) {
+		LOG(LogError) << "Before Vertices: (" << 
+			mVertices[0].pos[0] << "," << mVertices[0].pos[1] << "); (" <<
+			mVertices[1].pos[0] << "," << mVertices[1].pos[1] << "); (" <<
+			mVertices[2].pos[0] << "," << mVertices[2].pos[1] << "); (" <<
+			mVertices[3].pos[0] << "," << mVertices[3].pos[1] << "); (" <<
+			mVertices[4].pos[0] << "," << mVertices[4].pos[1] << "); (" <<
+			mVertices[5].pos[0] << "," << mVertices[5].pos[1] << ");";
+	}
 	Vector2f size(Math::round(mSize.x()), Math::round(mSize.y()));
 	Vector2f topLeft(size * mTopLeftCrop);
 	Vector2f bottomRight(size * mBottomRightCrop);
@@ -281,6 +293,16 @@ void ImageComponent::updateVertices()
 	mVertices[4].pos = Vector2f(topLeft.x(), bottomRight.y());
 	mVertices[5].pos = Vector2f(bottomRight.x(), bottomRight.y());
 
+	if (logging) {
+		LOG(LogError) << "After Vertices: (" << 
+			mVertices[0].pos[0] << "," << mVertices[0].pos[1] << "); (" <<
+			mVertices[1].pos[0] << "," << mVertices[1].pos[1] << "); (" <<
+			mVertices[2].pos[0] << "," << mVertices[2].pos[1] << "); (" <<
+			mVertices[3].pos[0] << "," << mVertices[3].pos[1] << "); (" <<
+			mVertices[4].pos[0] << "," << mVertices[4].pos[1] << "); (" <<
+			mVertices[5].pos[0] << "," << mVertices[5].pos[1] << ");";
+	}
+
 	float px, py;
 	if(mTexture->isTiled())
 	{
@@ -291,6 +313,16 @@ void ImageComponent::updateVertices()
 		py = 1;
 	}
 
+	if (logging) {
+		LOG(LogError) << "Before Texture: (" << 
+			mVertices[0].tex[0] << "," << mVertices[0].tex[1] << "); (" <<
+			mVertices[1].tex[0] << "," << mVertices[1].tex[1] << "); (" <<
+			mVertices[2].tex[0] << "," << mVertices[2].tex[1] << "); (" <<
+			mVertices[3].tex[0] << "," << mVertices[3].tex[1] << "); (" <<
+			mVertices[4].tex[0] << "," << mVertices[4].tex[1] << "); (" <<
+			mVertices[5].tex[0] << "," << mVertices[5].tex[1] << ");";
+	}
+
 	mVertices[0].tex = Vector2f(mTopLeftCrop.x(), py - mTopLeftCrop.y());
 	mVertices[1].tex = Vector2f(mTopLeftCrop.x(), 1 - mBottomRightCrop.y());
 	mVertices[2].tex = Vector2f(px * mBottomRightCrop.x(), py - mTopLeftCrop.y());
@@ -298,6 +330,16 @@ void ImageComponent::updateVertices()
 	mVertices[3].tex = Vector2f(px * mBottomRightCrop.x(), py - mTopLeftCrop.y());
 	mVertices[4].tex = Vector2f(mTopLeftCrop.x(), 1 - mBottomRightCrop.y());
 	mVertices[5].tex = Vector2f(px * mBottomRightCrop.x(), 1 - mBottomRightCrop.y());
+
+	if (logging) {
+		LOG(LogError) << "After Texture: (" << 
+			mVertices[0].tex[0] << "," << mVertices[0].tex[1] << "); (" <<
+			mVertices[1].tex[0] << "," << mVertices[1].tex[1] << "); (" <<
+			mVertices[2].tex[0] << "," << mVertices[2].tex[1] << "); (" <<
+			mVertices[3].tex[0] << "," << mVertices[3].tex[1] << "); (" <<
+			mVertices[4].tex[0] << "," << mVertices[4].tex[1] << "); (" <<
+			mVertices[5].tex[0] << "," << mVertices[5].tex[1] << ");";
+	}
 
 	if(mFlipX)
 	{
@@ -343,12 +385,12 @@ void ImageComponent::render(const Transform4x4f& parentTrans)
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
-			LOG(LogError) << "TOP LEFT: " << mDefaultPath << "Vertex: " << mVertices[0].pos[0] << " : " <<
+			if (logging) LOG(LogError) << "TOP LEFT: " << mDefaultPath << "Vertex: " << mVertices[0].pos[0] << " : " <<
 				 mVertices[0].pos[1] << " -- Texture: " << mVertices[0].tex[0] << " : " <<
 				 mVertices[0].tex[1];
-			LOG(LogError) << "BOTTOM RIGHT: " << mDefaultPath << "Vertex: " << mVertices[5].pos[0] << " : " <<
+			if (logging) LOG(LogError) << "BOTTOM RIGHT: " << mDefaultPath << "Vertex: " << mVertices[5].pos[0] << " : " <<
 				 mVertices[5].pos[1] << " -- Texture: " << mVertices[5].tex[0] << " : " <<
-				 mVertices[5].tex[1];
+				 mVertices[5].tex[1];*/
 			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &mVertices[0].pos);
 			glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &mVertices[0].tex);
 			glColorPointer(4, GL_UNSIGNED_BYTE, 0, mColors);

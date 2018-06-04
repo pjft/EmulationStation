@@ -108,6 +108,7 @@ private:
 
 	Vector2f mTopLeftCrop;
 	Vector2f mBottomRightCrop;
+	bool logging = false;
 };
 
 #endif // ES_CORE_COMPONENTS_IMAGE_COMPONENT_H
