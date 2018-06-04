@@ -75,9 +75,15 @@ void ImageComponent::resize()
 				mSize[1] *= resizeScale.y();
 			}
 
+			if (logging) LOG(LogError) << "After Calcs. mSize: (" << mSize.x() << ", " << mSize.y() << "); resizeScale: (" <<
+				resizeScale.x() << ", " << resizeScale.y() << ");";
+			
 			// for SVG rasterization, always calculate width from rounded height (see comment above)
 			mSize[1] = Math::round(mSize[1]);
 			mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
+			if (logging) LOG(LogError) << "After SVG maths. mSize: (" << mSize.x() << ", " << mSize.y() << "); resizeScale: (" <<
+				resizeScale.x() << ", " << resizeScale.y() << ");";
+			
 
 		}else if(mTargetIsMin)
 		{
