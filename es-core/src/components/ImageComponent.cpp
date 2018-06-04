@@ -42,8 +42,14 @@ void ImageComponent::resize()
 	if(textureSize == Vector2f::Zero())
 		return;
 
+	if (logging) LOG(LogError) << "Resizing! mSize: (" << mSize.x() << ", " << mSize.y() << "); textureSize: (" <<
+		textureSize.x() << ", " << textureSize.y() << "); mTargetSize: (" <<
+		mTargetSize.x() << ", " << mTargetSize.y() << ");"
+		;
+
 	if(mTexture->isTiled())
 	{
+		if (logging) LOG(LogError) << "Tiled";
 		mSize = mTargetSize;
 	}else{
 		// SVG rasterization is determined by height (see SVGResource.cpp), and rasterization is done in terms of pixels
@@ -52,10 +58,9 @@ void ImageComponent::resize()
 		// (you'll see this scattered throughout the function)
 		// this is probably not the best way, so if you're familiar with this problem and have a better solution, please make a pull request!
 
-		if (logging) LOG(LogError) << "Resizing!";
-
 		if(mTargetIsMax)
 		{
+			if (logging) LOG(LogError) << "Target is Max";
 			mSize = textureSize;
 
 			Vector2f resizeScale((mTargetSize.x() / mSize.x()), (mTargetSize.y() / mSize.y()));
@@ -75,6 +80,7 @@ void ImageComponent::resize()
 
 		}else if(mTargetIsMin)
 		{
+			if (logging) LOG(LogError) << "Target is Min";
 			mSize = textureSize;
 
 			Vector2f resizeScale((mTargetSize.x() / mSize.x()), (mTargetSize.y() / mSize.y()));
@@ -99,6 +105,7 @@ void ImageComponent::resize()
 			mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
 
 		}else{
+			if (logging) LOG(LogError) << "Neither Max nor Min";
 			// if both components are set, we just stretch
 			// if no components are set, we don't resize at all
 			mSize = mTargetSize == Vector2f::Zero() ? textureSize : mTargetSize;
@@ -116,6 +123,11 @@ void ImageComponent::resize()
 			}
 		}
 	}
+
+	if (logging) LOG(LogError) << "FINISH Resizing! mSize: (" << mSize.x() << ", " << mSize.y() << "); textureSize: (" <<
+		textureSize.x() << ", " << textureSize.y() << "); mTargetSize: (" <<
+		mTargetSize.x() << ", " << mTargetSize.y() << ");"
+		;
 	// mSize.y() should already be rounded
 	mTexture->rasterizeAt((size_t)Math::round(mSize.x()), (size_t)Math::round(mSize.y()));
 
@@ -391,9 +403,9 @@ void ImageComponent::render(const Transform4x4f& parentTrans)
 			/*if (logging) LOG(LogError) << "TOP LEFT: " << mDefaultPath << "Vertex: " << mVertices[0].pos[0] << " : " <<
 				 mVertices[0].pos[1] << " -- Texture: " << mVertices[0].tex[0] << " : " <<
 				 mVertices[0].tex[1];*/
-			if (logging) LOG(LogError) << "BOTTOM RIGHT: " << mDefaultPath << "Vertex: " << mVertices[5].pos[0] << " : " <<
+			/*if (logging) LOG(LogError) << "BOTTOM RIGHT: " << mDefaultPath << "Vertex: " << mVertices[5].pos[0] << " : " <<
 				 mVertices[5].pos[1] << " -- Texture: " << mVertices[5].tex[0] << " : " <<
-				 mVertices[5].tex[1];
+				 mVertices[5].tex[1];*/
 			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &mVertices[0].pos);
 			glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &mVertices[0].tex);
 			glColorPointer(4, GL_UNSIGNED_BYTE, 0, mColors);
