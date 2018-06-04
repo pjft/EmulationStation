@@ -82,8 +82,17 @@ void ImageComponent::resize()
 			
 			// for SVG rasterization, always calculate width from rounded height (see comment above)
 			// WE NEED TO ROUND DOWN
+			
 			mSize[1] = Math::round(mSize[1]);
 			mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
+
+			if (mSize.x() > mTargetSize.x() || mSize.y() > mTargetSize.y())
+			{
+				if (logging) LOG(LogError) << "*** Fixing. ***";
+				mSize[1]--;
+				mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
+			}
+
 			if (logging) LOG(LogError) << "After SVG maths. mSize: (" << mSize.x() << ", " << mSize.y() << "); resizeScale: (" <<
 				resizeScale.x() << ", " << resizeScale.y() << ");";
 			
@@ -112,8 +121,17 @@ void ImageComponent::resize()
 
 			// for SVG rasterization, always calculate width from rounded height (see comment above)
 			// WE NEED TO ROUND UP
-			mSize[1] = Math::ceilf(mSize[1]);
+			Vector2f finalSize((Math::round(mSize[1]) / textureSize.y()) * textureSize.x(), Math::round(mSize[1]));
+
+			mSize[1] = Math::round(mSize[1]);
 			mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
+
+			if (mSize.x() < mTargetSize.x() || mSize.y() < mTargetSize.y())
+			{
+				if (logging) LOG(LogError) << "*** Fixing. ***";
+				mSize[1]++;
+				mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
+			}
 
 		}else{
 			if (logging) LOG(LogError) << "Neither Max nor Min";
