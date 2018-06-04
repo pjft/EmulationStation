@@ -407,6 +407,7 @@ void ImageComponent::render(const Transform4x4f& parentTrans)
 			if (logging && dirty) LOG(LogError) << "BOTTOM RIGHT: " << mDefaultPath << "Vertex: " << mVertices[5].pos[0] << " : " <<
 				 mVertices[5].pos[1] << " -- Texture: " << mVertices[5].tex[0] << " : " <<
 				 mVertices[5].tex[1];
+			dirty = false;
 			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &mVertices[0].pos);
 			glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &mVertices[0].tex);
 			glColorPointer(4, GL_UNSIGNED_BYTE, 0, mColors);
