@@ -77,8 +77,11 @@ void ImageComponent::resize()
 
 			if (logging) LOG(LogError) << "After Calcs. mSize: (" << mSize.x() << ", " << mSize.y() << "); resizeScale: (" <<
 				resizeScale.x() << ", " << resizeScale.y() << ");";
+			if (logging) LOG(LogError) << "Math: number: " <<  mSize[1] << "; round: " << Math::round(mSize[1]) << "; floor: " <<
+				Math::floorf(mSize[1]) << "; ceil: " << Math::ceilf(mSize[1]);
 			
 			// for SVG rasterization, always calculate width from rounded height (see comment above)
+			// WE NEED TO ROUND DOWN
 			mSize[1] = Math::round(mSize[1]);
 			mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
 			if (logging) LOG(LogError) << "After SVG maths. mSize: (" << mSize.x() << ", " << mSize.y() << "); resizeScale: (" <<
@@ -108,6 +111,7 @@ void ImageComponent::resize()
 			}
 
 			// for SVG rasterization, always calculate width from rounded height (see comment above)
+			// WE NEED TO ROUND UP
 			mSize[1] = Math::round(mSize[1]);
 			mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
 
