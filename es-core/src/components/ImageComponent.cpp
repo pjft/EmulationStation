@@ -89,8 +89,15 @@ void ImageComponent::resize()
 			if (mSize.x() > mTargetSize.x() || mSize.y() > mTargetSize.y())
 			{
 				if (logging) LOG(LogError) << "*** Fixing. ***";
-				mSize[1]--;
-				mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
+				Vector2f reResizeScale((mTargetSize.x() / mSize.x()), (mTargetSize.y() / mSize.y()));
+				if(reResizeScale.x() < reResizeScale.y())
+				{
+					mSize[0] *= reResizeScale.x();
+					mSize[1] *= reResizeScale.x();
+				}else{
+					mSize[0] *= reResizeScale.y();
+					mSize[1] *= reResizeScale.y();
+				}
 			}
 
 			if (logging) LOG(LogError) << "After SVG maths. mSize: (" << mSize.x() << ", " << mSize.y() << "); resizeScale: (" <<
@@ -129,8 +136,15 @@ void ImageComponent::resize()
 			if (mSize.x() < mTargetSize.x() || mSize.y() < mTargetSize.y())
 			{
 				if (logging) LOG(LogError) << "*** Fixing. ***";
-				mSize[1]++;
-				mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
+				Vector2f reResizeScale((mTargetSize.x() / mSize.x()), (mTargetSize.y() / mSize.y()));
+				if(reResizeScale.x() < reResizeScale.y())
+				{
+					mSize[0] *= reResizeScale.x();
+					mSize[1] *= reResizeScale.x();
+				}else{
+					mSize[0] *= reResizeScale.y();
+					mSize[1] *= reResizeScale.y();
+				}
 			}
 
 		}else{
