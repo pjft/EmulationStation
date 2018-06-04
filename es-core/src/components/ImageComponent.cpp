@@ -33,6 +33,7 @@ ImageComponent::~ImageComponent()
 
 void ImageComponent::resize()
 {
+
 	if(!mTexture)
 		return;
 
@@ -49,6 +50,8 @@ void ImageComponent::resize()
 		// so, we always make sure the resultant height is an integer to make sure cutoff doesn't happen, and scale width from that 
 		// (you'll see this scattered throughout the function)
 		// this is probably not the best way, so if you're familiar with this problem and have a better solution, please make a pull request!
+
+		LOG(LogError) << "Resize: Path: " << mDefaultPath;
 
 		if(mTargetIsMax)
 		{
@@ -263,6 +266,7 @@ void ImageComponent::updateVertices()
 	if(!mTexture || !mTexture->isInitialized())
 		return;
 
+	LOG(LogError) << "UpdateVertices:: Rounding! Path: " << mDefaultPath;
 	// we go through this mess to make sure everything is properly rounded
 	// if we just round vertices at the end, edge cases occur near sizes of 0.5
 	Vector2f size(Math::round(mSize.x()), Math::round(mSize.y()));
@@ -339,7 +343,9 @@ void ImageComponent::render(const Transform4x4f& parentTrans)
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
-
+			LOG(LogError) << "Path: " << mDefaultPath << "Vertex: " << mVertices[0].pos[0] << " : " <<
+				 mVertices[0].pos[1] << " -- Texture: " << mVertices[0].tex[0] << " : " <<
+				 mVertices[0].tex[1];
 			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &mVertices[0].pos);
 			glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &mVertices[0].tex);
 			glColorPointer(4, GL_UNSIGNED_BYTE, 0, mColors);
