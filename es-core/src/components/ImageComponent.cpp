@@ -155,7 +155,7 @@ void ImageComponent::setImage(std::string path, bool tile)
 	} else {
 		mTexture = TextureResource::get(path, tile, mForceLoad, mDynamic);
 	}
-	if (Utils::String::endsWith(path, "bnzabros.png")) 
+	if (Utils::String::endsWith(path, "images/bnzabros.png")) 
 		logging = true;
 	if (logging) LOG(LogError) << "Setting Image: " << path;
 	resize();
