@@ -60,10 +60,11 @@ void ImageComponent::resize()
 
 		if(mTargetIsMax)
 		{
-			if (logging) LOG(LogError) << "Target is Max";
 			mSize = textureSize;
 
 			Vector2f resizeScale((mTargetSize.x() / mSize.x()), (mTargetSize.y() / mSize.y()));
+			if (logging) LOG(LogError) << "Target is Max. mSize: (" << mSize.x() << ", " << mSize.y() << "); resizeScale: (" <<
+				resizeScale.x() << ", " << resizeScale.y() << ");";
 			
 			if(resizeScale.x() < resizeScale.y())
 			{
