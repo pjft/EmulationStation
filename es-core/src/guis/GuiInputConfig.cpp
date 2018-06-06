@@ -128,6 +128,34 @@ static const char* inputIcon[inputCount] =
 	":/help/analog_right.svg",
 	":/help/button_hotkey.svg"
 };
+static const bool inputAcceptAxis[inputCount] =
+{
+	false, 
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	true,
+	true,
+	true,
+	true,
+	true,
+	true,
+	true,
+	true,
+	true
+};
 
 //MasterVolUp and MasterVolDown are also hooked up, but do not appear on this screen.
 //If you want, you can manually add them to es_input.cfg.
@@ -389,6 +417,12 @@ void GuiInputConfig::error(const std::shared_ptr<TextComponent>& text, const std
 	text->setColor(0x656565FF);
 }
 
+void GuiInputConfig::setNotAllowed(const std::shared_ptr<TextComponent>& text)
+{
+	text->setText("-AXIS NOT ALLOWED-");
+	text->setColor(0x999999FF);
+}
+
 bool GuiInputConfig::assign(Input input, int inputId)
 {
 	// input is from InputConfig* mTargetConfig
@@ -398,6 +432,11 @@ bool GuiInputConfig::assign(Input input, int inputId)
 	if(mTargetConfig->getMappedTo(input).size() > 0 && !mTargetConfig->isMappedTo(inputName[inputId], input) && strcmp(inputName[inputId], "HotKeyEnable") != 0)
 	{
 		error(mMappings.at(inputId), "Already mapped!");
+		return false;
+	}
+	if(!inputAcceptAxis[inputId] && input.type == TYPE_AXIS)
+	{
+		setNotAllowed(mMappings.at(inputId));
 		return false;
 	}
 

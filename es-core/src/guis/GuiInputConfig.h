@@ -25,6 +25,7 @@ private:
 	void setPress(const std::shared_ptr<TextComponent>& text); // set text to "PRESS ANYTHING" + not greyed out
 	void setNotDefined(const std::shared_ptr<TextComponent>& text); // set text to -NOT DEFINED- + greyed out
 	void setAssignedTo(const std::shared_ptr<TextComponent>& text, Input input); // set text to "BUTTON 2"/"AXIS 2+", etc.
+	void setNotAllowed(const std::shared_ptr<TextComponent>& text); // set text to -NOT ALLOWED- + greyed out
 
 	bool assign(Input input, int inputId);
 	void clearAssignment(int inputId);
