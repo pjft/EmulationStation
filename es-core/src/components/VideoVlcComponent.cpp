@@ -7,6 +7,7 @@
 #include "Settings.h"
 #include <vlc/vlc.h>
 #include <SDL_mutex.h>
+#include "Log.h"
 
 #ifdef WIN32
 #include <codecvt>
@@ -348,6 +349,10 @@ void VideoVlcComponent::startVideo()
 					libvlc_media_player_play(mMediaPlayer);
 					libvlc_video_set_callbacks(mMediaPlayer, lock, unlock, display, (void*)&mContext);
 					libvlc_video_set_format(mMediaPlayer, "RGBA", (int)mVideoWidth, (int)mVideoHeight, (int)mVideoWidth * 4);
+
+					LOG(LogError) << "Position: x: " << mPosition.x() << " - y: " << mPosition.y();
+					LOG(LogError) << "Origin: x: " << mOrigin.x() << " - y: " << mOrigin.y();
+					LOG(LogError) << "Size: x: " << mSize.x() << " - y: " << mSize.y();
 
 					// Update the playing state
 					mIsPlaying = true;

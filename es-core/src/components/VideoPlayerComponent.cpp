@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <wait.h>
+#include "Log.h"
 
 class VolumeControl
 {
@@ -99,6 +100,10 @@ void VideoPlayerComponent::startVideo()
 				char buf2[32];
 				float x = mPosition.x() - (mOrigin.x() * mSize.x());
 				float y = mPosition.y() - (mOrigin.y() * mSize.y());
+
+				LOG(LogError) << "Position: x: " << mPosition.x() << " - y: " << mPosition.y();
+				LOG(LogError) << "Origin: x: " << mOrigin.x() << " - y: " << mOrigin.y();
+				LOG(LogError) << "Size: x: " << mSize.x() << " - y: " << mSize.y();
 
 				// fix x and y
 				switch(Renderer::getScreenRotate())
