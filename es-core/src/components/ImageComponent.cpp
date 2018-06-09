@@ -153,6 +153,7 @@ void ImageComponent::resize()
 		textureSize.x() << ", " << textureSize.y() << "); mTargetSize: (" <<
 		mTargetSize.x() << ", " << mTargetSize.y() << ");"
 		;
+	if (logging) LOG(LogError) << "*** Rasterizing at: mSize: (" << Math::round(mSize.x()) << ", " << Math::round(mSize.y())<< ");";
 	// mSize.y() should already be rounded
 	mTexture->rasterizeAt((size_t)Math::round(mSize.x()), (size_t)Math::round(mSize.y()));
 
