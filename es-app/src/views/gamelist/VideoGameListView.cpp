@@ -256,9 +256,9 @@ void VideoGameListView::updateInfoPanel()
 
 		mVideo->setImage(file->getThumbnailPath());
 		mMarquee.setImage(file->getMarqueePath());
-		if (Utils::String::endsWith(file->getImagePath(), "images/bnzabros.png")) LOG(LogError) << "*** Setting Image in GamelistView ***";
+		if (Utils::String::endsWith(file->getImagePath(), "images/ddpdojblk.png")) LOG(LogError) << "*** Setting Image in GamelistView ***";
 		mImage.setImage(file->getImagePath());
-		if (Utils::String::endsWith(file->getImagePath(), "images/bnzabros.png")) LOG(LogError) << "*** FINISH SETTING IMAGE ***\n\n";
+		if (Utils::String::endsWith(file->getImagePath(), "images/ddpdojblk.png")) LOG(LogError) << "*** FINISH SETTING IMAGE ***\n\n";
 
 		mDescription.setText(file->metadata.get("desc"));
 		mDescContainer.reset();

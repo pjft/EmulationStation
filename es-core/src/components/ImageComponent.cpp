@@ -68,37 +68,19 @@ void ImageComponent::resize()
 			
 			if(resizeScale.x() < resizeScale.y())
 			{
-				mSize[0] *= resizeScale.x();
-				mSize[1] *= resizeScale.x();
+				mSize[0] *= resizeScale.x(); // this will be mTargetSize.x(). We can't exceed it, nor be lower than it.
+				// we need to make sure we're not creating an image larger than max size
+				mSize[1] = Math::min(Math::round(mSize[1] *= resizeScale.x()), mTargetSize.y());
 			}else{
-				mSize[0] *= resizeScale.y();
-				mSize[1] *= resizeScale.y();
+				mSize[1] = Math::round(mSize[1] *= resizeScale.y()); // this will be mTargetSize.y(). We can't exceed it.
+				
+				// for SVG rasterization, always calculate width from rounded height (see comment above)
+				// we need to make sure we're not creating an image larger than max size
+				mSize[0] = Math::min((mSize[1] / textureSize.y()) * textureSize.x(), mTargetSize.x());
 			}
 
-			if (logging) LOG(LogError) << "After Calcs. mSize: (" << mSize.x() << ", " << mSize.y() << "); resizeScale: (" <<
-				resizeScale.x() << ", " << resizeScale.y() << ");";
-			if (logging) LOG(LogError) << "Math: number: " <<  mSize[1] << "; round: " << Math::round(mSize[1]) << "; floor: " <<
-				Math::floorf(mSize[1]) << "; ceil: " << Math::ceilf(mSize[1]);
-			
 			// for SVG rasterization, always calculate width from rounded height (see comment above)
 			// WE NEED TO ROUND DOWN
-			
-			mSize[1] = Math::round(mSize[1]);
-			mSize[0] = (mSize[1] / textureSize.y()) * textureSize.x();
-
-			if (mSize.x() > mTargetSize.x() || mSize.y() > mTargetSize.y())
-			{
-				if (logging) LOG(LogError) << "*** Fixing. ***";
-				Vector2f reResizeScale((mTargetSize.x() / mSize.x()), (mTargetSize.y() / mSize.y()));
-				if(reResizeScale.x() < reResizeScale.y())
-				{
-					mSize[0] *= reResizeScale.x();
-					mSize[1] *= reResizeScale.x();
-				}else{
-					mSize[0] *= reResizeScale.y();
-					mSize[1] *= reResizeScale.y();
-				}
-			}
 
 			if (logging) LOG(LogError) << "After SVG maths. mSize: (" << mSize.x() << ", " << mSize.y() << "); resizeScale: (" <<
 				resizeScale.x() << ", " << resizeScale.y() << ");";
