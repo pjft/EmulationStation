@@ -353,7 +353,11 @@ void VideoVlcComponent::startVideo()
 					LOG(LogError) << "Position: x: " << mPosition.x() << " - y: " << mPosition.y();
 					LOG(LogError) << "Origin: x: " << mOrigin.x() << " - y: " << mOrigin.y();
 					LOG(LogError) << "Size: x: " << mSize.x() << " - y: " << mSize.y();
+					LOG(LogError) << "Video Width: x: " << mVideoWidth << " - y: " << mVideoHeight;
 
+					float xOff = (mOrigin.x() - mRotationOrigin.x()) * getSize().x();
+					float yOff = (mOrigin.y() - mRotationOrigin.y()) * getSize().y();
+					LOG(LogError) << "Offset: x: " << xOff << " - y: " << yOff;
 					// Update the playing state
 					mIsPlaying = true;
 					mFadeIn = 0.0f;

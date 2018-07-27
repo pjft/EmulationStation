@@ -104,6 +104,7 @@ void VideoPlayerComponent::startVideo()
 				LOG(LogError) << "Position: x: " << mPosition.x() << " - y: " << mPosition.y();
 				LOG(LogError) << "Origin: x: " << mOrigin.x() << " - y: " << mOrigin.y();
 				LOG(LogError) << "Size: x: " << mSize.x() << " - y: " << mSize.y();
+				LOG(LogError) << "x: " << x << " - y: " << y;
 
 				// fix x and y
 				switch(Renderer::getScreenRotate())
@@ -148,6 +149,8 @@ void VideoPlayerComponent::startVideo()
 					}
 					break;
 				}
+
+				LOG(LogError) << "buf1: " << buf1;
 
 				// rotate the video
 				switch(Renderer::getScreenRotate())
