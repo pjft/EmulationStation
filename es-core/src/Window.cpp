@@ -329,7 +329,7 @@ void Window::renderHelpPromptsEarly()
 
 void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpStyle& style)
 {
-	try {
+	/*try {
 		LOG(LogError) << "Help Style Font: " << style.font->getPath();
 	}
 	catch(int e)
@@ -339,7 +339,7 @@ void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpSt
 		}
 		catch(int x)
 		{}
-	}
+	}*/
 	mHelp->clearPrompts();
 	mHelp->setStyle(style);
 
