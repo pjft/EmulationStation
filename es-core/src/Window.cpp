@@ -334,7 +334,11 @@ void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpSt
 	}
 	catch(int e)
 	{
-		LOG(LogError) << "Crashing.";	
+		try{
+			LOG(LogError) << "Crashing.";	
+		}
+		catch(int x)
+		{}
 	}
 	mHelp->clearPrompts();
 	mHelp->setStyle(style);
