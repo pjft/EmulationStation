@@ -2,7 +2,6 @@
 
 #include "components/ButtonComponent.h"
 #include "components/MenuComponent.h"
-#include "Window.h"
 
 #define HORIZONTAL_PADDING_PX 20
 
@@ -107,7 +106,8 @@ void GuiMsgBox::deleteMeAndCall(const std::function<void()>& func)
 
 HelpStyle GuiMsgBox::getHelpStyle()
 {
-	HelpStyle style = mWindow->peekGui()->getHelpStyle();
+	HelpStyle style = HelpStyle();
+	style.applyTheme(ViewController::get()->getState().getSystem()->getTheme(), "system");
 	return style;
 }
 
