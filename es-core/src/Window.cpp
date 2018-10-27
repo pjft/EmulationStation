@@ -332,7 +332,7 @@ void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpSt
 	try {
 		LOG(LogError) << "Help Style Font: " << style.font->getPath();
 	}
-	catch(e)
+	catch(int e)
 	{
 		LOG(LogError) << "Crashing.";	
 	}
