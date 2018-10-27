@@ -104,6 +104,13 @@ void GuiMsgBox::deleteMeAndCall(const std::function<void()>& func)
 
 }
 
+HelpStyle GuiMenu::getHelpStyle()
+{
+	HelpStyle style = HelpStyle();
+	style.applyTheme(ViewController::get()->getState().getSystem()->getTheme(), "system");
+	return style;
+}
+
 std::vector<HelpPrompt> GuiMsgBox::getHelpPrompts()
 {
 	return mGrid.getHelpPrompts();

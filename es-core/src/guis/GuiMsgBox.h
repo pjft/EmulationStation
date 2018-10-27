@@ -20,6 +20,7 @@ public:
 	bool input(InputConfig* config, Input input) override;
 	void onSizeChanged() override;
 	std::vector<HelpPrompt> getHelpPrompts() override;
+	HelpStyle getHelpStyle() override;
 
 private:
 	void deleteMeAndCall(const std::function<void()>& func);
