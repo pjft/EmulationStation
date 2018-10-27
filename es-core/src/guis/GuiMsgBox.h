@@ -8,6 +8,7 @@
 
 class ButtonComponent;
 class TextComponent;
+class Window;
 
 class GuiMsgBox : public GuiComponent
 {
