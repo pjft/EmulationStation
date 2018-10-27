@@ -2,6 +2,7 @@
 
 #include "components/ButtonComponent.h"
 #include "components/MenuComponent.h"
+#include "Window.h"
 
 #define HORIZONTAL_PADDING_PX 20
 
