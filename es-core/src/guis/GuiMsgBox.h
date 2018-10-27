@@ -8,9 +8,6 @@
 
 class ButtonComponent;
 class TextComponent;
-class Window {
-	GuiComponent* peekGui();
-};
 
 class GuiMsgBox : public GuiComponent
 {
