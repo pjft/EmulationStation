@@ -106,8 +106,7 @@ void GuiMsgBox::deleteMeAndCall(const std::function<void()>& func)
 
 HelpStyle GuiMsgBox::getHelpStyle()
 {
-	HelpStyle style = HelpStyle();
-	style.applyTheme(ViewController::get()->getState().getSystem()->getTheme(), "system");
+	HelpStyle style = mWindow->peekGui()->getHelpStyle();
 	return style;
 }
 
