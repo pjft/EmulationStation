@@ -333,6 +333,8 @@ void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpSt
 		
 			if ((&style)->font)
 				LOG(LogError) << "Help Style Font: " << (&style)->font->getPath();
+			else
+				LOG(LogError) << "Help Style Font: NO FONT";
 	}
 	catch(int e)
 	{
