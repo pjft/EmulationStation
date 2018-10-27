@@ -330,7 +330,7 @@ void Window::renderHelpPromptsEarly()
 void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpStyle& style)
 {
 	try {
-		if (style != NULL)
+		
 			if ((&style)->font)
 				LOG(LogError) << "Help Style Font: " << (&style)->font->getPath();
 	}
