@@ -292,7 +292,7 @@ unsigned long SystemScreenSaver::countGameListNodes(const char *nodeName)
 
 void SystemScreenSaver::countVideos()
 {
-	if (!mVideosCounted && false)
+	if (!mVideosCounted || true)
 	{
 		int lastTime = SDL_GetTicks();
 		mVideoCount = countGameListNodes("video");
