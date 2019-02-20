@@ -292,7 +292,7 @@ unsigned long SystemScreenSaver::countGameListNodes(const char *nodeName)
 
 void SystemScreenSaver::countVideos()
 {
-	if (!mVideosCounted)
+	if (!mVideosCounted && false)
 	{
 		int lastTime = SDL_GetTicks();
 		mVideoCount = countGameListNodes("video");
@@ -300,33 +300,6 @@ void SystemScreenSaver::countVideos()
 		int endTime = SDL_GetTicks();
 		LOG(LogError) << "Counting Videos XML: Start: " << lastTime << " - End: " << endTime << " - Total: " << endTime - lastTime << " - Count: " << mVideoCount;
 	}
-
-	int fileLastTime = SDL_GetTicks();
-	unsigned long nodeCount = 0;
-	// do the same with FileData
-	std::vector<SystemData*>::const_iterator it;
-	for (it = SystemData::sSystemVector.cbegin(); it != SystemData::sSystemVector.cend(); ++it)
-	{
-		// We only want nodes from game systems that are not collections
-		if (!(*it)->isGameSystem() || (*it)->isCollection())
-			continue;
-
-		FileData* rootFileData = (*it)->getRootFolder();
-
-		FileType type = GAME;
-		std::vector<FileData*> allFiles = rootFileData->getFilesRecursive(type);
-		std::vector<FileData*>::const_iterator itf;  // declare an iterator to a vector of strings
-
-		int i = 0;
-		for(itf=allFiles.cbegin() ; itf < allFiles.cend(); itf++,i++ ) {
-			if ((*itf)->getVideoPath() != "")
-			{
-				nodeCount++;
-			}
-		}			
-	}
-	int fileEndTime = SDL_GetTicks();
-	LOG(LogError) << "Counting Videos FileData: Start: " << fileLastTime << " - End: " << fileEndTime << " - Total: " << fileEndTime - fileLastTime << " - Count: " << nodeCount;
 }
 
 void SystemScreenSaver::countImages()
