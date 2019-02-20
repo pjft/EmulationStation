@@ -17,6 +17,7 @@
 #include <pugixml/src/pugixml.hpp>
 #include <unordered_map>
 #include <time.h>
+#include <SDL_timer.h>
 
 #define FADE_TIME 			300
 
@@ -293,9 +294,39 @@ void SystemScreenSaver::countVideos()
 {
 	if (!mVideosCounted)
 	{
+		int lastTime = SDL_GetTicks();
 		mVideoCount = countGameListNodes("video");
 		mVideosCounted = true;
+		int endTime = SDL_GetTicks();
+		LOG(LogError) << "Counting Videos XML: Start: " << lastTime << " - End: " << endTime << " - Total: " << endTime - lastTime << " - Count: " << mVideoCount;
 	}
+
+	int fileLastTime = SDL_GetTicks();
+	unsigned long nodeCount = 0;
+	// do the same with FileData
+	std::vector<SystemData*>::const_iterator it;
+	for (it = SystemData::sSystemVector.cbegin(); it != SystemData::sSystemVector.cend(); ++it)
+	{
+		// We only want nodes from game systems that are not collections
+		if (!(*it)->isGameSystem() || (*it)->isCollection())
+			continue;
+
+		FileData* rootFileData = (*it)->getRootFolder();
+
+		FileType type = GAME;
+		std::vector<FileData*> allFiles = rootFileData->getFilesRecursive(type);
+		std::vector<FileData*>::const_iterator itf;  // declare an iterator to a vector of strings
+
+		int i = 0;
+		for(itf=allFiles.cbegin() ; itf < allFiles.cend(); itf++,i++ ) {
+			if ((*itf)->getVideoPath() != "")
+			{
+				nodeCount++;
+			}
+		}			
+	}
+	int fileEndTime = SDL_GetTicks();
+	LOG(LogError) << "Counting Videos FileData: Start: " << fileLastTime << " - End: " << fileEndTime << " - Total: " << fileEndTime - fileLastTime << " - Count: " << nodeCount;
 }
 
 void SystemScreenSaver::countImages()
@@ -393,12 +424,15 @@ void SystemScreenSaver::pickRandomVideo(std::string& path)
 {
 	countVideos();
 	mCurrentGame = NULL;
+	int lastTime = SDL_GetTicks();
 	if (mVideoCount > 0)
 	{
 		int video = (int)(((float)rand() / float(RAND_MAX)) * (float)mVideoCount);
 
 		pickGameListNode(video, "video", path);
 	}
+	int endTime = SDL_GetTicks();
+	LOG(LogError) << "Picking Videos: Start Time: " << lastTime << " - End: " << endTime << " - Total: " << endTime - lastTime;
 }
 
 void SystemScreenSaver::pickRandomGameListImage(std::string& path)
