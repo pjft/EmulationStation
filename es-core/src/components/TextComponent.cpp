@@ -116,7 +116,7 @@ void TextComponent::render(const Transform4x4f& parentTrans)
 				yOff = (getSize().y() - textSize.y());
 				break;
 			case ALIGN_CENTER:
-				yOff = (getSize().y() - textSize.y()) / 2.0f;
+				yOff = (int)((getSize().y() - textSize.y()) / 2.0f);
 				break;
 		}
 		Vector3f off(0, yOff, 0);
@@ -141,7 +141,7 @@ void TextComponent::render(const Transform4x4f& parentTrans)
 				Renderer::drawRect(0.0f, 0.0f, mTextCache->metrics.size.x(), mTextCache->metrics.size.y(), 0x00000033);
 				break;
 			case ALIGN_CENTER:
-				Renderer::drawRect((mSize.x() - mTextCache->metrics.size.x()) / 2.0f, 0.0f, mTextCache->metrics.size.x(), mTextCache->metrics.size.y(), 0x00000033);
+				Renderer::drawRect((int)((mSize.x() - mTextCache->metrics.size.x()) / 2.0f), 0.0f, mTextCache->metrics.size.x(), mTextCache->metrics.size.y(), 0x00000033);
 				break;
 			case ALIGN_RIGHT:
 				Renderer::drawRect(mSize.x() - mTextCache->metrics.size.x(), 0.0f, mTextCache->metrics.size.x(), mTextCache->metrics.size.y(), 0x00000033);
