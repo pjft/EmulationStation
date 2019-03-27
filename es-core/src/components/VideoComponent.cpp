@@ -190,10 +190,14 @@ void VideoComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const s
 
 	if(properties & ThemeFlags::SIZE)
 	{
-		if(elem->has("size"))
+		if(elem->has("size")) {
 			setResize(elem->get<Vector2f>("size") * scale);
-		else if(elem->has("maxSize"))
+			mStaticImage.setResize(elem->get<Vector2f>("size") * scale);
+		}
+		else if(elem->has("maxSize")) {
 			setMaxSize(elem->get<Vector2f>("maxSize") * scale);
+			mStaticImage.setMaxSize(elem->get<Vector2f>("maxSize") * scale);
+		}
 	}
 
 	// position + size also implies origin
