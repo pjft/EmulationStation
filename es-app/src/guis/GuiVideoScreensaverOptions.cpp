@@ -64,9 +64,9 @@ GuiVideoScreensaverOptions::GuiVideoScreensaverOptions(Window* window, const cha
 	});
 
 	auto ss_video_mute = std::make_shared<SwitchComponent>(mWindow);
-	ss_video_mute->setState(Settings::getInstance()->getBool("ScreenSaverVideoAudio"));
+	ss_video_mute->setState(Settings::getInstance()->getBool("ScreenSaverVideoMute"));
 	addWithLabel("MUTE SCREENSAVER AUDIO", ss_video_mute);
-	addSaveFunc([ss_video_mute] { Settings::getInstance()->setBool("ScreenSaverVideoAudio", ss_video_mute->getState()); });
+	addSaveFunc([ss_video_mute] { Settings::getInstance()->setBool("ScreenSaverVideoMute", ss_video_mute->getState()); });
 
 	// Define subtitle font
 	auto ss_omx_font_file = std::make_shared<TextComponent>(mWindow, "", Font::get(FONT_SIZE_SMALL), 0x777777FF);

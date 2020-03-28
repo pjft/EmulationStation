@@ -128,7 +128,6 @@ void Settings::setDefaults()
 
 	mIntMap["ScreenSaverSwapVideoTimeout"] = 30000;
 
-	mBoolMap["ScreenSaverVideoAudio"] = true;
 	mBoolMap["ScreenSaverVideoMute"] = false;
 	mBoolMap["CaptionsCompatibility"] = true;
 	// Audio out device for Video playback using OMX player.
