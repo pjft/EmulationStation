@@ -7,6 +7,7 @@
 #include "Settings.h"
 #include <vlc/vlc.h>
 #include <SDL_mutex.h>
+#include "Log.h"
 
 #ifdef WIN32
 #include <codecvt>
@@ -220,6 +221,8 @@ void VideoVlcComponent::handleLooping()
 		libvlc_state_t state = libvlc_media_player_get_state(mMediaPlayer);
 		if (state == libvlc_Ended)
 		{
+			LOG(LogError) << "Mute SS? " << Settings::getInstance()->getBool("ScreenSaverVideoMute");
+			LOG(LogError) << "ScreenSaver Mode? " << mScreensaverMode;
 			if (!Settings::getInstance()->getBool("VideoAudio") ||
 				(Settings::getInstance()->getBool("ScreenSaverVideoMute") && mScreensaverMode))
 			{
@@ -295,7 +298,8 @@ void VideoVlcComponent::startVideo()
 
 					// Setup the media player
 					mMediaPlayer = libvlc_media_player_new_from_media(mMedia);
-
+					LOG(LogError) << "Mute SS? " << Settings::getInstance()->getBool("ScreenSaverVideoMute");
+					LOG(LogError) << "ScreenSaver Mode? " << mScreensaverMode;
 					if (!Settings::getInstance()->getBool("VideoAudio") ||
 						(Settings::getInstance()->getBool("ScreenSaverVideoMute") && mScreensaverMode))
 					{

@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <wait.h>
+#include "Log.h"
 
 class VolumeControl
 {

@@ -1,5 +1,5 @@
 #include "components/VideoComponent.h"
-
+#include "Log.h"
 #include "resources/ResourceManager.h"
 #include "utils/FileSystemUtil.h"
 #include "PowerSaver.h"
@@ -47,6 +47,7 @@ void writeSubtitle(const char* gameName, const char* systemName, bool always)
 
 void VideoComponent::setScreensaverMode(bool isScreensaver)
 {
+	LOG(LogError) << "Setting ScreenSagerMode: " << isScreensaver;
 	mScreensaverMode = isScreensaver;
 }
 
