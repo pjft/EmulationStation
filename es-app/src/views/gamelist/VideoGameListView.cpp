@@ -387,8 +387,18 @@ std::vector<GuiComponent*> VideoGameListView::getMDValues()
 
 void VideoGameListView::update(int deltaTime)
 {
-	BasicGameListView::update(deltaTime);
-	mVideo->update(deltaTime);
+	//BasicGameListView::update(deltaTime);
+	if (mList.isScrolling()) {
+		
+		mList.update(deltaTime);
+	}
+	else
+	{
+		BasicGameListView::update(deltaTime);
+		//updateSelf(deltaTime);
+		//updateChildren(deltaTime);
+		mVideo->update(deltaTime);
+	}
 }
 
 void VideoGameListView::onShow()
