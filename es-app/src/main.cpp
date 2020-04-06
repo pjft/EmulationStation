@@ -393,18 +393,6 @@ int main(int argc, char* argv[])
 	{
 		SDL_Event event;
 		bool ps_standby = PowerSaver::getState() && (int) SDL_GetTicks() - ps_time > PowerSaver::getMode();
-		SDL_Event events[10];
-    	int dcount;
-    	int ucount;
-    	SDL_PumpEvents();
-	    dcount = SDL_PeepEvents(events, 10, SDL_PEEKEVENT, SDL_JOYBUTTONDOWN, SDL_JOYBUTTONDOWN);
-	    if (dcount > 0)
-	    	LOG(LogInfo) << "JOYBUTTONDOWN Event count in queue: " << dcount;
-	    ucount = SDL_PeepEvents(events, 10, SDL_PEEKEVENT, SDL_JOYBUTTONUP, SDL_JOYBUTTONUP);
-	    if (ucount > 0)
-	    	LOG(LogInfo) << "JOYBUTTONUP Event count in queue: " << ucount;
-	    if (dcount + ucount == 0 && false)
-	    	LOG(LogInfo) << "Nothing in the Event Queue";
 	    
 	    if(ps_standby ? SDL_WaitEventTimeout(&event, PowerSaver::getTimeout()) : SDL_PollEvent(&event))
 		{
@@ -431,6 +419,12 @@ int main(int argc, char* argv[])
 			// If exitting SDL_WaitEventTimeout due to timeout. Trail considering
 			// timeout as an event
 			ps_time = SDL_GetTicks();
+		}
+		if (event) {
+			if (event.type == SDL_JOYBUTTONDOWN || event.type == SDL_JOYBUTTONUP) {
+				Input(event.jbutton.which, TYPE_BUTTON, ev.jbutton.button, ev.jbutton.state == SDL_PRESSED, false)
+				LOG(LogInfo) << "Event: Button: " << ev.jbutton.button << " - Pressed? " << ev.jbutton.state;
+			}
 		}
 
 		if(window.isSleeping())
