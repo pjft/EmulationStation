@@ -393,8 +393,15 @@ int main(int argc, char* argv[])
 	{
 		SDL_Event event;
 		bool ps_standby = PowerSaver::getState() && (int) SDL_GetTicks() - ps_time > PowerSaver::getMode();
+		SDL_Event events[10];
+    	int count;
 
-		if(ps_standby ? SDL_WaitEventTimeout(&event, PowerSaver::getTimeout()) : SDL_PollEvent(&event))
+	    count = SDL_PeepEvents(events, LEN(events), SDL_PEEKEVENT, SDL_EVENTMASK(SDL_JOYBUTTONDOWN));
+	    LOG(LogInfo) << "JOYBUTTONDOWN Event count in queue: " << count;
+	    count = SDL_PeepEvents(events, LEN(events), SDL_PEEKEVENT, SDL_EVENTMASK(SDL_JOYBUTTONUP));
+	    LOG(LogInfo) << "JOYBUTTONUP Event count in queue: " << count;
+	    
+	    if(ps_standby ? SDL_WaitEventTimeout(&event, PowerSaver::getTimeout()) : SDL_PollEvent(&event))
 		{
 			do
 			{
