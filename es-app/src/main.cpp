@@ -394,7 +394,6 @@ int main(int argc, char* argv[])
 		SDL_Event event;
 		bool ps_standby = PowerSaver::getState() && (int) SDL_GetTicks() - ps_time > PowerSaver::getMode();
 
-		LOG(LogInfo) << "Main idling at " << SDL_GetTicks();
 		if(ps_standby ? SDL_WaitEventTimeout(&event, PowerSaver::getTimeout()) : SDL_PollEvent(&event))
 		{
 			do
@@ -416,6 +415,7 @@ int main(int argc, char* argv[])
 		}
 		else if (ps_standby)
 		{
+			LOG(LogInfo) << "Standby for some reason at " << SDL_GetTicks() << " - State: " << PowerSaver::getState() << "- Ticks: " << (int) SDL_GetTicks() << " - PS Time: " << ps_time << " : Mode: " << PowerSaver::getMode();
 			// If exitting SDL_WaitEventTimeout due to timeout. Trail considering
 			// timeout as an event
 			ps_time = SDL_GetTicks();
