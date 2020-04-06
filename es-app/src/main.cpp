@@ -397,9 +397,11 @@ int main(int argc, char* argv[])
     	int count;
     	SDL_PumpEvents();
 	    count = SDL_PeepEvents(events, 10, SDL_PEEKEVENT, SDL_JOYBUTTONDOWN, SDL_JOYBUTTONDOWN);
-	    LOG(LogInfo) << "JOYBUTTONDOWN Event count in queue: " << count;
+	    if (count > 0)
+	    	LOG(LogInfo) << "JOYBUTTONDOWN Event count in queue: " << count;
 	    count = SDL_PeepEvents(events, 10, SDL_PEEKEVENT, SDL_JOYBUTTONUP, SDL_JOYBUTTONUP);
-	    LOG(LogInfo) << "JOYBUTTONUP Event count in queue: " << count;
+	    if (count > 0)
+	    	LOG(LogInfo) << "JOYBUTTONUP Event count in queue: " << count;
 	    
 	    if(ps_standby ? SDL_WaitEventTimeout(&event, PowerSaver::getTimeout()) : SDL_PollEvent(&event))
 		{
