@@ -394,6 +394,7 @@ int main(int argc, char* argv[])
 		SDL_Event event;
 		bool ps_standby = PowerSaver::getState() && (int) SDL_GetTicks() - ps_time > PowerSaver::getMode();
 
+		LOG(LogInfo) << "Main idling at " << SDL_GetTicks();
 		if(ps_standby ? SDL_WaitEventTimeout(&event, PowerSaver::getTimeout()) : SDL_PollEvent(&event))
 		{
 			do
