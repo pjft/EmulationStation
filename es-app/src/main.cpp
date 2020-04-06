@@ -395,7 +395,7 @@ int main(int argc, char* argv[])
 		bool ps_standby = PowerSaver::getState() && (int) SDL_GetTicks() - ps_time > PowerSaver::getMode();
 		SDL_Event events[10];
     	int count;
-
+    	SDL_PumpEvents();
 	    count = SDL_PeepEvents(events, 10, SDL_PEEKEVENT, SDL_JOYBUTTONDOWN, SDL_JOYBUTTONDOWN);
 	    LOG(LogInfo) << "JOYBUTTONDOWN Event count in queue: " << count;
 	    count = SDL_PeepEvents(events, 10, SDL_PEEKEVENT, SDL_JOYBUTTONUP, SDL_JOYBUTTONUP);
