@@ -398,7 +398,7 @@ int main(int argc, char* argv[])
 		{
 			do
 			{
-				LOG(LogInfo) << "Polling Event main (" << SDL_GetTicks() << ")|Type:" << event.type << "|B:" << event.jbutton.button << "|H:" << event.jhat.value << "|A:" << event.jaxis.value << "|K:" << event.key.keysym.sym;
+				LOG(LogInfo) << "Polling Event main (" << SDL_GetTicks() << ")|Type:" << event.type << "|B:" << event.jbutton.button << "|H:" << event.jhat.value << "|A:" << event.jaxis.value << "|K:" << event.key.keysym.sym << "\n";
 				InputManager::getInstance()->parseEvent(event, &window);
 
 				if(event.type == SDL_QUIT)

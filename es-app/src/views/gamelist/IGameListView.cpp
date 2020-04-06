@@ -7,7 +7,7 @@
 
 bool IGameListView::input(InputConfig* config, Input input)
 {
-	LOG(LogInfo) << "IGameListView Input Handling";
+	LOG(LogInfo) << "IGameListView Input Handling\n";
 	// select to open GuiGamelistOptions
 	if(!UIModeController::getInstance()->isUIModeKid() && config->isMappedTo("select", input) && input.value)
 	{

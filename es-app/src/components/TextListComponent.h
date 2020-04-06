@@ -254,47 +254,47 @@ void TextListComponent<T>::render(const Transform4x4f& parentTrans)
 template <typename T>
 bool TextListComponent<T>::input(InputConfig* config, Input input)
 {
-	LOG(LogInfo) << "TextList Input Handling";
+	LOG(LogInfo) << "TextList Input Handling\n";
 	if(size() > 0)
 	{
 		if(input.value != 0)
 		{
-			LOG(LogInfo) << "TextList Input Handling: Maybe going to do something";
+			LOG(LogInfo) << "TextList Input Handling: Maybe going to do something\n";
 			if(config->isMappedLike("down", input))
 			{
 				listInput(1);
-				LOG(LogInfo) << "TextList Input Handling: DOWN";
+				LOG(LogInfo) << "TextList Input Handling: DOWN\n";
 				return true;
 			}
 
 			if(config->isMappedLike("up", input))
 			{
 				listInput(-1);
-				LOG(LogInfo) << "TextList Input Handling: UP";
+				LOG(LogInfo) << "TextList Input Handling: UP\n";
 				return true;
 			}
 			if(config->isMappedLike("rightshoulder", input))
 			{
 				listInput(10);
-				LOG(LogInfo) << "TextList Input Handling: PAGE DOWN";
+				LOG(LogInfo) << "TextList Input Handling: PAGE DOWN\n";
 				return true;
 			}
 
 			if(config->isMappedLike("leftshoulder", input))
 			{
 				listInput(-10);
-				LOG(LogInfo) << "TextList Input Handling: PAGE UP";
+				LOG(LogInfo) << "TextList Input Handling: PAGE UP\n";
 				return true;
 			}
-			LOG(LogInfo) << "TextList Input Handling: Didn't do Anything";
+			LOG(LogInfo) << "TextList Input Handling: Didn't do Anything\n";
 		}else{
 			if(config->isMappedLike("down", input) || config->isMappedLike("up", input) ||
 				config->isMappedLike("rightshoulder", input) || config->isMappedLike("leftshoulder", input))
 			{
 				stopScrolling();
-				LOG(LogInfo) << "TextList Input Handling: Stopped Scrolling!";
+				LOG(LogInfo) << "TextList Input Handling: Stopped Scrolling!\n";
 			}
-			LOG(LogInfo) << "TextList Input Handling: May have Stopped all";
+			LOG(LogInfo) << "TextList Input Handling: May have Stopped all\n";
 		}
 	}
 
