@@ -420,12 +420,11 @@ int main(int argc, char* argv[])
 			// timeout as an event
 			ps_time = SDL_GetTicks();
 		}
-		if (event) {
-			if (event.type == SDL_JOYBUTTONDOWN || event.type == SDL_JOYBUTTONUP) {
-				//Input(event.jbutton.which, TYPE_BUTTON, ev.jbutton.button, ev.jbutton.state == SDL_PRESSED, false);
-				LOG(LogInfo) << "Event: Button: " << event.jbutton.button << " - Pressed? " << event.jbutton.state;
-			}
+		if (event.type == SDL_JOYBUTTONDOWN || event.type == SDL_JOYBUTTONUP) {
+			//Input(event.jbutton.which, TYPE_BUTTON, ev.jbutton.button, ev.jbutton.state == SDL_PRESSED, false);
+			LOG(LogInfo) << "Event: Button: " << event.jbutton.button << " - Pressed? " << event.jbutton.state;
 		}
+		
 
 		if(window.isSleeping())
 		{
