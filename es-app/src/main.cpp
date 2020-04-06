@@ -423,7 +423,7 @@ int main(int argc, char* argv[])
 		if (event) {
 			if (event.type == SDL_JOYBUTTONDOWN || event.type == SDL_JOYBUTTONUP) {
 				//Input(event.jbutton.which, TYPE_BUTTON, ev.jbutton.button, ev.jbutton.state == SDL_PRESSED, false);
-				LOG(LogInfo) << "Event: Button: " << ev.jbutton.button << " - Pressed? " << ev.jbutton.state;
+				LOG(LogInfo) << "Event: Button: " << event.jbutton.button << " - Pressed? " << event.jbutton.state;
 			}
 		}
 
