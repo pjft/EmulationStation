@@ -394,20 +394,23 @@ int main(int argc, char* argv[])
 		SDL_Event event;
 		bool ps_standby = PowerSaver::getState() && (int) SDL_GetTicks() - ps_time > PowerSaver::getMode();
 		SDL_Event events[10];
-    	int count;
+    	int dcount;
+    	int ucount;
     	SDL_PumpEvents();
-	    count = SDL_PeepEvents(events, 10, SDL_PEEKEVENT, SDL_JOYBUTTONDOWN, SDL_JOYBUTTONDOWN);
-	    if (count > 0)
-	    	LOG(LogInfo) << "JOYBUTTONDOWN Event count in queue: " << count;
-	    count = SDL_PeepEvents(events, 10, SDL_PEEKEVENT, SDL_JOYBUTTONUP, SDL_JOYBUTTONUP);
-	    if (count > 0)
-	    	LOG(LogInfo) << "JOYBUTTONUP Event count in queue: " << count;
+	    dcount = SDL_PeepEvents(events, 10, SDL_PEEKEVENT, SDL_JOYBUTTONDOWN, SDL_JOYBUTTONDOWN);
+	    if (dcount > 0)
+	    	LOG(LogInfo) << "JOYBUTTONDOWN Event count in queue: " << dcount;
+	    ucount = SDL_PeepEvents(events, 10, SDL_PEEKEVENT, SDL_JOYBUTTONUP, SDL_JOYBUTTONUP);
+	    if (ucount > 0)
+	    	LOG(LogInfo) << "JOYBUTTONUP Event count in queue: " << ucount;
+	    if (dcount + ucount == 0 && false)
+	    	LOG(LogInfo) << "Nothing in the Event Queue";
 	    
 	    if(ps_standby ? SDL_WaitEventTimeout(&event, PowerSaver::getTimeout()) : SDL_PollEvent(&event))
 		{
 			do
 			{
-				LOG(LogInfo) << "Polling Event main (" << SDL_GetTicks() << ")|Type:" << event.type << "|B:" << event.jbutton.button;
+				LOG(LogInfo) << "Polling Event main (" << SDL_GetTicks() << ")|Type:" << event.type << "|B:" << event.jbutton.button << "|Type: " << event.type;
 				InputManager::getInstance()->parseEvent(event, &window);
 
 				if(event.type == SDL_QUIT)

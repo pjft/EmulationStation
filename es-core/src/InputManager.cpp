@@ -230,7 +230,7 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 
 	case SDL_JOYBUTTONDOWN:
 	case SDL_JOYBUTTONUP:
-		LOG(LogInfo) << "JOYBUTTON: W: " << ev.jbutton.which << "|B: " << ev.jbutton.button << "|S: " << ev.jbutton.state;
+		LOG(LogInfo) << "JOYBUTTON: W: " << ev.jbutton.which << "|B: " << ev.jbutton.button << "|TYPE: " << ev.type;
 		window->input(getInputConfigByDevice(ev.jbutton.which), Input(ev.jbutton.which, TYPE_BUTTON, ev.jbutton.button, ev.jbutton.state == SDL_PRESSED, false));
 		return true;
 
