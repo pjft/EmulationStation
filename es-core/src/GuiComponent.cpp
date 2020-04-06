@@ -33,8 +33,10 @@ bool GuiComponent::input(InputConfig* config, Input input)
 {
 	for(unsigned int i = 0; i < getChildCount(); i++)
 	{
-		if(getChild(i)->input(config, input))
+		if(getChild(i)->input(config, input)) {
+			LOG(LogInfo) << "Handled at Gui Stack index: " << i;
 			return true;
+		}
 	}
 
 	return false;
