@@ -208,6 +208,7 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 	switch(ev.type)
 	{
 	case SDL_JOYAXISMOTION:
+		LOG(LogInfo) << "JOYAXIS: W: " << ev.jaxis.which << "|AX: " << ev.jaxis.axis << "|V: " << ev.jaxis.value;
 		//if it switched boundaries
 		if((abs(ev.jaxis.value) > DEADZONE) != (abs(mPrevAxisValues[ev.jaxis.which][ev.jaxis.axis]) > DEADZONE))
 		{
@@ -229,10 +230,12 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 
 	case SDL_JOYBUTTONDOWN:
 	case SDL_JOYBUTTONUP:
+		LOG(LogInfo) << "JOYBUTTON: W: " << ev.jbutton.which << "|B: " << ev.jbutton.button << "|S: " << ev.jbutton.state;
 		window->input(getInputConfigByDevice(ev.jbutton.which), Input(ev.jbutton.which, TYPE_BUTTON, ev.jbutton.button, ev.jbutton.state == SDL_PRESSED, false));
 		return true;
 
 	case SDL_JOYHATMOTION:
+		LOG(LogInfo) << "JOYHAT: W: " << ev.jhat.which << "|H: " << ev.jhat.hat << "|V: " << ev.jhat.value;
 		window->input(getInputConfigByDevice(ev.jhat.which), Input(ev.jhat.which, TYPE_HAT, ev.jhat.hat, ev.jhat.value, false));
 		return true;
 

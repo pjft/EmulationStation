@@ -1,5 +1,4 @@
 #include "views/gamelist/IGameListView.h"
-
 #include "guis/GuiGamelistOptions.h"
 #include "views/UIModeController.h"
 #include "views/ViewController.h"
@@ -8,6 +7,7 @@
 
 bool IGameListView::input(InputConfig* config, Input input)
 {
+	LOG(LogInfo) << "IGameListView Input Handling";
 	// select to open GuiGamelistOptions
 	if(!UIModeController::getInstance()->isUIModeKid() && config->isMappedTo("select", input) && input.value)
 	{

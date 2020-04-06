@@ -6,6 +6,7 @@
 #include "FileData.h"
 #include "GuiComponent.h"
 #include <vector>
+#include "Log.h"
 
 class IGameListView;
 class SystemData;
