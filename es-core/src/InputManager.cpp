@@ -7,7 +7,7 @@
 #include "Scripting.h"
 #include "Window.h"
 #include <pugixml/src/pugixml.hpp>
-#include <SDL.h>
+//#include <SDL.h>
 #include <iostream>
 #include <assert.h>
 

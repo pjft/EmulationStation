@@ -5,10 +5,11 @@
 #include <SDL_joystick.h>
 #include <map>
 #include "InputConfig.h"
+#include <SDL.h>
 
 //class InputConfig;
 class Window;
-union SDL_Event;
+//union SDL_Event;
 
 //you should only ever instantiate one of these, by the way
 class InputManager
