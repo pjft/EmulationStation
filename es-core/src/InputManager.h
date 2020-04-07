@@ -4,6 +4,7 @@
 
 #include <SDL_joystick.h>
 #include <map>
+#include "InputManager.h"
 
 class InputConfig;
 class Window;
@@ -28,7 +29,7 @@ private:
 
 	std::map<SDL_JoystickID, int*> mPrevAxisValues;
 
-	//Input mPreviousInput;
+	Input mPreviousInput;
 	SDL_Event mPreviousEvent;
 
 	bool initialized() const;
