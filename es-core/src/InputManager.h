@@ -8,6 +8,7 @@
 class InputConfig;
 class Window;
 union SDL_Event;
+struct Input;
 
 //you should only ever instantiate one of these, by the way
 class InputManager
@@ -27,6 +28,9 @@ private:
 	InputConfig* mCECInputConfig;
 
 	std::map<SDL_JoystickID, int*> mPrevAxisValues;
+
+	Input mPreviousInput;
+	SDL_Event mPreviousEvent;
 
 	bool initialized() const;
 
@@ -57,6 +61,7 @@ public:
 	InputConfig* getInputConfigByDevice(int deviceId);
 
 	bool parseEvent(const SDL_Event& ev, Window* window);
+	bool checkStuckEvent(const SDL_Event& ev, Window* window);
 };
 
 #endif // ES_CORE_INPUT_MANAGER_H
