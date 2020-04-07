@@ -6,7 +6,7 @@
 #include <map>
 #include "InputConfig.h"
 
-class InputConfig;
+//class InputConfig;
 class Window;
 union SDL_Event;
 

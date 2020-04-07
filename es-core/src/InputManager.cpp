@@ -236,7 +236,7 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 		mPreviousInput = Input(ev.jbutton.which, TYPE_BUTTON, ev.jbutton.button, ev.jbutton.state == SDL_PRESSED, false);
 		LOG(LogInfo) << "EV: W: " << ev.jbutton.which << " B: " << ev.jbutton.button << " S: " << ev.jbutton.state;
 		LOG(LogInfo) << "PREV: W: " << mPreviousEvent.jbutton.which << " B: " << mPreviousEvent.jbutton.button << " S: " << mPreviousEvent.jbutton.state;
-		LOG(LogInfo) << "EV Joystick: " << SDL_JoystickGetButton(mJoysticks[mJoysticksev.jbutton.which], ev.jbutton.button);
+		LOG(LogInfo) << "EV Joystick: " << SDL_JoystickGetButton(mJoysticks[ev.jbutton.which], ev.jbutton.button);
 		LOG(LogInfo) << "Prev Joystick: " << SDL_JoystickGetButton(mJoysticks[mPreviousEvent.jbutton.which], mPreviousEvent.jbutton.button);
 		return true;
 
