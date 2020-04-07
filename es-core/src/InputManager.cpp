@@ -1,4 +1,4 @@
-//#include "InputManager.h"
+#include "InputManager.h"
 
 #include "utils/FileSystemUtil.h"
 #include "CECInput.h"

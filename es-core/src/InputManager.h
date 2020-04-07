@@ -4,7 +4,7 @@
 
 #include <SDL_joystick.h>
 #include <map>
-#include "InputManager.h"
+#include "InputConfig.h"
 
 class InputConfig;
 class Window;
