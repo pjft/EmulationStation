@@ -7,8 +7,6 @@
 
 class InputConfig;
 class Window;
-union SDL_Event;
-struct Input;
 
 //you should only ever instantiate one of these, by the way
 class InputManager
@@ -29,7 +27,7 @@ private:
 
 	std::map<SDL_JoystickID, int*> mPrevAxisValues;
 
-	Input mPreviousInput;
+	//Input mPreviousInput;
 	SDL_Event mPreviousEvent;
 
 	bool initialized() const;
