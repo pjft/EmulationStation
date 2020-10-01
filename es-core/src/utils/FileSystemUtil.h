@@ -4,6 +4,7 @@
 
 #include <list>
 #include <string>
+#include <map>
 
 namespace Utils
 {
@@ -42,7 +43,6 @@ namespace Utils
 #ifndef WIN32 // osx / linux
 		bool        isExecutable       (const std::string& _path);
 #endif
-
 	} // FileSystem::
 
 } // Utils::

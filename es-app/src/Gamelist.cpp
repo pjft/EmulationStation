@@ -183,11 +183,15 @@ void updateGamelist(SystemData* system)
 	pugi::xml_node root;
 	std::string xmlReadPath = system->getGamelistPath(false);
 
+	std::string relativeTo = system->getStartPath();
+
+	LOG(LogInfo) << "Starting to update Gamelist";
 	if(Utils::FileSystem::exists(xmlReadPath))
 	{
+		LOG(LogInfo) << "Going to read";
 		//parse an existing file first
 		pugi::xml_parse_result result = doc.load_file(xmlReadPath.c_str());
-
+		LOG(LogInfo) << "Finish Reading";
 		if(!result)
 		{
 			LOG(LogError) << "Error parsing XML file \"" << xmlReadPath << "\"!\n	" << result.description();
@@ -195,6 +199,7 @@ void updateGamelist(SystemData* system)
 		}
 
 		root = doc.child("gameList");
+		LOG(LogInfo) << "Got gamelist";
 		if(!root)
 		{
 			LOG(LogError) << "Could not find <gameList> node in gamelist \"" << xmlReadPath << "\"!";
@@ -205,52 +210,241 @@ void updateGamelist(SystemData* system)
 		root = doc.append_child("gameList");
 	}
 
+	std::vector<FileData*> changedGames;
+	std::vector<FileData*> changedFolders;
 
+	/*
+
+	for(auto it = mChildren.cbegin(); it != mChildren.cend(); it++)
+	{
+		if((*it)->getType() & typeMask)
+		{
+			if (!displayedOnly || !idx->isFiltered() || idx->showFile(*it))
+				out.push_back(*it);
+		}
+
+		if((*it)->getChildren().size() > 0)
+		{
+			std::vector<FileData*> subchildren = (*it)->getFilesRecursive(typeMask, displayedOnly);
+			out.insert(out.cend(), subchildren.cbegin(), subchildren.cend());
+		}
+	}
+
+	*/
+
+	bool newpjt = true;
+
+	LOG(LogInfo) << "Getting root folder";
 	//now we have all the information from the XML. now iterate through all our games and add information from there
 	FileData* rootFolder = system->getRootFolder();
 	if (rootFolder != nullptr)
 	{
 		int numUpdated = 0;
-
+		LOG(LogInfo) << "Getting files";
 		//get only files, no folders
 		std::vector<FileData*> files = rootFolder->getFilesRecursive(GAME | FOLDER);
 		//iterate through all files, checking if they're already in the XML
+		LOG(LogInfo) << "Iterating FileData for system";
+		auto startTs = std::chrono::system_clock::now();
+			
+		auto endTs = std::chrono::system_clock::now();
+
 		for(std::vector<FileData*>::const_iterator fit = files.cbegin(); fit != files.cend(); ++fit)
 		{
-			const char* tag = ((*fit)->getType() == GAME) ? "game" : "folder";
 
 			// do not touch if it wasn't changed anyway
-			if (!(*fit)->metadata.wasChanged())
+			if (!(*fit)->metadata.wasChanged()) {
+				//LOG(LogInfo) << "Game wasn't changed: " << (*fit)->getName();
 				continue;
-
-			// check if the file already exists in the XML
-			// if it does, remove it before adding
-			for(pugi::xml_node fileNode = root.child(tag); fileNode; fileNode = fileNode.next_sibling(tag))
-			{
-				pugi::xml_node pathNode = fileNode.child("path");
-				if(!pathNode)
-				{
-					LOG(LogError) << "<" << tag << "> node contains no <path> child!";
-					continue;
-				}
-
-				std::string nodePath = Utils::FileSystem::getCanonicalPath(Utils::FileSystem::resolveRelativePath(pathNode.text().get(), system->getStartPath(), true));
-				std::string gamePath = Utils::FileSystem::getCanonicalPath((*fit)->getPath());
-				if(nodePath == gamePath)
-				{
-					// found it
-					root.remove_child(fileNode);
-					break;
-				}
 			}
 
-			// it was either removed or never existed to begin with; either way, we can add it now
-			addFileDataNode(root, *fit, tag, system);
-			++numUpdated;
+			const char* tag = ((*fit)->getType() == GAME) ? "game" : "folder";
+			
+			// adding game to changed list
+
+			
+			if ((*fit)->getType() == GAME) {
+				changedGames.push_back((*fit));	
+			}
+			else {
+				changedFolders.push_back((*fit));
+			}
+			
+			//// PJT --- CUT FROM HERE
+			//// OLD MODEL
+			if (!newpjt) {
+
+				LOG(LogInfo) << "Game was changed! " << (*fit)->getName() << " at " << (*fit)->getPath() << " Checking XML now";
+				std::string gameSrcPath = (*fit)->getPath();
+				startTs = std::chrono::system_clock::now();
+				std::string gamePath = Utils::FileSystem::getCanonicalPath((*fit)->getPath());
+
+				endTs = std::chrono::system_clock::now();
+				LOG(LogInfo) << "Got gamepath: " << gamePath << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+				
+				// check if the file already exists in the XML
+				// if it does, remove it before adding
+				for(pugi::xml_node fileNode = root.child(tag); fileNode; fileNode = fileNode.next_sibling(tag))
+				{
+					startTs = std::chrono::system_clock::now();
+					auto vstartTs = std::chrono::system_clock::now();
+					
+					pugi::xml_node pathNode = fileNode.child("path");
+
+
+					if(!pathNode)
+					{
+						LOG(LogError) << "<" << tag << "> node contains no <path> child!";
+						continue;
+					}
+
+
+
+					std::string xmlpath = Utils::FileSystem::resolveRelativePath(pathNode.text().get(), relativeTo, false);
+					startTs = endTs;
+					endTs = std::chrono::system_clock::now();
+					LOG(LogInfo) << "Got xmlpath " << xmlpath << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+
+					endTs = std::chrono::system_clock::now();
+					
+
+
+					// pathnode
+					std::string pathnode = pathNode.text().get();
+					startTs = endTs;
+					endTs = std::chrono::system_clock::now();
+					LOG(LogInfo) << "Got pathnode " << pathnode << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+
+					// systempath
+					std::string startpath = system->getStartPath();
+					startTs = endTs;
+					endTs = std::chrono::system_clock::now();
+					LOG(LogInfo) << "Got systempath " << startpath << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+
+					// resolverelative
+					std::string relativepath = Utils::FileSystem::resolveRelativePath(pathnode, startpath, true);
+					
+					startTs = endTs;
+					endTs = std::chrono::system_clock::now();
+					LOG(LogInfo) << "Got relativepath " << relativepath << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+
+
+					// getcanonicalpath
+
+
+					std::string nodePath = Utils::FileSystem::getCanonicalPath(relativepath);
+					startTs = endTs;
+					endTs = std::chrono::system_clock::now();
+					LOG(LogInfo) << "Got canonical path: " << nodePath << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+					
+					if(nodePath == gamePath)
+					{
+						LOG(LogInfo) << "Deleting entry from xml";
+						// found it
+						root.remove_child(fileNode);
+						LOG(LogInfo) << "Deleted from xml!";
+						LOG(LogInfo) << "XXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXX. ";	
+						LOG(LogInfo) << "XXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXX. ";	
+						LOG(LogInfo) << "XXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXX. ";	
+						LOG(LogInfo) << "XML Path - " << xmlpath;	
+						LOG(LogInfo) << "Game source path - " << gameSrcPath;	
+						LOG(LogInfo) << "Paths Same? " << (xmlpath == gameSrcPath);	
+						LOG(LogInfo) << "XXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXX. ";	
+						LOG(LogInfo) << "XXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXX. ";	
+						LOG(LogInfo) << "XXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXX. ";	
+						
+						break;
+					}
+					startTs = endTs;
+					endTs = std::chrono::system_clock::now();
+					LOG(LogInfo) << "Not the same. Continue. - total " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - vstartTs).count();
+					;
+				}
+
+				// it was either removed or never existed to begin with; either way, we can add it now
+				LOG(LogInfo) << "Adding game to XML";
+				addFileDataNode(root, *fit, tag, system);
+				LOG(LogInfo) << "Added to XML";
+				++numUpdated;
+			}
 		}
 
+		// PJT check changed files
+		LOG(LogInfo) << "Changed Files in " << system->getName();
+		for(std::vector<FileData*>::const_iterator fit = changedGames.cbegin(); fit != changedGames.cend(); ++fit)
+		{
+			LOG(LogInfo) << "Game: " << (*fit)->getName() << " at path: " << (*fit)->getPath();
+		}
+		for(std::vector<FileData*>::const_iterator fit = changedFolders.cbegin(); fit != changedFolders.cend(); ++fit)
+		{
+			LOG(LogInfo) << "Game: " << (*fit)->getName() << " at path: " << (*fit)->getPath();
+		}
 		//now write the file
 
+		if (newpjt) // NEW PJT
+		{
+
+			const char* tagList[2] = { "game", "folder" };
+			FileType typeList[2] = { GAME, FOLDER };
+			std::vector<FileData*> changedList[2] = { changedGames, changedFolders };
+			
+			for(int i = 0; i < 2; i++)
+			{
+				const char* tag = tagList[i];
+				std::vector<FileData*> changes = changedList[i];
+
+				if (changes.size() > 0) {
+					// check if the file already exists in the XML
+					// if it does, remove it before adding
+					for(pugi::xml_node fileNode = root.child(tag); fileNode; fileNode = fileNode.next_sibling(tag))
+					{
+						startTs = std::chrono::system_clock::now();
+						auto vstartTs = std::chrono::system_clock::now();
+						
+						pugi::xml_node pathNode = fileNode.child("path");
+
+
+						if(!pathNode)
+						{
+							LOG(LogError) << "<" << tag << "> node contains no <path> child!";
+							continue;
+						}
+
+						// apply the same transformation as in Gamelist::parseGamelist
+						std::string xmlpath = Utils::FileSystem::resolveRelativePath(pathNode.text().get(), relativeTo, false);
+						startTs = endTs;
+						endTs = std::chrono::system_clock::now();
+						LOG(LogInfo) << "Got xmlpath " << xmlpath << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+
+						for(std::vector<FileData*>::const_iterator cfit = changes.cbegin(); cfit != changes.cend(); ++cfit)
+						{
+							LOG(LogInfo) << "Game: " << (*cfit)->getName() << " at path: " << (*cfit)->getPath();
+							if(xmlpath == (*cfit)->getPath())
+							{
+								LOG(LogInfo) << "Deleting entry from xml: " << xmlpath;
+								// found it
+								root.remove_child(fileNode);
+								//break;
+							}
+						}
+						startTs = endTs;
+						endTs = std::chrono::system_clock::now();
+						LOG(LogInfo) << "Finish iterating for " << xmlpath << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+
+					}
+					for(std::vector<FileData*>::const_iterator cfit = changes.cbegin(); cfit != changes.cend(); ++cfit)
+					{
+						// it was either removed or never existed to begin with; either way, we can add it now
+						LOG(LogInfo) << "Adding game to XML";
+						addFileDataNode(root, *cfit, tag, system);
+						LOG(LogInfo) << "Added to XML";	
+						++numUpdated;
+					}
+				}
+			}
+		}
+
+		LOG(LogInfo) << "Writing the file";
 		if (numUpdated > 0) {
 			const auto startTs = std::chrono::system_clock::now();
 

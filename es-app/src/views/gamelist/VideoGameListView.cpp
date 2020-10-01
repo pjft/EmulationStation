@@ -1,5 +1,5 @@
 #include "views/gamelist/VideoGameListView.h"
-
+#include "Log.h"
 #include "animations/LambdaAnimation.h"
 #ifdef _RPI_
 #include "components/VideoPlayerComponent.h"
@@ -31,6 +31,7 @@ VideoGameListView::VideoGameListView(Window* window, FileData* root) :
 
 	// Create the correct type of video window
 #ifdef _RPI_
+	Utils::FileSystem::removeFile(getTitlePath());
 	if (Settings::getInstance()->getBool("VideoOmxPlayer"))
 		mVideo = new VideoPlayerComponent(window, "");
 	else
@@ -244,8 +245,9 @@ void VideoGameListView::updateInfoPanel()
 {
 	FileData* file = (mList.size() == 0 || mList.isScrolling()) ? NULL : mList.getSelected();
 
-	Utils::FileSystem::removeFile(getTitlePath());
+	LOG(LogInfo) << "Update Info Panel";
 
+	LOG(LogInfo) << "Is File Null";
 	bool fadingOut;
 	if(file == NULL)
 	{
@@ -257,17 +259,18 @@ void VideoGameListView::updateInfoPanel()
 		fadingOut = true;
 
 	}else{
+		LOG(LogInfo) << "Getting Video Path";
 		if (!mVideo->setVideo(file->getVideoPath()))
 		{
 			mVideo->setDefaultVideo();
 		}
 		mVideoPlaying = true;
-
+		LOG(LogInfo) << "Setting Images";
 		mVideo->setImage(file->getThumbnailPath());
 		mThumbnail.setImage(file->getThumbnailPath());
 		mMarquee.setImage(file->getMarqueePath());
 		mImage.setImage(file->getImagePath());
-
+		LOG(LogInfo) << "Setting metadata";
 		mDescription.setText(file->metadata.get("desc"));
 		mDescContainer.reset();
 
@@ -284,7 +287,7 @@ void VideoGameListView::updateInfoPanel()
 			mLastPlayed.setValue(file->metadata.get("lastplayed"));
 			mPlayCount.setValue(file->metadata.get("playcount"));
 		}
-
+		LOG(LogInfo) << "Finished setting metadata";
 		fadingOut = false;
 	}
 
@@ -297,7 +300,7 @@ void VideoGameListView::updateInfoPanel()
 	comps.push_back(&mName);
 	std::vector<TextComponent*> labels = getMDLabels();
 	comps.insert(comps.cend(), labels.cbegin(), labels.cend());
-
+	LOG(LogInfo) << "Finished comps labels";
 	for(auto it = comps.cbegin(); it != comps.cend(); it++)
 	{
 		GuiComponent* comp = *it;
@@ -315,6 +318,7 @@ void VideoGameListView::updateInfoPanel()
 			comp->setAnimation(new LambdaAnimation(func, 150), 0, nullptr, fadingOut);
 		}
 	}
+	LOG(LogInfo) << "Finish animation";
 }
 
 void VideoGameListView::launch(FileData* game)

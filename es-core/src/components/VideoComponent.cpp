@@ -1,5 +1,5 @@
 #include "components/VideoComponent.h"
-
+#include "Log.h"
 #include "resources/ResourceManager.h"
 #include "utils/FileSystemUtil.h"
 #include "PowerSaver.h"
@@ -105,7 +105,8 @@ void VideoComponent::onSizeChanged()
 bool VideoComponent::setVideo(std::string path)
 {
 	// Convert the path into a generic format
-	std::string fullPath = Utils::FileSystem::getCanonicalPath(path);
+	//std::string fullPath = Utils::FileSystem::getCanonicalPath(path);
+	std::string fullPath = Utils::FileSystem::getAbsolutePath(path);
 
 	// Check that it's changed
 	if (fullPath == mVideoPath)
@@ -113,6 +114,9 @@ bool VideoComponent::setVideo(std::string path)
 
 	// Store the path
 	mVideoPath = fullPath;
+
+	// PJT
+	return true;
 
 	// If the file exists then set the new video
 	if (!fullPath.empty() && ResourceManager::getInstance()->fileExists(fullPath))
@@ -126,6 +130,7 @@ bool VideoComponent::setVideo(std::string path)
 
 void VideoComponent::setImage(std::string path)
 {
+
 	// Check that the image has changed
 	if (path == mStaticImagePath)
 		return;

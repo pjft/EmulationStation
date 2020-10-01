@@ -50,9 +50,10 @@ SystemData::SystemData(const std::string& name, const std::string& fullName, Sys
 
 SystemData::~SystemData()
 {
+	LOG(LogInfo) << "Deleting System: " << mName;
 	if(Settings::getInstance()->getString("SaveGamelistsMode") == "on exit")
 		writeMetaData();
-
+	LOG(LogInfo) << "Wrote Metadata: " << mName;
 	delete mRootFolder;
 	delete mFilterIndex;
 }
@@ -503,7 +504,7 @@ void SystemData::loadTheme()
 void SystemData::writeMetaData() {
 	if(Settings::getInstance()->getBool("IgnoreGamelist") || mIsCollectionSystem)
 		return;
-
+	LOG(LogInfo) << "Updating Gamelist: " << mName;
 	//save changed game data back to xml
 	updateGamelist(this);
 }

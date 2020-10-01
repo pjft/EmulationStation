@@ -440,23 +440,46 @@ int main(int argc, char* argv[])
 
 		Log::flush();
 	}
-
+    int logTime = SDL_GetTicks();
+    
+	LOG(LogInfo) << logTime << " - De-initting sub-windows";
 	while(window.peekGui() != ViewController::get())
 		delete window.peekGui();
+	int logTimePrev = logTime;
+	logTime = SDL_GetTicks();
+	LOG(LogInfo) << logTime << " - (+" << logTime - logTimePrev << "s) De-initting main window";
 	window.deinit();
 
+	logTimePrev = logTime;
+	logTime = SDL_GetTicks();
+	LOG(LogInfo) << logTime << " - (+" << logTime - logTimePrev << "s) De-initting MAME Names";
 	MameNames::deinit();
+
+	logTimePrev = logTime;
+	logTime = SDL_GetTicks();
+	LOG(LogInfo) << logTime << " - (+" << logTime - logTimePrev << "s) De-initting Collection Manager";
 	CollectionSystemManager::deinit();
+
+	logTimePrev = logTime;
+	logTime = SDL_GetTicks();
+	LOG(LogInfo) << logTime << " - (+" << logTime - logTimePrev << "s) Deleting systems";
 	SystemData::deleteSystems();
 
 	// call this ONLY when linking with FreeImage as a static library
 #ifdef FREEIMAGE_LIB
+	logTimePrev = logTime;
+	logTime = SDL_GetTicks();
+	LOG(LogInfo) << logTime << " - (+" << logTime - logTimePrev << "s) De-initializing FreeImage";
 	FreeImage_DeInitialise();
 #endif
-
+	logTimePrev = logTime;
+	logTime = SDL_GetTicks();
+	LOG(LogInfo) << logTime << " - (+" << logTime - logTimePrev << "s) Process Quitting";
 	processQuitMode();
 
-	LOG(LogInfo) << "EmulationStation cleanly shutting down.";
+	logTimePrev = logTime;
+	logTime = SDL_GetTicks();
+	LOG(LogInfo) << logTime << " - (+" << logTime - logTimePrev << "s) EmulationStation cleanly shutting down.";
 
 	return 0;
 }

@@ -1,9 +1,11 @@
 #define _FILE_OFFSET_BITS 64
 
 #include "utils/FileSystemUtil.h"
+#include "Log.h"
 
 #include <sys/stat.h>
 #include <string.h>
+#include <chrono>
 
 #if defined(_WIN32)
 // because windows...
@@ -27,6 +29,7 @@ namespace Utils
 	{
 		static std::string homePath = "";
 		static std::string exePath  = "";
+		static std::map<std::string, bool> mPathExistsIndex = std::map<std::string, bool>();
 
 #if defined(_WIN32)
 		static std::string convertFromWideString(const std::wstring wstring)
@@ -302,31 +305,73 @@ namespace Utils
 			if((_path[0] == ':') && (_path[1] == '/'))
 				return _path;
 
-			std::string path = exists(_path) ? getAbsolutePath(_path) : getGenericPath(_path);
+			auto startTs = std::chrono::system_clock::now();
+			bool ex = true;//exists(_path);
+			auto endTs = std::chrono::system_clock::now();
+			//LOG(LogInfo) << "Exists: " << ex << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+			std::string path;
 
+			if(ex) { 
+				path = getAbsolutePath(_path);
+				startTs = endTs;
+				endTs = std::chrono::system_clock::now();
+				//LOG(LogInfo) << "Got Absolute path: " << path << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+			} else {
+				LOG(LogInfo) << "Doesn't exist path: " << _path;
+				path = getGenericPath(_path);
+				LOG(LogInfo) << "Using Generic path: " << path;
+				startTs = endTs;
+				endTs = std::chrono::system_clock::now();
+				//LOG(LogInfo) << "Got Generic path: " << path << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+			}
+
+			startTs = endTs;
+			endTs = std::chrono::system_clock::now();
+			//LOG(LogInfo) << "Got path: " << path << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+			
 			// cleanup path
 			bool scan = true;
 			while(scan)
 			{
 				stringList pathList = getPathList(path);
+				startTs = endTs;
+				endTs = std::chrono::system_clock::now();
+				//LOG(LogInfo) << "Got pathList in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
 
 				path.clear();
 				scan = false;
+				startTs = endTs;
+				endTs = std::chrono::system_clock::now();
+				//LOG(LogInfo) << "Cleared path " << path << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
 
 				for(stringList::const_iterator it = pathList.cbegin(); it != pathList.cend(); ++it)
 				{
+					startTs = endTs;
+					endTs = std::chrono::system_clock::now();
+					//LOG(LogInfo) << "Iterating in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
 					// ignore empty
 					if((*it).empty())
 						continue;
+
+					startTs = endTs;
+					endTs = std::chrono::system_clock::now();
+					//LOG(LogInfo) << "Not empty in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
 
 					// remove "/./"
 					if((*it) == ".")
 						continue;
 
+					startTs = endTs;
+					endTs = std::chrono::system_clock::now();
+					//LOG(LogInfo) << "Removed . in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+
 					// resolve "/../"
 					if((*it) == "..")
 					{
 						path = getParent(path);
+						startTs = endTs;
+						endTs = std::chrono::system_clock::now();
+						//LOG(LogInfo) << "Got parent: " << path << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
 						continue;
 					}
 
@@ -338,11 +383,22 @@ namespace Utils
 					path += ("/" + (*it));
 #endif // _WIN32
 
+					startTs = endTs;
+					endTs = std::chrono::system_clock::now();
+					//LOG(LogInfo) << "Appended path in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+
 					// resolve symlink
 					if(isSymlink(path))
 					{
+						startTs = endTs;
+						endTs = std::chrono::system_clock::now();
+						//LOG(LogInfo) << "Path is symlink! in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
 						std::string resolved = resolveSymlink(path);
 
+
+						startTs = endTs;
+						endTs = std::chrono::system_clock::now();
+						//LOG(LogInfo) << "Resolved symlink: " << resolved << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
 						if(resolved.empty())
 							return "";
 
@@ -356,6 +412,11 @@ namespace Utils
 
 						scan = true;
 						break;
+					}
+					else {
+						startTs = endTs;
+						endTs = std::chrono::system_clock::now();
+						//LOG(LogInfo) << "Checked for symlinks in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
 					}
 				}
 			}
@@ -576,11 +637,26 @@ namespace Utils
 
 		bool exists(const std::string& _path)
 		{
-			std::string path = getGenericPath(_path);
-			struct stat64 info;
+			// check mPathExistsIndex
+			if (mPathExistsIndex.find(_path) == mPathExistsIndex.cend())
+			{
+				auto startTs = std::chrono::system_clock::now();
+				std::string path = getGenericPath(_path);
+				struct stat64 info;
+				mPathExistsIndex[_path] = (stat64(path.c_str(), &info) == 0);
+				auto endTs = std::chrono::system_clock::now();
+				
+				LOG(LogInfo) << "Checking if exists: " << path << " in " << std::chrono::duration_cast<std::chrono::milliseconds>(endTs - startTs).count();
+				// add to mPathExistsIndex
+				//mPathExistsIndex.at(_path) = exists;
+			}
+			else 
+			{
+				LOG(LogInfo) << "Already indexed" << _path << " - result: " << mPathExistsIndex.at(_path);
+			}
 
-			// check if stat64 succeeded
-			return (stat64(path.c_str(), &info) == 0);
+			bool exists = mPathExistsIndex.at(_path);
+			return exists;
 
 		} // exists
 

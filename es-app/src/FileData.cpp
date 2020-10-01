@@ -53,6 +53,7 @@ std::string FileData::getCleanName() const
 
 const std::string FileData::getThumbnailPath() const
 {
+	LOG(LogInfo) << "Getting thumbnail";
 	std::string thumbnail = metadata.get("thumbnail");
 
 	// no thumbnail, try image
@@ -75,7 +76,7 @@ const std::string FileData::getThumbnailPath() const
 			}
 		}
 	}
-
+	LOG(LogInfo) << "Finish thumbnail";
 	return thumbnail;
 }
 
@@ -114,6 +115,7 @@ const std::vector<FileData*>& FileData::getChildrenListToDisplay() {
 
 const std::string FileData::getVideoPath() const
 {
+	LOG(LogInfo) << "Getting video path";
 	std::string video = metadata.get("video");
 
 	// no video, try to use local video
@@ -123,12 +125,13 @@ const std::string FileData::getVideoPath() const
 		if(Utils::FileSystem::exists(path))
 			video = path;
 	}
-
+	LOG(LogInfo) << "Got video path";
 	return video;
 }
 
 const std::string FileData::getMarqueePath() const
 {
+	LOG(LogInfo) << "Getting marquee";
 	std::string marquee = metadata.get("marquee");
 
 	// no marquee, try to use local marquee
@@ -145,12 +148,13 @@ const std::string FileData::getMarqueePath() const
 			}
 		}
 	}
-
+	LOG(LogInfo) << "Got marquee";
 	return marquee;
 }
 
 const std::string FileData::getImagePath() const
 {
+	LOG(LogInfo) << "Getting image path";
 	std::string image = metadata.get("image");
 
 	// no image, try to use local image
@@ -167,7 +171,7 @@ const std::string FileData::getImagePath() const
 			}
 		}
 	}
-
+	LOG(LogInfo) << "Got image path";
 	return image;
 }
 
@@ -309,9 +313,11 @@ void FileData::launchGame(Window* window)
 
 	//update last played time
 	gameToUpdate->metadata.set("lastplayed", Utils::Time::DateTime(Utils::Time::now()));
+	LOG(LogInfo) << "REFRESH COLLECTION SYSTEMS";
 	CollectionSystemManager::get()->refreshCollectionSystems(gameToUpdate);
 
 	gameToUpdate->mSystem->onMetaDataSavePoint();
+	LOG(LogInfo) << "FINISHED SAVING METADATA";
 }
 
 CollectionFileData::CollectionFileData(FileData* file, SystemData* system)

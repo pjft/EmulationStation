@@ -1,5 +1,5 @@
 #include "resources/TextureResource.h"
-
+#include "Log.h"
 #include "utils/FileSystemUtil.h"
 #include "resources/TextureData.h"
 
@@ -104,7 +104,11 @@ std::shared_ptr<TextureResource> TextureResource::get(const std::string& path, b
 {
 	std::shared_ptr<ResourceManager>& rm = ResourceManager::getInstance();
 
+	LOG(LogInfo) << "Getting Texture Resource Image";
+
 	const std::string canonicalPath = Utils::FileSystem::getCanonicalPath(path);
+	//const std::string canonicalPath = Utils::FileSystem::getAbsolutePath(path);
+	LOG(LogInfo) << "Finished Texture Resource Image" << canonicalPath;
 	if(canonicalPath.empty())
 	{
 		std::shared_ptr<TextureResource> tex(new TextureResource("", tile, false));

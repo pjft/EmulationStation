@@ -34,8 +34,9 @@ void ImageComponent::resize()
 {
 	if(!mTexture)
 		return;
-
+	LOG(LogInfo) << "Resizing";
 	const Vector2f textureSize = mTexture->getSourceImageSize();
+	LOG(LogInfo) << "Getting Source Image";
 	if(textureSize == Vector2f::Zero())
 		return;
 
@@ -132,33 +133,45 @@ void ImageComponent::setDefaultImage(std::string path)
 
 void ImageComponent::setImage(std::string path, bool tile)
 {
-	if(path.empty() || !ResourceManager::getInstance()->fileExists(path))
+	LOG(LogInfo) << "Setting Image <2 args>";
+	if(path.empty() || (!ResourceManager::getInstance()->fileExists(path)))
 	{
-		if(mDefaultPath.empty() || !ResourceManager::getInstance()->fileExists(mDefaultPath))
+		LOG(LogInfo) << "First Branch";
+		if(mDefaultPath.empty() || !ResourceManager::getInstance()->fileExists(mDefaultPath)) {
+			LOG(LogInfo) << "First - First Branch";
 			mTexture.reset();
-		else
+		}
+		else {
+			LOG(LogInfo) << "First - Second Branch";
 			mTexture = TextureResource::get(mDefaultPath, tile, mForceLoad, mDynamic);
+		}
 	} else {
+		LOG(LogInfo) << "Second Branch: Getting Texture";
 		mTexture = TextureResource::get(path, tile, mForceLoad, mDynamic);
 	}
 
 	resize();
+	LOG(LogInfo) << "Finished Setting Image";
 }
 
 void ImageComponent::setImage(const char* path, size_t length, bool tile)
 {
+	LOG(LogInfo) << "Setting Image <3 args>";
 	mTexture.reset();
 
 	mTexture = TextureResource::get("", tile);
 	mTexture->initFromMemory(path, length);
 
 	resize();
+	LOG(LogInfo) << "Finished Setting Image";
 }
 
 void ImageComponent::setImage(const std::shared_ptr<TextureResource>& texture)
 {
+	LOG(LogInfo) << "Setting Image <texture>";
 	mTexture = texture;
 	resize();
+	LOG(LogInfo) << "Finished Setting Image";
 }
 
 void ImageComponent::setResize(float width, float height)
